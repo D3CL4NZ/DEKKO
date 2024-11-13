@@ -19,6 +19,7 @@ cog_files = [
     "commands.urban",
     "commands.verification",
     "commands.whois",
+    "commands.ytdlp",
     "events",
     "extensions.context_menu",
     "extensions.dm",
