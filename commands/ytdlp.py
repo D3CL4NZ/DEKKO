@@ -130,7 +130,7 @@ class YTDLP(commands.Cog):
         else:
             try:
                 await message.edit(content=':white_check_mark:  **Download complete**')
-                await ctx.channel.send("{} Here ya go pookie :3".format(ctx.author.mention), file=discord.File(file), reference=message)
+                await message.channel.send("{} Here ya go pookie :3".format(ctx.author.mention), file=discord.File(file), reference=message)
             except Exception as e:
                 await message.edit(content=':no_entry:  **File too large for server :(**')
             os.remove(file)
