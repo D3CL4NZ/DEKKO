@@ -115,7 +115,7 @@ class YTDLP(commands.Cog):
         await error_channel.send(':no_entry:  **CYKA BLYAT!**\n`DEKKO-YTDLPCC.XD` has encountered an error :( ```ansi\n{}```'.format("".join(traceback.format_exception(type(error), error, error.__traceback__))))
 
     @commands.hybrid_command(name='ytdlp', with_app_command=True)
-    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def _ytdlp(self, ctx: commands.Context, *, search: str):
         """Downloads a song"""
@@ -130,7 +130,7 @@ class YTDLP(commands.Cog):
         else:
             try:
                 await message.edit(content=':white_check_mark:  **Download complete**')
-                await message.reply("{} Here ya go pookie :3".format(ctx.author.mention), file=discord.File(file))
+                await message.channel.send("{} Here ya go pookie :3".format(ctx.author.mention), file=discord.File(file), reference=message)
             except Exception as e:
                 await message.edit(content=':no_entry:  **File too large for server :(**')
             os.remove(file)
