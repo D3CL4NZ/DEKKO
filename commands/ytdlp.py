@@ -115,8 +115,8 @@ class YTDLP(commands.Cog):
         await error_channel.send(':no_entry:  **CYKA BLYAT!**\n`DEKKO-YTDLPCC.XD` has encountered an error :( ```ansi\n{}```'.format("".join(traceback.format_exception(type(error), error, error.__traceback__))))
 
     @commands.hybrid_command(name='ytdlp', with_app_command=True)
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     async def _ytdlp(self, ctx: commands.Context, *, search: str):
         """Downloads a song"""
 
