@@ -1,0 +1,1196 @@
+import discord
+from discord.ext import commands
+
+from typing import Union
+
+import sys
+import traceback
+
+import config
+
+class Events(commands.Cog):
+    def __init__(self, bot):
+        print("[DECCYLoader] Initializing events and logging...")
+        self.bot = bot
+
+    # ============
+    #  Member Log
+    # ============
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member: discord.Member):
+        log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+        #general_channel = member.guild.system_channel
+        bot_role = discord.utils.get(member.guild.roles, name='Bot lmao')
+
+        embed = discord.Embed(
+            title=None,
+            description=f":tada: {member.mention} **joined the server**",
+            color=discord.Colour.green()
+        )
+        embed.set_author(name=member.name, icon_url=member.display_avatar.url)
+        embed.set_thumbnail(url=member.display_avatar.url)
+        embed.add_field(name="Account creation date", value=member.created_at.strftime("%I:%M %p %B %d, %Y"), inline=False)
+        embed.timestamp = discord.utils.utcnow()
+        embed.set_footer(text=f"User ID: {member.id}")
+
+        await log_channel.send(embed=embed)
+
+        if member.bot:
+            await member.add_roles(bot_role)
+        #else:
+        #    await general_channel.send("**A new user joined the server. An administrator needs to verify them before they can chat.**")
+
+
+    @commands.Cog.listener()
+    async def on_member_remove(self, member: discord.Member):
+        log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+        general_channel = member.guild.system_channel
+
+        roles = []
+
+        for i in range(1, len(member.roles)):
+                roles.append(member.roles[i].mention)
+
+        embed = discord.Embed(
+            title=None,
+            description=f":dash: {member.mention} **left the server**",
+            color=discord.Colour.red()
+        )
+        embed.set_author(name=member.name, icon_url=member.display_avatar.url)
+        embed.set_thumbnail(url=member.display_avatar.url)
+        embed.add_field(name="Join date", value=member.joined_at.strftime("%I:%M %p %B %d, %Y"), inline=False)
+        embed.add_field(name="Roles", value=' '.join(roles), inline=False)
+        embed.timestamp = discord.utils.utcnow()
+        embed.set_footer(text=f"User ID: {member.id}")
+
+        await log_channel.send(embed=embed)
+
+        await general_channel.send(f"{member.mention} **left the server :(**", allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
+
+    @commands.Cog.listener()
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
+        log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+
+        to_send = False
+        embed_list = []
+
+        if before.display_avatar != after.display_avatar:
+            to_send = True
+
+            embed = discord.Embed(
+                title=None,
+                description=f"{before.mention} **updated their profile!**",
+                color=0xfaa41b
+            )
+            embed.set_author(name=before.name, icon_url=before.display_avatar.url)
+            embed.set_thumbnail(url=after.display_avatar.url)
+            embed.add_field(name="Guild avatar", value=f"[[before]]({before.display_avatar.url}) -> [[after]]({after.display_avatar.url})", inline=False)
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"User ID: {before.id}")
+
+            embed_list.append(embed)
+
+        if before.nick != after.nick:
+            to_send = True
+
+            embed = discord.Embed(
+                title=None,
+                description=f":pencil: {before.mention} **nickname edited**",
+                color=0xfaa41b
+            )
+            embed.set_author(name=before.name, icon_url=after.display_avatar.url)
+            embed.set_thumbnail(url=after.display_avatar.url)
+            embed.add_field(name="Old nickname", value=f"`{before.nick}`", inline=True)
+            embed.add_field(name="New nickname", value=f"`{after.nick}`", inline=True)
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"User ID: {before.id}")
+
+            embed_list.append(embed)
+
+        if before.roles != after.roles:
+            to_send = True
+
+            added_roles = [x for x in after.roles if x not in before.roles]
+            removed_roles = [x for x in before.roles if x not in after.roles]
+
+            if added_roles:
+                if removed_roles:
+                    embed = discord.Embed(
+                        title=None,
+                        description=f":crossed_swords: {before.mention} **roles have changed**",
+                        color=0xfaa41b
+                    )
+                    embed.set_author(name=before.name, icon_url=after.display_avatar.url)
+                    embed.set_thumbnail(url=after.display_avatar.url)
+                    embed.add_field(name=":white_check_mark: Added roles", value=' '.join([x.mention for x in added_roles]), inline=False)
+                    embed.add_field(name=":no_entry: Removed roles", value=' '.join([x.mention for x in removed_roles]), inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"User ID: {before.id}")
+
+                    embed_list.append(embed)
+                else:
+                    embed = discord.Embed(
+                        title=None,
+                        description=f":crossed_swords: {before.mention} **roles have changed**",
+                        color=0xfaa41b
+                    )
+                    embed.set_author(name=before.name, icon_url=after.display_avatar.url)
+                    embed.set_thumbnail(url=after.display_avatar.url)
+                    embed.add_field(name=":white_check_mark: Added roles", value=' '.join([x.mention for x in added_roles]), inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"User ID: {before.id}")
+
+                    embed_list.append(embed)
+            elif removed_roles:
+                embed = discord.Embed(
+                    title=None,
+                    description=f":crossed_swords: {before.mention} **roles have changed**",
+                    color=0xfaa41b
+                )
+                embed.set_author(name=before.name, icon_url=after.display_avatar.url)
+                embed.set_thumbnail(url=after.display_avatar.url)
+                embed.add_field(name=":no_entry: Removed roles", value=' '.join([x.mention for x in removed_roles]), inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"User ID: {before.id}")
+
+                embed_list.append(embed)
+
+        if to_send:
+            await log_channel.send(embeds=embed_list)
+
+    @commands.Cog.listener()
+    async def on_user_update(self, before: discord.User, after: discord.User):
+        log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+
+        to_send = False
+        embed_list = []
+
+        if before.display_avatar != after.display_avatar:
+            to_send = True
+
+            embed = discord.Embed(
+                title=None,
+                description=f"{before.mention} **updated their profile!**",
+                color=0xfaa41b
+            )
+            embed.set_author(name=before.name, icon_url=before.display_avatar.url)
+            embed.set_thumbnail(url=after.display_avatar.url)
+            embed.add_field(name="Avatar", value=f"[[before]]({before.display_avatar.url}) -> [[after]]({after.display_avatar.url})", inline=False)
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"User ID: {before.id}")
+
+            embed_list.append(embed)
+
+        if before.global_name != after.global_name:
+            to_send = True
+
+            embed = discord.Embed(
+                title=None,
+                description=f"{before.mention} **updated their profile!**",
+                color=0xfaa41b
+            )
+            embed.set_author(name=before.name, icon_url=after.display_avatar.url)
+            embed.set_thumbnail(url=after.display_avatar.url)
+            embed.add_field(name="Global name", value=f"{before.global_name} -> {after.global_name}", inline=False)
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"User ID: {before.id}")
+
+            embed_list.append(embed)
+
+        if before.name != after.name:
+            to_send = True
+
+            embed = discord.Embed(
+                title=None,
+                description=f"{before.mention} **updated their profile!**",
+                color=0xfaa41b
+            )
+            embed.set_author(name=before.name, icon_url=after.display_avatar.url)
+            embed.set_thumbnail(url=after.display_avatar.url)
+            embed.add_field(name="Username", value=f"{before.name} -> {after.name}", inline=False)
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"User ID: {before.id}")
+
+            embed_list.append(embed)
+
+        if before.discriminator != after.discriminator:
+            to_send = True
+
+            before_discriminator = '{:04}'.format(before.discriminator)
+            after_discriminator = '{:04}'.format(after.discriminator)
+
+            embed = discord.Embed(
+                title=None,
+                description=f"{before.mention} **updated their profile!**",
+                color=0xfaa41b
+            )
+            embed.set_author(name=after.name, icon_url=after.display_avatar.url)
+            embed.set_thumbnail(url=after.display_avatar.url)
+            embed.add_field(name="Discriminator", value=f"#{before_discriminator} -> #{after_discriminator}", inline=False)
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"User ID: {before.id}")
+
+            embed_list.append(embed)
+
+        if to_send:
+            await log_channel.send(embeds=embed_list)
+
+    @commands.Cog.listener()
+    async def on_member_ban(self, guild: discord.Guild, user: Union[discord.User, discord.Member]):
+        log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+
+        embed = discord.Embed(
+            title=None,
+            description=f":man_police_officer: :lock: {user.mention} **was banned**",
+            color=discord.Colour.red()
+        )
+        embed.set_author(name=user.name, icon_url=user.display_avatar.url)
+        embed.set_thumbnail(url=user.display_avatar.url)
+        embed.timestamp = discord.utils.utcnow()
+        embed.set_footer(text=f"User ID: {user.id}")
+
+        await log_channel.send(embed=embed)
+
+    @commands.Cog.listener()
+    async def on_member_unban(self, guild: discord.Guild, user: Union[discord.User, discord.Member]):
+        log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+
+        embed = discord.Embed(
+            title=None,
+            description=f":man_police_officer: :unlock: {user.mention} **was unbanned**",
+            color=discord.Colour.green()
+        )
+        embed.set_author(name=user.name, icon_url=user.display_avatar.url)
+        embed.set_thumbnail(url=user.display_avatar.url)
+        embed.timestamp = discord.utils.utcnow()
+        embed.set_footer(text=f"User ID: {user.id}")
+
+        await log_channel.send(embed=embed)
+
+    # ============
+    #  Server Log
+    # ============
+
+    @commands.Cog.listener()
+    async def on_guild_channel_create(self, channel: discord.abc.GuildChannel):
+        log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+
+        if isinstance(channel, discord.TextChannel):
+            embed = discord.Embed(
+                title=None,
+                description=f":new: **Text channel created: #{channel.name}**",
+                color=discord.Colour.green()
+            )
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"Channel ID: {channel.id}")
+
+            await log_channel.send(embed=embed)
+        elif isinstance(channel, discord.VoiceChannel):
+            embed = discord.Embed(
+                title=None,
+                description=f":new: **Voice channel created: {channel.name}**",
+                color=discord.Colour.green()
+            )
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"Channel ID: {channel.id}")
+
+            await log_channel.send(embed=embed)
+        elif isinstance(channel, discord.CategoryChannel):
+            embed = discord.Embed(
+                title=None,
+                description=f":new: **Category created: {channel.name}**",
+                color=discord.Colour.green()
+            )
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"Channel ID: {channel.id}")
+
+            await log_channel.send(embed=embed)
+        elif isinstance(channel, discord.StageChannel):
+            embed = discord.Embed(
+                title=None,
+                description=f":new: **Stage channel created: {channel.name}**",
+                color=discord.Colour.green()
+            )
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"Channel ID: {channel.id}")
+
+            await log_channel.send(embed=embed)
+        elif isinstance(channel, discord.ForumChannel):
+            embed = discord.Embed(
+                title=None,
+                description=f":new: **Forum channel created: {channel.name}**",
+                color=discord.Colour.green()
+            )
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"Channel ID: {channel.id}")
+
+            await log_channel.send(embed=embed)
+
+    @commands.Cog.listener()
+    async def on_guild_channel_delete(self, channel: discord.abc.GuildChannel):
+        log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+
+        if isinstance(channel, discord.TextChannel):
+            embed = discord.Embed(
+                title=None,
+                description=f":wastebasket: **Text channel deleted: #{channel.name}**",
+                color=discord.Colour.red()
+            )
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"Channel ID: {channel.id}")
+
+            await log_channel.send(embed=embed)
+        elif isinstance(channel, discord.VoiceChannel):
+            embed = discord.Embed(
+                title=None,
+                description=f":wastebasket: **Voice channel deleted: {channel.name}**",
+                color=discord.Colour.red()
+            )
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"Channel ID: {channel.id}")
+
+            await log_channel.send(embed=embed)
+        elif isinstance(channel, discord.CategoryChannel):
+            embed = discord.Embed(
+                title=None,
+                description=f":wastebasket: **Category deleted: {channel.name}**",
+                color=discord.Colour.red()
+            )
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"Channel ID: {channel.id}")
+
+            await log_channel.send(embed=embed)
+        elif isinstance(channel, discord.StageChannel):
+            embed = discord.Embed(
+                title=None,
+                description=f":wastebasket: **Stage channel deleted: {channel.name}**",
+                color=discord.Colour.red()
+            )
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"Channel ID: {channel.id}")
+
+            await log_channel.send(embed=embed)
+        elif isinstance(channel, discord.ForumChannel):
+            embed = discord.Embed(
+                title=None,
+                description=f":wastebasket: **Forum channel deleted: {channel.name}**",
+                color=discord.Colour.red()
+            )
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"Channel ID: {channel.id}")
+
+            await log_channel.send(embed=embed)
+
+    @commands.Cog.listener()
+    async def on_guild_channel_update(self, before: discord.abc.GuildChannel, after: discord.abc.GuildChannel):
+        if before.id in config.EXCLUDE_LOGGING_CHANNELS:
+            return
+
+        log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+
+        if before.overwrites != after.overwrites:
+            # Getting the differences between the old and new overwrites
+            added_overwrites = {key: after.overwrites[key] for key in after.overwrites if key not in before.overwrites}
+            removed_overwrites = {key: before.overwrites[key] for key in before.overwrites if key not in after.overwrites}
+            changed_overwrites = {key: after.overwrites[key] for key in after.overwrites if key in before.overwrites and before.overwrites[key] != after.overwrites[key]}
+
+            def list_neutralized_permissions(before, after):
+                return [perm for perm in dir(before) if not perm.startswith('__') and getattr(before, perm) != 0 and getattr(after, perm) == 0]
+
+            # Logging added overwrites
+            if added_overwrites:
+                for key, overwrite in added_overwrites.items():
+                    allow, deny = overwrite.pair()
+                    allowed_perms = [perm.replace("_", " ") for perm, value in allow if value]
+                    denied_perms = [perm.replace("_", " ") for perm, value in deny if value]
+
+                    embed = discord.Embed(
+                        title=None,
+                        description=f""":crossed_swords: **Channel permissions updated:** {before.mention}
+Added permissions for: `{key.name}`""",
+                        color=discord.Colour.green()
+                    )
+                    embed.add_field(name="\u2713 Allowed permissions", value=', '.join(allowed_perms) if allowed_perms else "none", inline=False)
+                    embed.add_field(name="\u2718 Denied permissions", value=', '.join(denied_perms) if allowed_perms else "none", inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"Channel ID: {before.id}")
+
+                    await log_channel.send(embed=embed)
+
+            # Logging removed overwrites
+            if removed_overwrites:
+                for role in removed_overwrites:
+                    embed = discord.Embed(
+                        title=None,
+                        description=f""":crossed_swords: **Channel permissions updated:** {before.mention}
+Removed permissions for: `{role.name}`""",
+                        color=discord.Colour.red()
+                    )
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"Channel ID: {before.id}")
+
+                    await log_channel.send(embed=embed)
+
+            # Logging changed overwrites
+            if changed_overwrites:
+                for key, overwrite in changed_overwrites.items():
+                    allow, deny = overwrite.pair()
+                    allowed_perms = [perm.replace("_", " ") for perm, value in allow if value]
+                    denied_perms = [perm.replace("_", " ") for perm, value in deny if value]
+
+                    before_allow, before_deny = before.overwrites[key].pair()
+                    neutral_perms = list_neutralized_permissions(before_allow, allow) + list_neutralized_permissions(before_deny, deny)
+
+                    if allowed_perms:
+                        if denied_perms:
+                            if neutral_perms:
+                                embed = discord.Embed(
+                                    title=None,
+                                    description=f""":crossed_swords: **Channel permissions updated:** {before.mention}
+Edited permissions for: `{key.name}`""",
+                                    color=0xfaa41b
+                                )
+                                embed.add_field(name="\u2713 Allowed permissions", value=', '.join(allowed_perms), inline=False)
+                                embed.add_field(name="\u2718 Denied permissions", value=', '.join(denied_perms), inline=False)
+                                embed.add_field(name="\u29c4 Neutral permissions", value=', '.join(neutral_perms), inline=False)
+                                embed.timestamp = discord.utils.utcnow()
+                                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                                await log_channel.send(embed=embed)
+                            else:
+                                embed = discord.Embed(
+                                    title=None,
+                                    description=f""":crossed_swords: **Channel permissions updated:** {before.mention}
+Edited permissions for: `{key.name}`""",
+                                    color=0xfaa41b
+                                )
+                                embed.add_field(name="\u2713 Allowed permissions", value=', '.join(allowed_perms), inline=False)
+                                embed.add_field(name="\u2718 Denied permissions", value=', '.join(denied_perms), inline=False)
+                                embed.timestamp = discord.utils.utcnow()
+                                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                                await log_channel.send(embed=embed)
+                        elif neutral_perms:
+                            embed = discord.Embed(
+                                title=None,
+                                description=f""":crossed_swords: **Channel permissions updated:** {before.mention}
+Edited permissions for: `{key.name}`""",
+                                color=0xfaa41b
+                            )
+                            embed.add_field(name="\u2713 Allowed permissions", value=', '.join(allowed_perms), inline=False)
+                            embed.add_field(name="\u29c4 Neutral permissions", value=', '.join(neutral_perms), inline=False)
+                            embed.timestamp = discord.utils.utcnow()
+                            embed.set_footer(text=f"Channel ID: {before.id}")
+
+                            await log_channel.send(embed=embed)
+                        else:
+                            embed = discord.Embed(
+                                title=None,
+                                description=f""":crossed_swords: **Channel permissions updated:** {before.mention}
+Edited permissions for: `{key.name}`""",
+                                color=0xfaa41b
+                            )
+                            embed.add_field(name="\u2713 Allowed permissions", value=', '.join(allowed_perms), inline=False)
+                            embed.timestamp = discord.utils.utcnow()
+                            embed.set_footer(text=f"Channel ID: {before.id}")
+
+                            await log_channel.send(embed=embed)
+                    elif denied_perms:
+                            if neutral_perms:
+                                embed = discord.Embed(
+                                    title=None,
+                                    description=f""":crossed_swords: **Channel permissions updated:** {before.mention}
+Edited permissions for: `{key.name}`""",
+                                    color=0xfaa41b
+                                )
+                                embed.add_field(name="\u2718 Denied permissions", value=', '.join(denied_perms), inline=False)
+                                embed.add_field(name="\u29c4 Neutral permissions", value=', '.join(neutral_perms), inline=False)
+                                embed.timestamp = discord.utils.utcnow()
+                                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                                await log_channel.send(embed=embed)
+                            else:
+                                embed = discord.Embed(
+                                    title=None,
+                                    description=f""":crossed_swords: **Channel permissions updated:** {before.mention}
+Edited permissions for: `{key.name}`""",
+                                    color=0xfaa41b
+                                )
+                                embed.add_field(name="\u2718 Denied permissions", value=', '.join(denied_perms), inline=False)
+                                embed.timestamp = discord.utils.utcnow()
+                                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                                await log_channel.send(embed=embed)
+                    else:
+                        embed = discord.Embed(
+                            title=None,
+                            description=f""":crossed_swords: **Channel permissions updated:** {before.mention}
+Edited permissions for: `{key.name}`""",
+                            color=0xfaa41b
+                        )
+                        embed.add_field(name="\u29c4 Neutral permissions", value=', '.join(neutral_perms), inline=False)
+                        embed.timestamp = discord.utils.utcnow()
+                        embed.set_footer(text=f"Channel ID: {before.id}")
+
+                        await log_channel.send(embed=embed)
+
+        if isinstance(before, discord.TextChannel):
+            to_send = False
+            embed_list = []
+
+            if before.name != after.name:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Text channel updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="Renamed", value=f"{before.name} -> {after.name}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.nsfw != after.nsfw:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Text channel updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="NSFW", value=f"{before.nsfw} -> {after.nsfw}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.slowmode_delay != after.slowmode_delay:
+                to_send = True
+
+                if before.slowmode_delay == 0:
+                    embed = discord.Embed(
+                        title=None,
+                        description=f":pencil: **Text channel updated: {before.name}**",
+                        color=0xfaa41b
+                    )
+                    embed.add_field(name="Slowmode", value=f"Off -> {after.slowmode_delay}", inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"Channel ID: {before.id}")
+                elif after.slowmode_delay == 0:
+                    embed = discord.Embed(
+                        title=None,
+                        description=f":pencil: **Text channel updated: {before.name}**",
+                        color=0xfaa41b
+                    )
+                    embed.add_field(name="Slowmode", value=f"{before.slowmode_delay} -> Off", inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"Channel ID: {before.id}")
+                else:
+                    embed = discord.Embed(
+                        title=None,
+                        description=f":pencil: **Text channel updated: {before.name}**",
+                        color=0xfaa41b
+                    )
+                    embed.add_field(name="Slowmode", value=f"{before.slowmode_delay} -> {after.slowmode_delay}", inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.topic != after.topic:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Text channel updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="Topic", value=f"{before.topic} -> {after.topic}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if to_send:
+                await log_channel.send(embeds=embed_list)
+        elif isinstance(before, discord.VoiceChannel):
+            to_send = False
+            embed_list = []
+
+            if before.bitrate != after.bitrate:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Voice channel updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="Bitrate", value=f"{before.bitrate} -> {after.bitrate}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.name != after.name:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Voice channel updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="Renamed", value=f"{before.name} -> {after.name}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.nsfw != after.nsfw:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Voice channel updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="NSFW", value=f"{before.nsfw} -> {after.nsfw}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.rtc_region != after.rtc_region:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Voice channel updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="RTC Region", value=f"{before.rtc_region} -> {after.rtc_region}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.slowmode_delay != after.slowmode_delay:
+                to_send = True
+
+                if before.slowmode_delay == 0:
+                    embed = discord.Embed(
+                        title=None,
+                        description=f":pencil: **Voice channel updated: {before.name}**",
+                        color=0xfaa41b
+                    )
+                    embed.add_field(name="Slowmode", value=f"Off -> {after.slowmode_delay}", inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"Channel ID: {before.id}")
+                elif after.slowmode_delay == 0:
+                    embed = discord.Embed(
+                        title=None,
+                        description=f":pencil: **Voice channel updated: {before.name}**",
+                        color=0xfaa41b
+                    )
+                    embed.add_field(name="Slowmode", value=f"{before.slowmode_delay} -> Off", inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"Channel ID: {before.id}")
+                else:
+                    embed = discord.Embed(
+                        title=None,
+                        description=f":pencil: **Voice channel updated: {before.name}**",
+                        color=0xfaa41b
+                    )
+                    embed.add_field(name="Slowmode", value=f"{before.slowmode_delay} -> {after.slowmode_delay}", inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.topic != after.topic:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Voice channel updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="Topic", value=f"{before.topic} -> {after.topic}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.user_limit != after.user_limit:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Voice channel updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="User limit", value=f"{before.user_limit} -> {after.user_limit}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if to_send:
+                await log_channel.send(embeds=embed_list)
+        elif isinstance(before, discord.CategoryChannel):
+            to_send = False
+            embed_list = []
+
+            if before.name != after.name:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Category updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="Renamed", value=f"{before.name} -> {after.name}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Category ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.is_nsfw() != after.is_nsfw():
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Category updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="NSFW", value=f"{before.is_nsfw()} -> {after.is_nsfw()}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Category ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.topic != after.topic:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Category updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="Topic", value=f"{before.topic} -> {after.topic}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Category ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if to_send:
+                await log_channel.send(embeds=embed_list)
+        elif isinstance(before, discord.StageChannel):
+            to_send = False
+            embed_list = []
+
+            if before.bitrate != after.bitrate:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Stage channel updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="Bitrate", value=f"{before.bitrate} -> {after.bitrate}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.name != after.name:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Stage channel updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="Renamed", value=f"{before.name} -> {after.name}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.nsfw != after.nsfw:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Stage channel updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="NSFW", value=f"{before.nsfw} -> {after.nsfw}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.rtc_region != after.rtc_region:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Stage channel updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="RTC Region", value=f"{before.rtc_region} -> {after.rtc_region}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.slowmode_delay != after.slowmode_delay:
+                to_send = True
+
+                if before.slowmode_delay == 0:
+                    embed = discord.Embed(
+                        title=None,
+                        description=f":pencil: **Stage channel updated: {before.name}**",
+                        color=0xfaa41b
+                    )
+                    embed.add_field(name="Slowmode", value=f"Off -> {after.slowmode_delay}", inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"Channel ID: {before.id}")
+                elif after.slowmode_delay == 0:
+                    embed = discord.Embed(
+                        title=None,
+                        description=f":pencil: **Stage channel updated: {before.name}**",
+                        color=0xfaa41b
+                    )
+                    embed.add_field(name="Slowmode", value=f"{before.slowmode_delay} -> Off", inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"Channel ID: {before.id}")
+                else:
+                    embed = discord.Embed(
+                        title=None,
+                        description=f":pencil: **Stage channel updated: {before.name}**",
+                        color=0xfaa41b
+                    )
+                    embed.add_field(name="Slowmode", value=f"{before.slowmode_delay} -> {after.slowmode_delay}", inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.topic != after.topic:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Stage channel updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="Topic", value=f"{before.topic} -> {after.topic}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.user_limit != after.user_limit:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Stage channel updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="User limit", value=f"{before.user_limit} -> {after.user_limit}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if to_send:
+                await log_channel.send(embeds=embed_list)
+        elif isinstance(before, discord.ForumChannel):
+            to_send = False
+            embed_list = []
+
+            if before.name != after.name:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Forum channel updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="Renamed", value=f"{before.name} -> {after.name}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.nsfw != after.nsfw:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Forum channel updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="NSFW", value=f"{before.nsfw} -> {after.nsfw}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.slowmode_delay != after.slowmode_delay:
+                to_send = True
+
+                if before.slowmode_delay == 0:
+                    embed = discord.Embed(
+                        title=None,
+                        description=f":pencil: **Forum channel updated: {before.name}**",
+                        color=0xfaa41b
+                    )
+                    embed.add_field(name="Slowmode", value=f"Off -> {after.slowmode_delay}", inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"Channel ID: {before.id}")
+                elif after.slowmode_delay == 0:
+                    embed = discord.Embed(
+                        title=None,
+                        description=f":pencil: **Forum channel updated: {before.name}**",
+                        color=0xfaa41b
+                    )
+                    embed.add_field(name="Slowmode", value=f"{before.slowmode_delay} -> Off", inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"Channel ID: {before.id}")
+                else:
+                    embed = discord.Embed(
+                        title=None,
+                        description=f":pencil: **Forum channel updated: {before.name}**",
+                        color=0xfaa41b
+                    )
+                    embed.add_field(name="Slowmode", value=f"{before.slowmode_delay} -> {after.slowmode_delay}", inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if before.topic != after.topic:
+                to_send = True
+
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Forum channel updated: {before.name}**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="Topic", value=f"{before.topic} -> {after.topic}", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+
+                embed_list.append(embed)
+
+            if to_send:
+                await log_channel.send(embeds=embed_list)
+
+    @commands.Cog.listener()
+    async def on_guild_emojis_update(self, guild, before, after):
+        log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+
+        before_emojis = set(before)
+        after_emojis = set(after)
+
+        added_emojis = [x for x in after if x not in before]
+        removed_emojis = [x for x in before if x not in after]
+
+        if added_emojis:
+            for emoji in added_emojis:
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Server's emojis updated!**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="Added emoji", value=f":{emoji.name}:", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Emoji ID: {emoji.id}")
+
+                await log_channel.send(embed=embed)
+
+        if removed_emojis:
+            for emoji in removed_emojis:
+                embed = discord.Embed(
+                    title=None,
+                    description=f":pencil: **Server's emojis updated!**",
+                    color=0xfaa41b
+                )
+                embed.add_field(name="Removed emoji", value=f":{emoji.name}:", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Emoji ID: {emoji.id}")
+
+                await log_channel.send(embed=embed)
+
+        for before_emoji in before:
+            for after_emoji in after:
+                if before_emoji.id == after_emoji.id and before_emoji.name != after_emoji.name:
+                    embed = discord.Embed(
+                        title=None,
+                        description=f":pencil: **Server's emojis updated!**",
+                        color=0xfaa41b
+                    )
+                    embed.add_field(name="Updated emoji", value=f":{before_emoji.name}: -> :{after_emoji.name}:", inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"Emoji ID: {before_emoji.id}")
+
+                    await log_channel.send(embed=embed)
+
+    # =============
+    #  Message Log
+    # =============
+
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        if message.author.id != self.bot.user.id:
+            if message.channel.id == config.LOG_CHANNEL_ID:
+                return await message.delete()
+
+            if "thanks dekko" in message.content.lower() or "thank you dekko" in message.content.lower() or "thx dekko" in message.content.lower():
+                await message.add_reaction('<:dekko:1283540647969820672>')
+                await message.add_reaction('\U0001f44d')
+
+    # =============
+    #  Command Log
+    # =============
+
+    @commands.Cog.listener()
+    async def on_command(self, ctx):
+        log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+        user = ctx.author
+        command = ctx.command
+        channel = ctx.channel
+
+        embed = discord.Embed(
+            title=None,
+            description=f"{user.mention} **used a command**",
+            color=discord.Colour.blurple()
+        )
+        embed.set_author(name=user.name, icon_url=user.display_avatar.url)
+        embed.add_field(name="Command", value=f"`/{command.name}`", inline=False)
+        embed.add_field(name="Channel", value=f"<#{channel.id}>", inline=False)
+        embed.timestamp = discord.utils.utcnow()
+        embed.set_footer(text=f"User ID: {user.id} | Channel ID: {channel.id}")
+
+        await log_channel.send(embed=embed)
+
+    # ===========
+    #  Error Log
+    # ===========
+
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+        error_channel = self.bot.get_channel(config.ERROR_CHANNEL_ID)
+
+        if hasattr(ctx.command, 'on_error'):
+            return
+
+        cog = ctx.cog
+        if cog:
+            if cog._get_overridden_method(cog.cog_command_error) is not None:
+                return
+
+        error = getattr(error, 'original', error)
+
+        if isinstance(error, commands.CommandNotFound):
+            await ctx.send(":no_entry: **Invalid command!**")
+
+        elif isinstance(error, commands.DisabledCommand):
+            await ctx.send(f":no_entry: **Command** `{ctx.command}` **has been disabled.**")
+
+        elif isinstance(error, commands.CheckFailure):
+            await ctx.send(":no_entry: **ACCESS DENIED**")
+
+        elif isinstance(error, commands.NoPrivateMessage):
+            try:
+                await ctx.author.send(f":no_entry: **Command** `{ctx.command}` **can not be used in Private Messages.**")
+            except discord.HTTPException:
+                pass
+
+        else:
+            print(f"Ignoring exception in command {ctx.command}:", file=sys.stderr)
+            traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+            await error_channel.send(f":no_entry: **CYKA BLYAT!**\n`DEKKO Command Processor` has encountered an error :( ```ansi\n{''.join(traceback.format_exception(type(error), error, error.__traceback__))}```")
+            await ctx.send(f":no_entry: **CYKA BLYAT!**\n`DEKKO Command Processor` has encountered an error :( ```ansi\n{str(error)}```")
+
+    # ==============
+    #  Misc Logging
+    # ==============
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+        print("Logged in as {0.user}".format(self.bot))
+        embed = discord.Embed(
+            title=None,
+            description=":electric_plug: **DEKKO has (re)connected**",
+            color=discord.Colour.greyple()
+        )
+        embed.timestamp = discord.utils.utcnow()
+        
+        await log_channel.send(embed=embed)
+
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        if before.channel is None and after.channel is not None:
+            log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+
+            embed = discord.Embed(
+                title=None,
+                description=f":inbox_tray: {member.mention} **joined voice channel** {after.channel.mention}",
+                color=discord.Colour.green()
+            )
+            embed.set_author(name=member.name, icon_url=member.display_avatar.url)
+            embed.timestamp = discord.utils.utcnow()
+
+            await log_channel.send(embed=embed)
+
+        elif before.channel is not None and after.channel is None:
+            log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+
+            embed = discord.Embed(
+                title=None,
+                description=f":outbox_tray: {member.mention} **left voice channel** {before.channel.mention}",
+                color=discord.Colour.red()
+            )
+            embed.set_author(name=member.name, icon_url=member.display_avatar.url)
+            embed.timestamp = discord.utils.utcnow()
+
+            await log_channel.send(embed=embed)
+
+        elif before.channel is not None and after.channel is not None and before.channel != after.channel:
+            log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+
+            embedList = []
+
+            leave_embed = discord.Embed(
+                title=None,
+                description=f":outbox_tray: {member.mention} **left voice channel** {before.channel.mention}",
+                color=discord.Colour.red()
+            )
+            leave_embed.set_author(name=member.name, icon_url=member.display_avatar.url)
+            leave_embed.timestamp = discord.utils.utcnow()
+
+            join_embed = discord.Embed(
+                title=None,
+                description=f":inbox_tray: {member.mention} **joined voice channel** {after.channel.mention}",
+                color=discord.Colour.green()
+            )
+            join_embed.set_author(name=member.name, icon_url=member.display_avatar.url)
+            join_embed.timestamp = discord.utils.utcnow()
+
+            embedList.append(leave_embed)
+            embedList.append(join_embed)
+
+            await log_channel.send(embeds=embedList)
+        else:
+            return
+
+async def setup(bot):
+    await bot.add_cog(Events(bot))
