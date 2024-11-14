@@ -1,7 +1,7 @@
 # MAIN CONFIG
 
 TOKEN = "MTE2MDQxOTcwMTgxMDI3ODQwMg.GwmSta.FQvzQxwZdGjF9H5gpWa_WONTRKYwLhtZJJ2vW8"
-VERSION = "1.4.3" # DON'T CHANGE THIS
+VERSION = "1.4.35-RC2" # DON'T CHANGE THIS
 
 # CHANNEL CONFIG
 
@@ -11,7 +11,7 @@ DM_CHANNEL_ID = 1239651962891538514
 ADMIN_CHANNEL_ID = 1161831540821590087
 MANVER_CHANNEL_ID = 1215731693336662086
 
-EXCLUDE_LOGGING_CHANNELS = [1241221722733285426, 1241223304275300456]
+EXCLUDE_LOGGING_CHANNELS = [1241221722733285426, 1241223304275300456] # Channels you want to exclude from logging
 
 # NAUGHTY LIST CONFIG
 
@@ -21,9 +21,12 @@ SUS_LIST_ID = 1239027627738660965
 # HOLIDAYS CONFIG
 
 CALENDAR_SYSTEM = 0 # 0 = Gregorian; 1 = Julian; 2 = Lunar; 3 = Hindu
-TIME_ZONE_OFFSET = -5
+TZID = -5 # Time zone offset
 DAYLIGHT_SAVINGS = True # Whether DST is observed in your area
 LEAP_YEARS = True # Whether your calendar system uses leap years
+HEMISPHERE = 0 # 0 = Northern Hemisphere; 1 = Southern Hemisphere
+SEASONS = 4 # The number of seasons on your planet (Earth has 4)
+LIGHT_SECOND_CONVERSION_FACTOR = 299792458 # 1 light second in meters. Normally, you do not need to change this
 
 NEW_YEARS_CHANNEL_ID = 1251572678910017587 # First day of the calendar year
 CN_NEW_YEARS_CHANNEL_ID = 1251572172632096829 # First day of the Chinese lunar year

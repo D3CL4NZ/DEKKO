@@ -160,7 +160,7 @@ class Song:
                  .add_field(name='Uploader', value='[{0.source.uploader}]({0.source.uploader_url})'.format(self))
                  .add_field(name='URL', value='[Click]({0.source.url})'.format(self))
                  .set_thumbnail(url=self.source.thumbnail)
-                 .set_footer(text=f"DEKKOPlayer v0.8.1\u03b2 | DEKKO! v{config.VERSION}", icon_url="attachment://dekko_record_cropped.gif"))
+                 .set_footer(text=f"DEKKOPlayer v0.8.2\u03b2 | DEKKO! v{config.VERSION}", icon_url="attachment://dekko_record_cropped.gif"))
 
         return embed
 
