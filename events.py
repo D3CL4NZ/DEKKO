@@ -358,14 +358,7 @@ class Events(commands.Cog):
 
             def list_neutralized_permissions(before_overwrite: discord.PermissionOverwrite, after_overwrite: discord.PermissionOverwrite):
                 """Get permissions neutralized in the update."""
-                neutralized_permissions = []
-                for perm in dir(before_overwrite):
-                    if not perm.startswith('__') and not callable(getattr(before_overwrite, perm)):
-                        before_value = getattr(before_overwrite, perm)
-                        after_value = getattr(after_overwrite, perm)
-                        if before_value is not None and after_value is None:  # Check if the permission was neutralized
-                            neutralized_permissions.append(perm)
-                return neutralized_permissions
+                return [perm for perm in dir(before_overwrite) if not perm.startswith('__') and not callable(getattr(before_overwrite, perm)) and getattr(before_overwrite, perm) and not getattr(after_overwrite, perm)]
 
             # Handle added overwrites
             for target, overwrite in added_overwrites.items():
