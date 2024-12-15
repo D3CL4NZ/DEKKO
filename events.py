@@ -393,8 +393,7 @@ class Events(commands.Cog):
                 allow, deny = overwrite.pair()
                 allowed_perms = [perm.replace("_", " ") for perm, value in allow if value]
                 denied_perms = [perm.replace("_", " ") for perm, value in deny if value]
-                before_allow, before_deny = before.overwrites[target].pair()
-                neutral_perms = list_neutralized_permissions(before.overwrites[key], overwrite)
+                neutral_perms = list_neutralized_permissions(before.overwrites[target], overwrite)
 
                 embed = discord.Embed(
                     description=f":crossed_swords: **Channel permissions updated:** {before.mention}\nEdited permissions for: `{target.name}`",
