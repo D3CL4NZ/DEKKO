@@ -400,7 +400,7 @@ class Events(commands.Cog):
             for target, overwrite in changed_overwrites.items():
                 allow = [perm.replace("_", " ") for perm, value in overwrite.items() if value]
                 deny = [perm.replace("_", " ") for perm, value in overwrite.items() if not value]
-                neutral = list_neutralized_permissions(before.overwrites[target], overwrite)
+                #neutral = list_neutralized_permissions(before.overwrites[target], overwrite)
 
                 embed = discord.Embed(
                     description=f":crossed_swords: **Channel permissions updated:** {before.mention}\nEdited permissions for: `{target.name}`",
@@ -410,8 +410,8 @@ class Events(commands.Cog):
                     embed.add_field(name="\u2713 Allowed permissions", value=', '.join(allow), inline=False)
                 if deny:
                     embed.add_field(name="\u2718 Denied permissions", value=', '.join(deny), inline=False)
-                if neutral:
-                    embed.add_field(name="\u29c4 Neutral permissions", value=', '.join(neutral), inline=False)
+                #if neutral:
+                #    embed.add_field(name="\u29c4 Neutral permissions", value=', '.join(neutral), inline=False)
                 
                 embed.timestamp = discord.utils.utcnow()
                 embed.set_footer(text=f"Channel ID: {before.id}")
