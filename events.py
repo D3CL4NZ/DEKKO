@@ -363,8 +363,6 @@ class Events(commands.Cog):
             if added_overwrites:
                 for key, overwrite in added_overwrites.items():
                     allow, deny = overwrite.pair()
-                    allow = overwrite.allow.to_dict()
-                    deny = overwrite.deny.to_dict()
                     allowed_perms = [perm.replace("_", " ") for perm, value in allow if value]
                     denied_perms = [perm.replace("_", " ") for perm, value in deny if value]
 
