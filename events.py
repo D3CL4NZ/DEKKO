@@ -336,6 +336,22 @@ class Events(commands.Cog):
             return
 
         log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+        embed_list = []
+
+        channel_type = None
+
+        if isinstance(channel, discord.TextChannel):
+            channel_type = "Text channel"
+        elif isinstance(channel, discord.VoiceChannel):
+            channel_type = "Voice channel"
+        elif isinstance(channel, discord.CategoryChannel):
+            channel_type = "Category"
+        elif isinstance(channel, discord.StageChannel):
+            channel_type = "Stage channel"
+        elif isinstance(channel, discord.ForumChannel):
+            channel_type = "Forum channel"
+        else:
+            channel_type = "Channel"
 
         if before.overwrites != after.overwrites:
             # Getting the differences between the old and new overwrites
@@ -364,7 +380,7 @@ Added permissions for: `{key.name}`""",
                     embed.timestamp = discord.utils.utcnow()
                     embed.set_footer(text=f"Channel ID: {before.id}")
 
-                    await log_channel.send(embed=embed)
+                    embed_list.append(embed)
 
             # Logging removed overwrites
             if removed_overwrites:
@@ -378,7 +394,7 @@ Removed permissions for: `{role.name}`""",
                     embed.timestamp = discord.utils.utcnow()
                     embed.set_footer(text=f"Channel ID: {before.id}")
 
-                    await log_channel.send(embed=embed)
+                    embed_list.append(embed)
 
             # Logging changed overwrites
             if changed_overwrites:
@@ -405,7 +421,7 @@ Edited permissions for: `{key.name}`""",
                                 embed.timestamp = discord.utils.utcnow()
                                 embed.set_footer(text=f"Channel ID: {before.id}")
 
-                                await log_channel.send(embed=embed)
+                                embed_list.append(embed)
                             else:
                                 embed = discord.Embed(
                                     title=None,
@@ -418,7 +434,7 @@ Edited permissions for: `{key.name}`""",
                                 embed.timestamp = discord.utils.utcnow()
                                 embed.set_footer(text=f"Channel ID: {before.id}")
 
-                                await log_channel.send(embed=embed)
+                                embed_list.append(embed)
                         elif neutral_perms:
                             embed = discord.Embed(
                                 title=None,
@@ -431,7 +447,7 @@ Edited permissions for: `{key.name}`""",
                             embed.timestamp = discord.utils.utcnow()
                             embed.set_footer(text=f"Channel ID: {before.id}")
 
-                            await log_channel.send(embed=embed)
+                            embed_list.append(embed)
                         else:
                             embed = discord.Embed(
                                 title=None,
@@ -443,7 +459,7 @@ Edited permissions for: `{key.name}`""",
                             embed.timestamp = discord.utils.utcnow()
                             embed.set_footer(text=f"Channel ID: {before.id}")
 
-                            await log_channel.send(embed=embed)
+                            embed_list.append(embed)
                     elif denied_perms:
                             if neutral_perms:
                                 embed = discord.Embed(
@@ -457,7 +473,7 @@ Edited permissions for: `{key.name}`""",
                                 embed.timestamp = discord.utils.utcnow()
                                 embed.set_footer(text=f"Channel ID: {before.id}")
 
-                                await log_channel.send(embed=embed)
+                                embed_list.append(embed)
                             else:
                                 embed = discord.Embed(
                                     title=None,
@@ -469,7 +485,7 @@ Edited permissions for: `{key.name}`""",
                                 embed.timestamp = discord.utils.utcnow()
                                 embed.set_footer(text=f"Channel ID: {before.id}")
 
-                                await log_channel.send(embed=embed)
+                                embed_list.append(embed)
                     else:
                         embed = discord.Embed(
                             title=None,
@@ -481,31 +497,11 @@ Edited permissions for: `{key.name}`""",
                         embed.timestamp = discord.utils.utcnow()
                         embed.set_footer(text=f"Channel ID: {before.id}")
 
-                        await log_channel.send(embed=embed)
+                        embed_list.append(embed)
 
         # Log everything else
 
-        channel_type = None
-
-        if isinstance(channel, discord.TextChannel):
-            channel_type = "Text channel"
-        elif isinstance(channel, discord.VoiceChannel):
-            channel_type = "Voice channel"
-        elif isinstance(channel, discord.CategoryChannel):
-            channel_type = "Category"
-        elif isinstance(channel, discord.StageChannel):
-            channel_type = "Stage channel"
-        elif isinstance(channel, discord.ForumChannel):
-            channel_type = "Forum channel"
-        else:
-            channel_type = "Channel"
-        
-        to_send = False
-        embed_list = []
-
         if before.name != after.name:
-            to_send = True
-
             embed = discord.Embed(
                 title=None,
                 description=f":pencil: **{channel_type} updated: {before.name}**",
@@ -519,8 +515,6 @@ Edited permissions for: `{key.name}`""",
 
         if hasattr(before, "nsfw"):
             if before.is_nsfw() != after.is_nsfw():
-                to_send = True
-
                 embed = discord.Embed(
                     title=None,
                     description=f":pencil: **{channel_type} updated: {before.name}**",
@@ -534,8 +528,6 @@ Edited permissions for: `{key.name}`""",
 
         if hasattr(before, "slowmode_delay"):
             if before.slowmode_delay != after.slowmode_delay:
-                to_send = True
-
                 if before.slowmode_delay == 0:
                     embed = discord.Embed(
                         title=None,
@@ -568,8 +560,6 @@ Edited permissions for: `{key.name}`""",
 
         if hasattr(before, "topic"):
             if before.topic != after.topic:
-                to_send = True
-
                 embed = discord.Embed(
                     title=None,
                     description=f":pencil: **{channel_type} updated: {before.name}**",
@@ -583,8 +573,6 @@ Edited permissions for: `{key.name}`""",
 
         if hasattr(before, "bitrate"):
             if before.bitrate != after.bitrate:
-                to_send = True
-
                 embed = discord.Embed(
                     title=None,
                     description=f":pencil: **{channel_type} updated: {before.name}**",
@@ -598,8 +586,6 @@ Edited permissions for: `{key.name}`""",
 
         if hasattr(before, "rtc_region"):
             if before.rtc_region != after.rtc_region:
-                to_send = True
-
                 embed = discord.Embed(
                     title=None,
                     description=f":pencil: **{channel_type} updated: {before.name}**",
@@ -613,8 +599,6 @@ Edited permissions for: `{key.name}`""",
 
         if hasattr(before, "user_limit"):
             if before.user_limit != after.user_limit:
-                to_send = True
-
                 embed = discord.Embed(
                     title=None,
                     description=f":pencil: **{channel_type} updated: {before.name}**",
@@ -626,8 +610,10 @@ Edited permissions for: `{key.name}`""",
 
                 embed_list.append(embed)
 
-        if to_send:
-            await log_channel.send(embeds=embed_list)
+        if embed_list:
+            for i in range(0, len(embed_list), 10):
+                chunk = embeds[i:i + 10]
+                await log_channel.send(embeds=chunk)
 
     @commands.Cog.listener()
     async def on_guild_emojis_update(self, guild, before, after):
