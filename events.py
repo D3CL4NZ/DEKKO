@@ -358,7 +358,7 @@ class Events(commands.Cog):
 
             def list_neutralized_permissions(before_overwrite, after_overwrite):
                 """Get permissions neutralized in the update."""
-                return [perm for perm in dir(before_overwrite) if not perm.startswith('__') and not callable(getattr(before_overwrite, perm)) and getattr(before_overwrite, perm) and not getattr(after_overwrite, perm)]
+                return [perm for perm in dir(before_overwrite) if not perm.startswith('__') and getattr(before_overwrite, perm) and not getattr(after_overwrite, perm)]
 
             # Handle added overwrites
             for target, overwrite in added_overwrites.items():
