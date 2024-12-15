@@ -360,13 +360,18 @@ class Events(commands.Cog):
                 """Get permissions neutralized in the update."""
                 before = before_overwrite.items()
                 after = after_overwrite.items()
-                return [perm.replace("_", " ") for perm, value in before if value and not dict(after).get(perm, False)]
+                neutralized = []
+                for perm, value in before:
+                    after_value = dict(after).get(perm, None)
+                    if value and after_value is None:
+                        neutralized.append(perm.replace("_", " "))
+                return neutralized
 
             # Handle added overwrites
             for target, overwrite in added_overwrites.items():
                 allow, deny = overwrite.pair()
-                allowed_perms = [perm.replace("_", " ") for perm, value in allow if value]
-                denied_perms = [perm.replace("_", " ") for perm, value in deny if value]
+                allowed_perms = [perm.replace("_", " ") for perm, value in allow.items() if value]
+                denied_perms = [perm.replace("_", " ") for perm, value in deny.items() if value]
 
                 embed = discord.Embed(
                     description=f":crossed_swords: **Channel permissions updated:** {before.mention}\nAdded permissions for: `{target.name}`",
@@ -391,8 +396,8 @@ class Events(commands.Cog):
             # Handle changed overwrites
             for target, overwrite in changed_overwrites.items():
                 allow, deny = overwrite.pair()
-                allowed_perms = [perm.replace("_", " ") for perm, value in allow if value]
-                denied_perms = [perm.replace("_", " ") for perm, value in deny if value]
+                allowed_perms = [perm.replace("_", " ") for perm, value in allow.items() if value]
+                denied_perms = [perm.replace("_", " ") for perm, value in deny.items() if value]
                 neutral_perms = list_neutralized_permissions(before.overwrites[target], overwrite)
 
                 embed = discord.Embed(
