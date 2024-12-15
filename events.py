@@ -340,18 +340,15 @@ class Events(commands.Cog):
 
         channel_type = None
 
-        if isinstance(channel, discord.TextChannel):
-            channel_type = "Text channel"
-        elif isinstance(channel, discord.VoiceChannel):
-            channel_type = "Voice channel"
-        elif isinstance(channel, discord.CategoryChannel):
-            channel_type = "Category"
-        elif isinstance(channel, discord.StageChannel):
-            channel_type = "Stage channel"
-        elif isinstance(channel, discord.ForumChannel):
-            channel_type = "Forum channel"
-        else:
-            channel_type = "Channel"
+        # Determine channel type
+        channel_type = (
+            "Text channel" if isinstance(before, discord.TextChannel) else
+            "Voice channel" if isinstance(before, discord.VoiceChannel) else
+            "Category" if isinstance(before, discord.CategoryChannel) else
+            "Stage channel" if isinstance(before, discord.StageChannel) else
+            "Forum channel" if isinstance(before, discord.ForumChannel) else
+            "Channel"
+        )
 
         if before.overwrites != after.overwrites:
             # Getting the differences between the old and new overwrites
@@ -366,6 +363,8 @@ class Events(commands.Cog):
             if added_overwrites:
                 for key, overwrite in added_overwrites.items():
                     allow, deny = overwrite.pair()
+                    allow = overwrite.allow.to_dict()
+                    deny = overwrite.deny.to_dict()
                     allowed_perms = [perm.replace("_", " ") for perm, value in allow if value]
                     denied_perms = [perm.replace("_", " ") for perm, value in deny if value]
 
@@ -612,7 +611,7 @@ Edited permissions for: `{key.name}`""",
 
         if embed_list:
             for i in range(0, len(embed_list), 10):
-                chunk = embeds[i:i + 10]
+                chunk = embed_list[i:i + 10]
                 await log_channel.send(embeds=chunk)
 
     @commands.Cog.listener()
