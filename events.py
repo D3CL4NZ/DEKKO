@@ -357,144 +357,57 @@ class Events(commands.Cog):
             changed_overwrites = {key: after.overwrites[key] for key in after.overwrites if key in before.overwrites and before.overwrites[key] != after.overwrites[key]}
 
             def list_neutralized_permissions(before, after):
-                return [perm for perm in dir(before) if not perm.startswith('__') and getattr(before, perm) != 0 and getattr(after, perm) == 0]
+                """Get permissions neutralized in the update."""
+                return [perm for perm in dir(before) if not perm.startswith('__') and getattr(before, perm) and not getattr(after, perm)]
 
-            # Logging added overwrites
-            if added_overwrites:
-                for key, overwrite in added_overwrites.items():
-                    allow, deny = overwrite.pair()
-                    allowed_perms = [perm.replace("_", " ") for perm, value in allow if value]
-                    denied_perms = [perm.replace("_", " ") for perm, value in deny if value]
+            # Handle added overwrites
+            for target, overwrite in added_overwrites.items():
+                allow, deny = overwrite.pair()
+                allowed_perms = [perm.replace("_", " ") for perm, value in allow if value]
+                denied_perms = [perm.replace("_", " ") for perm, value in deny if value]
 
-                    embed = discord.Embed(
-                        title=None,
-                        description=f""":crossed_swords: **Channel permissions updated:** {before.mention}
-Added permissions for: `{key.name}`""",
-                        color=discord.Colour.green()
-                    )
-                    embed.add_field(name="\u2713 Allowed permissions", value=', '.join(allowed_perms) if allowed_perms else "none", inline=False)
-                    embed.add_field(name="\u2718 Denied permissions", value=', '.join(denied_perms) if allowed_perms else "none", inline=False)
-                    embed.timestamp = discord.utils.utcnow()
-                    embed.set_footer(text=f"Channel ID: {before.id}")
+                embed = discord.Embed(
+                    description=f":crossed_swords: **Channel permissions updated:** {before.mention}\nAdded permissions for: `{target.name}`",
+                    color=discord.Colour.green(),
+                )
+                embed.add_field(name="\u2713 Allowed permissions", value=', '.join(allowed_perms) if allowed_perms else "None", inline=False)
+                embed.add_field(name="\u2718 Denied permissions", value=', '.join(denied_perms) if denied_perms else "None", inline=False)
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+                embed_list.append(embed)
 
-                    embed_list.append(embed)
+            # Handle removed overwrites
+            for target, _ in removed_overwrites.items():
+                embed = discord.Embed(
+                    description=f":crossed_swords: **Channel permissions updated:** {before.mention}\nRemoved permissions for: `{target.name}`",
+                    color=discord.Colour.red(),
+                )
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+                embed_list.append(embed)
 
-            # Logging removed overwrites
-            if removed_overwrites:
-                for role in removed_overwrites:
-                    embed = discord.Embed(
-                        title=None,
-                        description=f""":crossed_swords: **Channel permissions updated:** {before.mention}
-Removed permissions for: `{role.name}`""",
-                        color=discord.Colour.red()
-                    )
-                    embed.timestamp = discord.utils.utcnow()
-                    embed.set_footer(text=f"Channel ID: {before.id}")
+            # Handle changed overwrites
+            for target, overwrite in changed_overwrites.items():
+                allow, deny = overwrite.pair()
+                allowed_perms = [perm.replace("_", " ") for perm, value in allow if value]
+                denied_perms = [perm.replace("_", " ") for perm, value in deny if value]
+                before_allow, before_deny = before.overwrites[target].pair()
+                neutral_perms = list_neutralized_permissions(before_allow, allow) + list_neutralized_permissions(before_deny, deny)
 
-                    embed_list.append(embed)
-
-            # Logging changed overwrites
-            if changed_overwrites:
-                for key, overwrite in changed_overwrites.items():
-                    allow, deny = overwrite.pair()
-                    allowed_perms = [perm.replace("_", " ") for perm, value in allow if value]
-                    denied_perms = [perm.replace("_", " ") for perm, value in deny if value]
-
-                    before_allow, before_deny = before.overwrites[key].pair()
-                    neutral_perms = list_neutralized_permissions(before_allow, allow) + list_neutralized_permissions(before_deny, deny)
-
-                    if allowed_perms:
-                        if denied_perms:
-                            if neutral_perms:
-                                embed = discord.Embed(
-                                    title=None,
-                                    description=f""":crossed_swords: **Channel permissions updated:** {before.mention}
-Edited permissions for: `{key.name}`""",
-                                    color=0xfaa41b
-                                )
-                                embed.add_field(name="\u2713 Allowed permissions", value=', '.join(allowed_perms), inline=False)
-                                embed.add_field(name="\u2718 Denied permissions", value=', '.join(denied_perms), inline=False)
-                                embed.add_field(name="\u29c4 Neutral permissions", value=', '.join(neutral_perms), inline=False)
-                                embed.timestamp = discord.utils.utcnow()
-                                embed.set_footer(text=f"Channel ID: {before.id}")
-
-                                embed_list.append(embed)
-                            else:
-                                embed = discord.Embed(
-                                    title=None,
-                                    description=f""":crossed_swords: **Channel permissions updated:** {before.mention}
-Edited permissions for: `{key.name}`""",
-                                    color=0xfaa41b
-                                )
-                                embed.add_field(name="\u2713 Allowed permissions", value=', '.join(allowed_perms), inline=False)
-                                embed.add_field(name="\u2718 Denied permissions", value=', '.join(denied_perms), inline=False)
-                                embed.timestamp = discord.utils.utcnow()
-                                embed.set_footer(text=f"Channel ID: {before.id}")
-
-                                embed_list.append(embed)
-                        elif neutral_perms:
-                            embed = discord.Embed(
-                                title=None,
-                                description=f""":crossed_swords: **Channel permissions updated:** {before.mention}
-Edited permissions for: `{key.name}`""",
-                                color=0xfaa41b
-                            )
-                            embed.add_field(name="\u2713 Allowed permissions", value=', '.join(allowed_perms), inline=False)
-                            embed.add_field(name="\u29c4 Neutral permissions", value=', '.join(neutral_perms), inline=False)
-                            embed.timestamp = discord.utils.utcnow()
-                            embed.set_footer(text=f"Channel ID: {before.id}")
-
-                            embed_list.append(embed)
-                        else:
-                            embed = discord.Embed(
-                                title=None,
-                                description=f""":crossed_swords: **Channel permissions updated:** {before.mention}
-Edited permissions for: `{key.name}`""",
-                                color=0xfaa41b
-                            )
-                            embed.add_field(name="\u2713 Allowed permissions", value=', '.join(allowed_perms), inline=False)
-                            embed.timestamp = discord.utils.utcnow()
-                            embed.set_footer(text=f"Channel ID: {before.id}")
-
-                            embed_list.append(embed)
-                    elif denied_perms:
-                            if neutral_perms:
-                                embed = discord.Embed(
-                                    title=None,
-                                    description=f""":crossed_swords: **Channel permissions updated:** {before.mention}
-Edited permissions for: `{key.name}`""",
-                                    color=0xfaa41b
-                                )
-                                embed.add_field(name="\u2718 Denied permissions", value=', '.join(denied_perms), inline=False)
-                                embed.add_field(name="\u29c4 Neutral permissions", value=', '.join(neutral_perms), inline=False)
-                                embed.timestamp = discord.utils.utcnow()
-                                embed.set_footer(text=f"Channel ID: {before.id}")
-
-                                embed_list.append(embed)
-                            else:
-                                embed = discord.Embed(
-                                    title=None,
-                                    description=f""":crossed_swords: **Channel permissions updated:** {before.mention}
-Edited permissions for: `{key.name}`""",
-                                    color=0xfaa41b
-                                )
-                                embed.add_field(name="\u2718 Denied permissions", value=', '.join(denied_perms), inline=False)
-                                embed.timestamp = discord.utils.utcnow()
-                                embed.set_footer(text=f"Channel ID: {before.id}")
-
-                                embed_list.append(embed)
-                    else:
-                        embed = discord.Embed(
-                            title=None,
-                            description=f""":crossed_swords: **Channel permissions updated:** {before.mention}
-Edited permissions for: `{key.name}`""",
-                            color=0xfaa41b
-                        )
-                        embed.add_field(name="\u29c4 Neutral permissions", value=', '.join(neutral_perms), inline=False)
-                        embed.timestamp = discord.utils.utcnow()
-                        embed.set_footer(text=f"Channel ID: {before.id}")
-
-                        embed_list.append(embed)
+                embed = discord.Embed(
+                    description=f":crossed_swords: **Channel permissions updated:** {before.mention}\nEdited permissions for: `{target.name}`",
+                    color=0xfaa41b,
+                )
+                if allowed_perms:
+                    embed.add_field(name="\u2713 Allowed permissions", value=', '.join(allowed_perms), inline=False)
+                if denied_perms:
+                    embed.add_field(name="\u2718 Denied permissions", value=', '.join(denied_perms), inline=False)
+                if neutral_perms:
+                    embed.add_field(name="\u29c4 Neutral permissions", value=', '.join(neutral_perms), inline=False)
+                
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_footer(text=f"Channel ID: {before.id}")
+                embed_list.append(embed)
 
         # Log everything else
 
