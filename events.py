@@ -582,7 +582,7 @@ class Events(commands.Cog):
 
         embed = discord.Embed(
             title=None,
-            description=f":pencil: **Role updated: {role.name}**",
+            description=f":pencil: **Role updated: {before.name}**",
             color=0xfaa41b
         )
 
@@ -618,7 +618,7 @@ class Events(commands.Cog):
                 embed.add_field(name="\u2718 Denied permissions", value=denied_permissions_text, inline=False)
 
         embed.timestamp = discord.utils.utcnow()
-        embed.set_footer(text=f"Role ID: {role.id}")
+        embed.set_footer(text=f"Role ID: {before.id}")
 
         await log_channel.send(embed=embed)
 
