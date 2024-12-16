@@ -632,7 +632,7 @@ class Events(commands.Cog):
             embed.add_field(name="AFK channel", value=f"{before.afk_channel.mention} -> {after.afk_channel.mention}", inline=False)
         
         if before.afk_timeout != after.afk_timeout:
-            embed.add_field(name="AFK timeout", value=f"{before.afk_timeout / 60} -> {after.afk_timeout / 60}", inline=False)
+            embed.add_field(name="AFK timeout", value=f"{int(before.afk_timeout / 60)} minutes -> {int(after.afk_timeout / 60)} minutes", inline=False)
 
         if before.explicit_content_filter != after.explicit_content_filter:
             before_filter = (
