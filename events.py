@@ -541,15 +541,14 @@ class Events(commands.Cog):
     async def on_guild_role_create(self, role: discord.Role):
         log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
 
-        perms_list = [perm[0] for perm in role.permissions if perm[1]]
-        perms_text = ", ".join(perms_list) if perms_list else "none"
+        perms_list = [perm[0].replace("_", " ") for perm in role.permissions if perm[1]]
 
         embed = discord.Embed(
             title=None,
             description=f":crossed_swords: **Role created: {role.name}**",
             color=discord.Colour.green()
         )
-        embed.add_field(name="Permissions", value=perms_text, inline=False)
+        embed.add_field(name="Permissions", value=", ".join(perms_list) if perms_list else "none", inline=False)
         embed.timestamp = discord.utils.utcnow()
         embed.set_footer(text=f"Role ID: {role.id}")
 
@@ -559,8 +558,7 @@ class Events(commands.Cog):
     async def on_guild_role_delete(self, role: discord.Role):
         log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
 
-        perms_list = [perm[0] for perm in role.permissions if perm[1]]
-        perms_text = ", ".join(perms_list) if perms_list else "none"
+        perms_list = [perm[0].replace("_", " ") for perm in role.permissions if perm[1]]
 
         embed = discord.Embed(
             title=None,
@@ -570,7 +568,8 @@ class Events(commands.Cog):
         embed.add_field(name="Color", value=role.color, inline=True)
         embed.add_field(name="Hoisted", value="Yes" if role.hoist else "No", inline=True)
         embed.add_field(name="Mentionable", value="Yes" if role.mentionable else "No", inline=True)
-        embed.add_field(name="Permissions", value=perms_text, inline=False)
+        if perms_list:
+            embed.add_field(name="Permissions", value=", ".join(perms_list), inline=False)
         embed.timestamp = discord.utils.utcnow()
         embed.set_footer(text=f"Role ID: {role.id}")
 
@@ -606,7 +605,7 @@ class Events(commands.Cog):
                 after_value = dict(after.permissions)[perm]
 
                 if value != after_value:
-                    allowed_permissions.append(str(perm)) if after_value else denied_permissions.append(str(perm))
+                    allowed_permissions.append(perm.replace("_", " ")) if after_value else denied_permissions.append(perm.replace("_", " "))
 
             if allowed_permissions:
                 embed.add_field(name="\u2713 Allowed permissions", value=", ".join(allowed_permissions), inline=False)
