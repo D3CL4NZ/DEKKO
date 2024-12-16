@@ -636,16 +636,16 @@ class Events(commands.Cog):
 
         if before.explicit_content_filter != after.explicit_content_filter:
             before_filter = (
-                "No scan" if before.explicit_content_filter == "disabled" else
-                "Scan without roles" if before.explicit_content_filter == "no_role" else
-                "Scan all" if before.explicit_content_filter == "all_members" else
+                "No scan" if str(before.explicit_content_filter) == "disabled" else
+                "Scan without roles" if str(before.explicit_content_filter) == "no_role" else
+                "Scan all" if str(before.explicit_content_filter) == "all_members" else
                 "Unknown"
             )
 
             after_filter = (
-                "No scan" if after.explicit_content_filter == "disabled" else
-                "Scan without roles" if after.explicit_content_filter == "no_role" else
-                "Scan all" if after.explicit_content_filter == "all_members" else
+                "No scan" if str(after.explicit_content_filter) == "disabled" else
+                "Scan without roles" if str(after.explicit_content_filter) == "no_role" else
+                "Scan all" if str(after.explicit_content_filter) == "all_members" else
                 "Unknown"
             )
 
@@ -665,20 +665,20 @@ class Events(commands.Cog):
 
         if before.verification_level != after.verification_level:
             before_verification = (
-                "None" if before.verification_level == "none" else
-                "Low" if before.verification_level == "low" else
-                "Medium" if before.verification_level == "medium" else
-                "(╯°□°）╯︵ ┻━┻" if before.verification_level == "high" else
-                "┻━┻ ﾐヽ(ಠ益ಠ)ノ彡┻━┻" if before.verification_level == "highest" else
+                "None" if str(before.verification_level) == "none" else
+                "Low" if str(before.verification_level) == "low" else
+                "Medium" if str(before.verification_level) == "medium" else
+                "(╯°□°）╯︵ ┻━┻" if str(before.verification_level) == "high" else
+                "┻━┻ ﾐヽ(ಠ益ಠ)ノ彡┻━┻" if str(before.verification_level) == "highest" else
                 "Unknown"
             )
 
             after_verification = (
-                "None" if after.verification_level == "none" else
-                "Low" if after.verification_level == "low" else
-                "Medium" if after.verification_level == "medium" else
-                "(╯°□°）╯︵ ┻━┻" if after.verification_level == "high" else
-                "┻━┻ ﾐヽ(ಠ益ಠ)ノ彡┻━┻" if after.verification_level == "highest" else
+                "None" if str(after.verification_level) == "none" else
+                "Low" if str(after.verification_level) == "low" else
+                "Medium" if str(after.verification_level) == "medium" else
+                "(╯°□°）╯︵ ┻━┻" if str(after.verification_level) == "high" else
+                "┻━┻ ﾐヽ(ಠ益ಠ)ノ彡┻━┻" if str(after.verification_level) == "highest" else
                 "Unknown"
             )
 
