@@ -545,10 +545,10 @@ class Events(commands.Cog):
         perms_text = ", ".join(perms_list) if perms_list else "none"
 
         embed = discord.Embed(
-                title=None,
-                description=f":crossed_swords: **Role created: #{role.name}**",
-                color=discord.Colour.green()
-            )
+            title=None,
+            description=f":crossed_swords: **Role created: #{role.name}**",
+            color=discord.Colour.green()
+        )
         embed.add_field(name="Permissions", value=f"{perms_text}", inline=False)
         embed.timestamp = discord.utils.utcnow()
         embed.set_footer(text=f"Role ID: {role.id}")
