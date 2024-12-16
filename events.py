@@ -542,7 +542,7 @@ class Events(commands.Cog):
         log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
 
         perms_list = [perm[0] for perm in permissions if perm[1]]
-        perms_text = ", ".join(perms_list)
+        perms_text = ", ".join(perms_list) if perms_list else "none"
 
         embed = discord.Embed(
                 title=None,
