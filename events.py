@@ -605,7 +605,7 @@ class Events(commands.Cog):
             for perm, value in before.permissions:
                 after_value = dict(after.permissions)[perm]
 
-                if before_value != after_value:
+                if value != after_value:
                     allowed_permissions.append(str(perm)) if after_value else denied_permissions.append(str(perm))
 
             if allowed_permissions:
