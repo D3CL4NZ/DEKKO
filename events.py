@@ -358,14 +358,7 @@ class Events(commands.Cog):
 
             def list_neutralized_permissions(before_overwrite: PermissionOverwrite, after_overwrite: PermissionOverwrite):
                 """Get permissions neutralized in the update."""
-                neutralized_permissions = []
-                for perm in dir(before_overwrite):
-                    if not perm.startswith('__') and not callable(getattr(before_overwrite, perm)):
-                        before_value = getattr(before_overwrite, perm)
-                        after_value = getattr(after_overwrite, perm)
-                        if before_value is not None and after_value is None:  # Check if the permission was neutralized
-                            neutralized_permissions.append(perm)
-                return neutralized_permissions
+                return [perm.replace("_", " ") for perm, value in before_overwrite.items() if value and not dict(after_overwrite.items()).get(perm, False)]
 
             # Handle added overwrites
             for target, overwrite in added_overwrites.items():
@@ -404,8 +397,7 @@ class Events(commands.Cog):
                 allow, deny = overwrite.pair()
                 allowed_perms = [perm.replace("_", " ") for perm, value in allow if value]
                 denied_perms = [perm.replace("_", " ") for perm, value in deny if value]
-                before_allow, before_deny = before.overwrites[target].pair()
-                neutral_perms = list_neutralized_permissions(before_allow, allow) + list_neutralized_permissions(before_deny, deny)
+                neutral_perms = list_neutralized_permissions(before.overwrites[target], overwrite)
 
                 embed = discord.Embed(
                     description=f":crossed_swords: **Channel permissions updated:** {before.mention}\nEdited permissions for: `{target.name}`",
