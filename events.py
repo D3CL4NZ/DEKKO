@@ -276,20 +276,15 @@ class Events(commands.Cog):
     async def on_guild_channel_create(self, channel: discord.abc.GuildChannel):
         log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
         
-        channel_type = None
-
-        if isinstance(channel, discord.TextChannel):
-            channel_type = "Text channel"
-        elif isinstance(channel, discord.VoiceChannel):
-            channel_type = "Voice channel"
-        elif isinstance(channel, discord.CategoryChannel):
-            channel_type = "Category"
-        elif isinstance(channel, discord.StageChannel):
-            channel_type = "Stage channel"
-        elif isinstance(channel, discord.ForumChannel):
-            channel_type = "Forum channel"
-        else:
-            channel_type = "Channel"
+        # Determine channel type
+        channel_type = (
+            "Text channel" if isinstance(before, discord.TextChannel) else
+            "Voice channel" if isinstance(before, discord.VoiceChannel) else
+            "Category" if isinstance(before, discord.CategoryChannel) else
+            "Stage channel" if isinstance(before, discord.StageChannel) else
+            "Forum channel" if isinstance(before, discord.ForumChannel) else
+            "Channel"
+        )
 
         embed = discord.Embed(
                 title=None,
@@ -305,20 +300,15 @@ class Events(commands.Cog):
     async def on_guild_channel_delete(self, channel: discord.abc.GuildChannel):
         log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
         
-        channel_type = None
-
-        if isinstance(channel, discord.TextChannel):
-            channel_type = "Text channel"
-        elif isinstance(channel, discord.VoiceChannel):
-            channel_type = "Voice channel"
-        elif isinstance(channel, discord.CategoryChannel):
-            channel_type = "Category"
-        elif isinstance(channel, discord.StageChannel):
-            channel_type = "Stage channel"
-        elif isinstance(channel, discord.ForumChannel):
-            channel_type = "Forum channel"
-        else:
-            channel_type = "Channel"
+        # Determine channel type
+        channel_type = (
+            "Text channel" if isinstance(before, discord.TextChannel) else
+            "Voice channel" if isinstance(before, discord.VoiceChannel) else
+            "Category" if isinstance(before, discord.CategoryChannel) else
+            "Stage channel" if isinstance(before, discord.StageChannel) else
+            "Forum channel" if isinstance(before, discord.ForumChannel) else
+            "Channel"
+        )
             
         embed = discord.Embed(
                 title=None,
@@ -338,8 +328,6 @@ class Events(commands.Cog):
         log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
         embed_list = []
 
-        channel_type = None
-
         # Determine channel type
         channel_type = (
             "Text channel" if isinstance(before, discord.TextChannel) else
@@ -356,7 +344,7 @@ class Events(commands.Cog):
             removed_overwrites = {key: before.overwrites[key] for key in before.overwrites if key not in after.overwrites}
             changed_overwrites = {key: after.overwrites[key] for key in after.overwrites if key in before.overwrites and before.overwrites[key] != after.overwrites[key]}
 
-            def list_neutralized_permissions(before_overwrite, after_overwrite):
+            def list_neutralized_permissions(before_overwrite: discord.PermissionOverwrite, after_overwrite: discord.PermissionOverwrite):
                 """Get permissions neutralized in the update."""
                 neutralized_permissions = []
                 for perm in dir(before_overwrite):
@@ -364,6 +352,18 @@ class Events(commands.Cog):
                         before_value = getattr(before_overwrite, perm)
                         after_value = getattr(after_overwrite, perm)
                         if before_value is not None and after_value is None:  # Check if the permission was neutralized
+                            neutralized_permissions.append(perm)
+                return neutralized_permissions
+
+                neutralized_permissions = []
+                for perm in dir(before_overwrite):
+                    if not perm.startswith('__') and not callable(getattr(before_overwrite, perm)):
+                        before_value = getattr(before_overwrite, perm)
+                        after_value = getattr(after_overwrite, perm)
+                        
+                        # Check if the permission was explicitly set to None in after_overwrite,
+                        # while it was explicitly set to either True or False in before_overwrite
+                        if before_value is not None and after_value is None:
                             neutralized_permissions.append(perm)
                 return neutralized_permissions
 
