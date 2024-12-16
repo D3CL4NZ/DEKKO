@@ -358,7 +358,7 @@ class Events(commands.Cog):
 
             def list_neutralized_permissions(before, after):
                 """Get permissions neutralized in the update."""
-                return [perm for perm in dir(before) if not perm.startswith('__') and getattr(before, perm) != 0 and getattr(after, perm) == 0]
+                return [perm for perm in dir(before) if not perm.startswith('__') and getattr(before, perm) and not getattr(after, perm)]
 
             # Handle added overwrites
             for target, overwrite in added_overwrites.items():
@@ -404,11 +404,11 @@ class Events(commands.Cog):
                     description=f":crossed_swords: **Channel permissions updated:** {before.mention}\nEdited permissions for: `{target.name}`",
                     color=0xfaa41b,
                 )
-                if allow:
+                if allowed_perms:
                     embed.add_field(name="\u2713 Allowed permissions", value=', '.join(allowed_perms), inline=False)
-                if deny:
+                if denied_perms:
                     embed.add_field(name="\u2718 Denied permissions", value=', '.join(denied_perms), inline=False)
-                if neutral:
+                if neutral_perms:
                     embed.add_field(name="\u29c4 Neutral permissions", value=', '.join(neutral_perms), inline=False)
                 
                 embed.timestamp = discord.utils.utcnow()
