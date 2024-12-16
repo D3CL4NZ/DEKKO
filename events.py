@@ -442,7 +442,7 @@ class Events(commands.Cog):
                     description=f":pencil: **{channel_type} updated: {before.name}**",
                     color=0xfaa41b
                 )
-                embed.add_field(name="NSFW", value=f"{before.is_nsfw()} -> {after.is_nsfw()}", inline=False)
+                embed.add_field(name="NSFW", value=f"{'Yes' if before.is_nsfw() else 'No'} -> {'Yes' if after.is_nsfw() else 'No'}", inline=False)
                 embed.timestamp = discord.utils.utcnow()
                 embed.set_footer(text=f"Channel ID: {before.id}")
 
@@ -546,10 +546,77 @@ class Events(commands.Cog):
 
         embed = discord.Embed(
             title=None,
-            description=f":crossed_swords: **Role created: #{role.name}**",
+            description=f":crossed_swords: **Role created: {role.name}**",
             color=discord.Colour.green()
         )
-        embed.add_field(name="Permissions", value=f"{perms_text}", inline=False)
+        embed.add_field(name="Permissions", value=perms_text, inline=False)
+        embed.timestamp = discord.utils.utcnow()
+        embed.set_footer(text=f"Role ID: {role.id}")
+
+        await log_channel.send(embed=embed)
+
+    @commands.Cog.listener()
+    async def on_guild_role_delete(self, role: discord.Role):
+        log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+
+        perms_list = [perm[0] for perm in role.permissions if perm[1]]
+        perms_text = ", ".join(perms_list) if perms_list else "none"
+
+        embed = discord.Embed(
+            title=None,
+            description=f":wastebasket: **Role deleted: {role.name}**",
+            color=discord.Colour.red()
+        )
+        embed.add_field(name="Color", value=role.color, inline=True)
+        embed.add_field(name="Hoisted", value="Yes" if role.hoist else "No", inline=True)
+        embed.add_field(name="Mentionable", value="Yes" if role.mentionable else "No", inline=True)
+        embed.add_field(name="Permissions", value=perms_text, inline=False)
+        embed.timestamp = discord.utils.utcnow()
+        embed.set_footer(text=f"Role ID: {role.id}")
+
+        await log_channel.send(embed=embed)
+
+    @commands.Cog.listener()
+    async def on_guild_role_update(self, before: discord.Role, after: discord.Role):
+        log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+
+        embed = discord.Embed(
+            title=None,
+            description=f":pencil: **Role updated: {role.name}**",
+            color=0xfaa41b
+        )
+
+        if before.color != after.color:
+            embed.add_field(name="Color", value=f"{before.color} -> {after.color}", inline=False)
+
+        if before.name != after.name:
+            embed.add_field(name="Name", value=f"{before.name} -> {after.name}", inline=False)
+        
+        if before.hoist != after.hoist:
+            embed.add_field(name="Hoisted", value=f"{'Yes' if before.hoist else 'No'} -> {'Yes' if after.hoist else 'No'}", inline=False)
+
+        if before.mentionable != after.mentionable:
+            embed.add_field(name="Mentionable", value=f"{'Yes' if before.mentionable else 'No'} -> {'Yes' if after.mentionable else 'No'}", inline=False)
+        
+        if before.permissions != after.permissions:
+            allowed_permissions = []
+            denied_permissions = []
+
+            for perm, value in after.permissions:
+                if value:  # Permission is allowed
+                    allowed_permissions.append(perm)
+                else:  # Permission is denied
+                    denied_permissions.append(perm)
+            
+            allowed_permissions_text = ", ".join([str(perm) for perm in allowed_permissions]) if allowed_permissions else "none"
+            denied_permissions_text = ", ".join([str(perm) for perm in denied_permissions]) if denied_permissions else "none"
+
+            if allowed_permissions:
+                embed.add_field(name="\u2713 Allowed permissions", value=allowed_permissions_text, inline=False)
+            
+            if denied_permissions:
+                embed.add_field(name="\u2718 Denied permissions", value=denied_permissions_text, inline=False)
+
         embed.timestamp = discord.utils.utcnow()
         embed.set_footer(text=f"Role ID: {role.id}")
 
