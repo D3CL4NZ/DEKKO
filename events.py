@@ -602,20 +602,20 @@ class Events(commands.Cog):
             allowed_permissions = []
             denied_permissions = []
 
-            for perm, value in after.permissions:
-                if value:  # Permission is allowed
-                    allowed_permissions.append(perm)
-                else:  # Permission is denied
-                    denied_permissions.append(perm)
+            for perm, value in before.permissions:
+                after_value = dict(after.permissions)[perm]
+
+                if before_value != after_value:
+                    allowed_permissions.append(str(perm)) if after_value else denied_permissions.append(str(perm))
             
             allowed_permissions_text = ", ".join([str(perm) for perm in allowed_permissions]) if allowed_permissions else "none"
             denied_permissions_text = ", ".join([str(perm) for perm in denied_permissions]) if denied_permissions else "none"
 
             if allowed_permissions:
-                embed.add_field(name="\u2713 Allowed permissions", value=allowed_permissions_text, inline=False)
+                embed.add_field(name="\u2713 Allowed permissions", value=", ".join(allowed_permissions), inline=False)
             
             if denied_permissions:
-                embed.add_field(name="\u2718 Denied permissions", value=denied_permissions_text, inline=False)
+                embed.add_field(name="\u2718 Denied permissions", value=", ".join(denied_permissions), inline=False)
 
         embed.timestamp = discord.utils.utcnow()
         embed.set_footer(text=f"Role ID: {before.id}")
