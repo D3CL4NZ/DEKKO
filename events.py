@@ -607,9 +607,6 @@ class Events(commands.Cog):
 
                 if before_value != after_value:
                     allowed_permissions.append(str(perm)) if after_value else denied_permissions.append(str(perm))
-            
-            allowed_permissions_text = ", ".join([str(perm) for perm in allowed_permissions]) if allowed_permissions else "none"
-            denied_permissions_text = ", ".join([str(perm) for perm in denied_permissions]) if denied_permissions else "none"
 
             if allowed_permissions:
                 embed.add_field(name="\u2713 Allowed permissions", value=", ".join(allowed_permissions), inline=False)
