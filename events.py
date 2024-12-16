@@ -352,7 +352,7 @@ class Events(commands.Cog):
                         before_value = getattr(before_overwrite, perm)
                         after_value = getattr(after_overwrite, perm)
                         if before_value is not None and after_value is None:  # Check if the permission was neutralized
-                            neutralized_permissions.append(perm)
+                            neutralized_permissions.append(perm.replace("_"," "))
                 return neutralized_permissions
 
                 neutralized_permissions = []
@@ -536,6 +536,24 @@ class Events(commands.Cog):
             for i in range(0, len(embed_list), 10):
                 chunk = embed_list[i:i + 10]
                 await log_channel.send(embeds=chunk)
+
+    @commands.Cog.listener()
+    async def on_guild_role_create(self, role: discord.Role):
+        log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+
+        perms_list = [perm[0] for perm in permissions if perm[1]]
+        perms_text = ", ".join(perms_list)
+
+        embed = discord.Embed(
+                title=None,
+                description=f":crossed_swords: **Role created: #{role.name}**",
+                color=discord.Colour.green()
+            )
+        embed.add_field(name="Permissions", value=f"{perms_text}", inline=False)
+        embed.timestamp = discord.utils.utcnow()
+        embed.set_footer(text=f"Role ID: {role.id}")
+
+        await log_channel.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_guild_emojis_update(self, guild, before, after):
