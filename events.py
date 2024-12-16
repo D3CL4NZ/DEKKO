@@ -541,7 +541,7 @@ class Events(commands.Cog):
     async def on_guild_role_create(self, role: discord.Role):
         log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
 
-        perms_list = [perm[0] for perm in permissions if perm[1]]
+        perms_list = [perm[0] for perm in role.permissions if perm[1]]
         perms_text = ", ".join(perms_list) if perms_list else "none"
 
         embed = discord.Embed(
