@@ -619,6 +619,76 @@ class Events(commands.Cog):
         await log_channel.send(embed=embed)
 
     @commands.Cog.listener()
+    async def on_guild_update(self, before: discord.Guild, after: discord.Guild):
+        log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+
+        embed = discord.Embed(
+            title=None,
+            description=f":pencil: **Server information updated!**",
+            color=0xfaa41b
+        )
+
+        if before.afk_channel != after.afk_channel:
+            embed.add_field(name="AFK channel", value=f"{before.afk_channel.mention} -> {after.afk_channel.mention}", inline=False)
+        
+        if before.afk_timeout != after.afk_timeout:
+            embed.add_field(name="AFK timeout", value=f"{before.afk_timeout / 60} -> {after.afk_timeout / 60}", inline=False)
+
+        if before.explicit_content_filter != after.explicit_content_filter:
+            before_filter = (
+                "No scan" if before.explicit_content_filter == "disabled" else
+                "Scan without roles" if before.explicit_content_filter == "no_role" else
+                "Scan all" if before.explicit_content_filter == "all_members" else
+                "Unknown"
+            )
+
+            after_filter = (
+                "No scan" if after.explicit_content_filter == "disabled" else
+                "Scan without roles" if after.explicit_content_filter == "no_role" else
+                "Scan all" if after.explicit_content_filter == "all_members" else
+                "Unknown"
+            )
+
+            embed.add_field(name="Explicit media filter", value=f"{before_filter} -> {after_filter}", inline=False)
+
+        if before.icon != after.icon:
+            embed.add_field(name="Server icon", value=f"[[before]]({before.icon.url if before.icon else 'none'}) -> [[after]]({after.icon.url if after.icon else 'none'})", inline=False)
+
+        if before.name != after.name:
+            embed.add_field(name="Name", value=f"{before.name} -> {after.name}")
+
+        if before.owner != after.owner:
+            embed.add_field(name="Transferred ownership", value=f"{before.owner.mention} -> {after.owner.mention}")
+
+        if before.system_channel != after.system_channel:
+            embed.add_field(name="System messages channel", value=f"{before.system_channel.mention} -> {after.system_channel.mention}", inline=False)
+
+        if before.verification_level != after.verification_level:
+            before_verification = (
+                "None" if before.verification_level == "none" else
+                "Low" if before.verification_level == "low" else
+                "Medium" if before.verification_level == "medium" else
+                "(╯°□°）╯︵ ┻━┻" if before.verification_level == "high" else
+                "┻━┻ ﾐヽ(ಠ益ಠ)ノ彡┻━┻" if before.verification_level == "highest" else
+                "Unknown"
+            )
+
+            after_verification = (
+                "None" if after.verification_level == "none" else
+                "Low" if after.verification_level == "low" else
+                "Medium" if after.verification_level == "medium" else
+                "(╯°□°）╯︵ ┻━┻" if after.verification_level == "high" else
+                "┻━┻ ﾐヽ(ಠ益ಠ)ノ彡┻━┻" if after.verification_level == "highest" else
+                "Unknown"
+            )
+
+            embed.add_field(name="Verification level", value=f"{before_verification} -> {after_verification}", inline=False)
+
+        embed.set_thumbnail(url=after.icon.url)
+        embed.timestamp = discord.utils.utcnow()
+        embed.set_footer(text=f"Guild ID: {before.id}")
+
+    @commands.Cog.listener()
     async def on_guild_emojis_update(self, guild, before, after):
         log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
 
