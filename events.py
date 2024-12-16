@@ -356,9 +356,16 @@ class Events(commands.Cog):
             removed_overwrites = {key: before.overwrites[key] for key in before.overwrites if key not in after.overwrites}
             changed_overwrites = {key: after.overwrites[key] for key in after.overwrites if key in before.overwrites and before.overwrites[key] != after.overwrites[key]}
 
-            def list_neutralized_permissions(before, after):
+            def list_neutralized_permissions(before_overwrite: PermissionOverwrite, after_overwrite: PermissionOverwrite):
                 """Get permissions neutralized in the update."""
-                return [perm for perm in dir(before) if not perm.startswith('__') and getattr(before, perm) and not getattr(after, perm)]
+                neutralized_permissions = []
+                for perm in dir(before_overwrite):
+                    if not perm.startswith('__') and not callable(getattr(before_overwrite, perm)):
+                        before_value = getattr(before_overwrite, perm)
+                        after_value = getattr(after_overwrite, perm)
+                        if before_value is not None and after_value is None:  # Check if the permission was neutralized
+                            neutralized_permissions.append(perm)
+                return neutralized_permissions
 
             # Handle added overwrites
             for target, overwrite in added_overwrites.items():
