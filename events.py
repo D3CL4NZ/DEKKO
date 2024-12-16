@@ -688,6 +688,8 @@ class Events(commands.Cog):
         embed.timestamp = discord.utils.utcnow()
         embed.set_footer(text=f"Guild ID: {before.id}")
 
+        await log_channel.send(embed=embed)
+
     @commands.Cog.listener()
     async def on_guild_emojis_update(self, guild, before, after):
         log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
