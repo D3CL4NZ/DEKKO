@@ -9,7 +9,7 @@ import time
 
 def error_message(error):
     if (error == 404):
-        return discord.Embed(title="Definition not found", description="ERR_HTTP_GET_404_NOT_FOUND", color=discord.Colour.red())
+        return discord.Embed(title="Definition not found", description="ERR_HTTP_CYKA_BLYAT_404_NOT_FOUND", color=discord.Colour.red())
 
 def define_message(definition_block):
     # Word, Description, Word URL, Embed Color
