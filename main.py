@@ -34,12 +34,12 @@ cog_files = [
 ]
 
 async def load_extensions():
-    common.logger.info("[DECCYLoader] Loading extensions...", flush=True)
+    common.logger.info("[DECCYLoader] Loading extensions...")
     for i in cog_files:
         await bot.load_extension(i)
-        common.logger.info("    %s has loaded." % i, flush=True)
-    common.logger.info("[DECCYLoader] All extensions have finished loading.", flush=True)
-    common.logger.info("[DECCYLoader] Finished initialization. Logging in...", flush=True)
+        common.logger.info("    %s has loaded." % i)
+    common.logger.info("[DECCYLoader] All extensions have finished loading.")
+    common.logger.info("[DECCYLoader] Finished initialization. Logging in...")
 
 async def main():
     async with bot:
@@ -50,7 +50,7 @@ async def main():
 def handle_shutdown():
     loop = asyncio.get_event_loop()
     loop.create_task(bot.close())
-    common.logger.warning("Shutdown signal received. Closing bot...", flush=True)
+    common.logger.warning("Shutdown signal received. Closing bot...")
 
 # Register signal handlers
 signal.signal(signal.SIGINT, lambda sig, frame: handle_shutdown())
