@@ -62,3 +62,10 @@ jobs:
           SSH_BASTION: ${{ secrets.SSH_BASTION }}
         run: |
           rsync -avzr --delete --exclude 'suspicious_users.db' --exclude 'config.py' --exclude '.git*' -e 'ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no' ./master/ ${SSH_USER}@${SSH_HOST}:/home/${SSH_USER}/DEKKO
+
+      - name: Start DEKKO Service on Remote Server
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          ssh -i ~/.ssh/id_rsa ${SSH_USER}@${SSH_HOST} -o StrictHostKeyChecking=no 'sudo /bin/systemctl start DEKKO.service'
