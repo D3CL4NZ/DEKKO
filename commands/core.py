@@ -9,6 +9,7 @@ import time
 import datetime
 
 import config
+import common
 
 class Core(commands.Cog):
     def __init__(self, bot):
@@ -22,7 +23,7 @@ class Core(commands.Cog):
         """Synchronizes the command tree"""
 
         log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
-        print("Command tree sync requested...")
+        common.logger.info("Command tree sync requested...")
 
         message = await ctx.send(""":hourglass:  **DEKKO is processing requests...**
 Command: `{}`

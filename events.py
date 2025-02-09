@@ -7,10 +7,11 @@ import sys
 import traceback
 
 import config
+import common
 
 class Events(commands.Cog):
     def __init__(self, bot):
-        print("[DECCYLoader] Initializing events and logging...")
+        common.logger.info("[DECCYLoader] Initializing events and logging...")
         self.bot = bot
 
     # ============
@@ -812,8 +813,8 @@ class Events(commands.Cog):
                 pass
 
         else:
-            print(f"Ignoring exception in command {ctx.command}:", file=sys.stderr)
-            traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+            # print(f"Ignoring exception in command {ctx.command}:", file=sys.stderr)
+            # traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
             await error_channel.send(f":no_entry: **CYKA BLYAT!**\n`DEKKO Command Processor` has encountered an error :( ```ansi\n{''.join(traceback.format_exception(type(error), error, error.__traceback__))}```")
             await ctx.send(f":no_entry: **CYKA BLYAT!**\n`DEKKO Command Processor` has encountered an error :( ```ansi\n{str(error)}```")
 
@@ -824,7 +825,7 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
-        print("Logged in as {0.user}".format(self.bot))
+        common.logger.info("Logged in as {0.user}".format(self.bot))
         embed = discord.Embed(
             title=None,
             description=":electric_plug: **DEKKO has (re)connected**",

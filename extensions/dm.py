@@ -3,11 +3,12 @@ from discord import app_commands
 from discord.ext import tasks, commands
 
 import config
+import common
 
 class DirectMessages(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        print("[Direct Messages] Hello :D")
+        common.logger.info("[Direct Messages] Hello :D")
 
     @commands.Cog.listener()
     async def on_message(self, message):

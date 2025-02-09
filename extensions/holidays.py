@@ -8,6 +8,7 @@ from datetime import timedelta
 import lunardate
 
 import config
+import common
 
 def get_easter_date(year):
     """A helper function to calculate the date of Easter for a given year"""
@@ -54,7 +55,7 @@ def get_thanksgiving_date(year):
 class Holidays(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        print("[Holidays] Waiting for initialization to finish...")
+        common.logger.info("[Holidays] Waiting for initialization to finish...")
         self._check_if_holiday.start()
 
     def cog_unload(self):

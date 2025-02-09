@@ -5,6 +5,7 @@ import sqlite3
 import aiohttp
 
 import config
+import common
 
 import time
 
@@ -14,9 +15,9 @@ cursor = database.cursor()
 class SuspiciousUsers(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        print("[Suspicious Users] Initializing database...")
+        common.logger.info("[Suspicious Users] Initializing database...")
         database.execute("CREATE TABLE IF NOT EXISTS users(user_id INTEGER, username STRING)")
-        print("[Suspicious Users] Successfully loaded suspicious users database.")
+        common.logger.info("[Suspicious Users] Successfully loaded suspicious users database.")
         self.sus_users_update_timer.start()
 
     def cog_unload(self):

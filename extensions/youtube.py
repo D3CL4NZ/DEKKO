@@ -19,6 +19,7 @@ import sys
 import traceback
 
 import config
+import common
 
 # Silence useless bug reports messages
 youtube_dl.utils.bug_reports_message = lambda: ''
@@ -268,7 +269,7 @@ class VoiceState:
             try:
                 self.voice.play(self.current.source, after=self.play_next_song)
             except Exception as e:
-                print('Error occured when trying to play song {}'.format(e))
+                common.logger.error('Error occured when trying to play song {}'.format(e))
                 await self.stop()
                 return
 
@@ -331,7 +332,7 @@ class Music(commands.Cog):
 
         error = getattr(error, 'original', error)
 
-        traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+        # traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
         await ctx.send(':no_entry:  **CYKA BLYAT!**\n`DEKKOPlayer` has encountered an error :( ```ansi\n{}```'.format(str(error)))
         await error_channel.send(':no_entry:  **CYKA BLYAT!**\n`DEKKOPlayer` has encountered an error :( ```ansi\n{}```'.format("".join(traceback.format_exception(type(error), error, error.__traceback__))))
 

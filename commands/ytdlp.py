@@ -110,7 +110,7 @@ class YTDLP(commands.Cog):
 
         error = getattr(error, 'original', error)
 
-        traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+        # traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
         await ctx.send(':no_entry:  **CYKA BLYAT!**\n`DEKKO-YTDLPCC.XD` has encountered an error :( ```ansi\n{}```'.format(str(error)))
         await error_channel.send(':no_entry:  **CYKA BLYAT!**\n`DEKKO-YTDLPCC.XD` has encountered an error :( ```ansi\n{}```'.format("".join(traceback.format_exception(type(error), error, error.__traceback__))))
 
