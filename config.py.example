@@ -1,7 +1,8 @@
+import vars.py
+
 # MAIN CONFIG
 
 TOKEN = "Redacted lol. Bite me"
-VERSION = "1.4.3" # DON'T CHANGE THIS
 
 # CHANNEL CONFIG
 
