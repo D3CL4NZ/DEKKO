@@ -1,8 +1,13 @@
+import os
+from dotenv import load_dotenv
+
 import discord
 from discord.ext import commands
 import asyncio
 
 import config
+
+load_dotenv()
 
 intents = discord.Intents.all()
 intents.members = True
@@ -39,7 +44,7 @@ async def load_extensions():
 async def main():
     async with bot:
         await load_extensions()
-        await bot.start(config.TOKEN)
+        await bot.start(os.getenv('DISCORD_TOKEN'))
 
 if __name__ == '__main__':
     try:
