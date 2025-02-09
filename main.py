@@ -1,6 +1,3 @@
-import os
-from dotenv import load_dotenv
-
 import discord
 from discord.ext import commands
 import asyncio
@@ -44,7 +41,7 @@ async def load_extensions():
 async def main():
     async with bot:
         await load_extensions()
-        await bot.start(os.getenv('DISCORD_TOKEN'))
+        await bot.start(config.TOKEN)
 
 if __name__ == '__main__':
     try:
