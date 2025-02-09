@@ -3,6 +3,7 @@ import vars
 # MAIN CONFIG
 
 TOKEN = "Redacted lol. Bite me"
+VERSION = vars.VERSION
 
 # CHANNEL CONFIG
 
