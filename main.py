@@ -13,6 +13,8 @@ intents.members = True
 intents.message_content = True
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("$dekko "), intents=intents, activity=discord.CustomActivity(name=f"DEKKO! v{config.VERSION}"), status=discord.Status.online)
 
+loop = asyncio.get_event_loop()
+
 cog_files = [
     "commands.core",
     "commands.emoji_grabber",
@@ -45,12 +47,14 @@ async def main():
         await load_extensions()
         await bot.start(config.TOKEN)
 
-def signal_handler(sig, frame):
+# Set up some interrupt handling to make sure the bot exits gracefully...
+async def exit_gracefully(signame):
     print('Shutting down...')
-    asyncio.get_event_loop().run_until_complete(bot.close())
+    loop.run_until_complete(bot.close())
 
-signal.signal(signal.SIGINT, signal_handler)
-signal.signal(signal.SIGTERM, signal_handler)
+for signame in ('SIGINT', 'SIGTERM'):
+    loop.add_signal_handler(getattr(signal, signame),
+                            lambda signame=signame: asyncio.create_task(exit_gracefully(signame)))
 
 if __name__ == '__main__':
-    asyncio.get_event_loop().run_until_complete(main())
+    loop.run_until_complete(main())
