@@ -1,5 +1,9 @@
+import sys
+import signal
+
 import discord
 from discord.ext import commands
+
 import asyncio
 
 import config
@@ -41,8 +45,12 @@ async def main():
         await load_extensions()
         await bot.start(config.TOKEN)
 
+def signal_handler(sig, frame):
+    print('Shutting down...')
+    asyncio.get_event_loop().run_until_complete(bot.close())
+
+signal.signal(signal.SIGINT, signal_handler)
+signal.pause()
+
 if __name__ == '__main__':
-    try:
-        asyncio.get_event_loop().run_until_complete(main())
-    except KeyboardInterrupt:
-        asyncio.get_event_loop().run_until_complete(bot.close())
+    asyncio.get_event_loop().run_until_complete(main())
