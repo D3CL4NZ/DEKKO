@@ -42,7 +42,7 @@ jobs:
 
       - name: Stop DEKKO Service on Remote Server
         run: |
-          systemctl --user --host ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} stop DEKKO.service
+          systemctl --host ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} stop DEKKO.service
 
       - name: Copy Files to Remote Server
         run: |
