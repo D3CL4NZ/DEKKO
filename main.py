@@ -1,4 +1,3 @@
-import sys
 import signal
 
 import discord
@@ -47,14 +46,15 @@ async def main():
         await load_extensions()
         await bot.start(config.TOKEN)
 
-# Set up some interrupt handling to make sure the bot exits gracefully...
-async def exit_gracefully(signame):
-    print('Shutting down...')
-    loop.run_until_complete(bot.close())
+# Function to gracefully handle shutdown signal
+def handle_shutdown():
+    loop = asyncio.get_event_loop()
+    loop.create_task(bot.close())
+    print("Shutdown signal received. Closing bot...")
 
-for signame in ('SIGINT', 'SIGTERM'):
-    loop.add_signal_handler(getattr(signal, signame),
-                            lambda signame=signame: asyncio.create_task(exit_gracefully(signame)))
+# Register signal handlers
+signal.signal(signal.SIGINT, lambda sig, frame: handle_shutdown())
+signal.signal(signal.SIGTERM, lambda sig, frame: handle_shutdown())
 
 if __name__ == '__main__':
     loop.run_until_complete(main())
