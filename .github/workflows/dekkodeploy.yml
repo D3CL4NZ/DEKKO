@@ -44,4 +44,4 @@ jobs:
 
       - name: Copy Files to Remote Server
         run: |
-          rsync -avzr --delete --exclude node_modules --exclude '.git*' -e 'ssh -i .ssh/id_rsa -o StrictHostKeyChecking=no' ${{ GITHUB_WORKSPACE }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/DEKKO
+          rsync -avzr --delete --exclude node_modules --exclude '.git*' -e 'ssh -i .ssh/id_rsa -o StrictHostKeyChecking=no' ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/DEKKO
