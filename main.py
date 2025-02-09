@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 
+import sys
 import asyncio
 import signal
 
