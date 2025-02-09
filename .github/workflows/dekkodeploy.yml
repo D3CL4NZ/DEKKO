@@ -61,4 +61,4 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_BASTION: ${{ secrets.SSH_BASTION }}
         run: |
-          rsync -avzr --delete --exclude node_modules --exclude '.git*' -e 'ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no' ./ ${SSH_USER}@${SSH_HOST}:/home/${SSH_USER}/DEKKO
+          rsync -avzr --delete --exclude 'suspicious_users.db' --exclude 'config.py' --exclude '.git*' -e 'ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no' ./master/ ${SSH_USER}@${SSH_HOST}:/home/${SSH_USER}/DEKKO
