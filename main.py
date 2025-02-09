@@ -48,7 +48,6 @@ async def main():
 
 # Function to gracefully handle shutdown signal
 def handle_shutdown():
-    loop = asyncio.get_event_loop()
     loop.create_task(bot.close())
     common.logger.warning("Shutdown signal received. Closing bot...")
 
