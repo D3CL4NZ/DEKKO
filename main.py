@@ -1,11 +1,13 @@
-import signal
-
 import discord
 from discord.ext import commands
 
 import asyncio
+import signal
 
 import config
+
+import logging
+logger = logging.getLogger(__name__)
 
 intents = discord.Intents.all()
 intents.members = True
@@ -34,14 +36,16 @@ cog_files = [
 ]
 
 async def load_extensions():
-    print("[DECCYLoader] Loading extensions...")
+    logger.info("[DECCYLoader] Loading extensions...")
     for i in cog_files:
         await bot.load_extension(i)
-        print("%s has loaded." % i)
-    print("[DECCYLoader] All extensions have finished loading.")
-    print("[DECCYLoader] Finished initialization. Logging in...")
+        logger.info("    %s has loaded." % i)
+    logger.info("[DECCYLoader] All extensions have finished loading.")
+    logger.info("[DECCYLoader] Finished initialization. Logging in...")
 
 async def main():
+    logger.setLevel(logging.INFO)
+
     async with bot:
         await load_extensions()
         await bot.start(config.TOKEN)
@@ -50,7 +54,7 @@ async def main():
 def handle_shutdown():
     loop = asyncio.get_event_loop()
     loop.create_task(bot.close())
-    print("Shutdown signal received. Closing bot...")
+    logger.info("Shutdown signal received. Closing bot...")
 
 # Register signal handlers
 signal.signal(signal.SIGINT, lambda sig, frame: handle_shutdown())
