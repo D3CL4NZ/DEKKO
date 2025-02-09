@@ -37,6 +37,9 @@ jobs:
           SSH_BASTION: ${{ secrets.SSH_BASTION }}
         run: |
           cat <<EOF > ~/.ssh/config
+          Host *
+              StrictHostKeyChecking no
+
           Host ${SSH_HOST}
               ProxyJump deployment@${SSH_BASTION}
           EOF
