@@ -12,6 +12,8 @@ DM_CHANNEL_ID = 0 # Channel ID for DMs
 ADMIN_CHANNEL_ID = 0 # Private staff channel
 MANVER_CHANNEL_ID = 0 # Verification channel
 
+EXCLUDE_LOGGING_CHANNELS = [0, 0] # Channels you want to exclude from logging
+
 # NAUGHTY LIST CONFIG
 
 SUS_WEBHOOK_URL = "https://discord.com/api/webhooks/WEBHOOK_ID/WEBHOOK_SECRET"
@@ -20,9 +22,12 @@ SUS_LIST_ID = 0 # Message ID of the suspicious users list
 # HOLIDAYS CONFIG
 
 CALENDAR_SYSTEM = 0 # 0 = Gregorian; 1 = Julian; 2 = Lunar; 3 = Hindu
-TIME_ZONE_OFFSET = -5
+TZID = -5 # Time zone offset
 DAYLIGHT_SAVINGS = True # Whether DST is observed in your area
 LEAP_YEARS = True # Whether your calendar system uses leap years
+HEMISPHERE = 0 # 0 = Northern Hemisphere; 1 = Southern Hemisphere
+SEASONS = 4 # The number of seasons on your planet (Earth has 4)
+LIGHT_SECOND_CONVERSION_FACTOR = 299792458 # 1 light second in meters. Normally, you do not need to change this
 
 NEW_YEARS_CHANNEL_ID = 0 # First day of the calendar year
 CN_NEW_YEARS_CHANNEL_ID = 0 # First day of the Chinese lunar year
