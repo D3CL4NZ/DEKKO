@@ -23,9 +23,11 @@ jobs:
           submodules: recursive
 
       - name: Install SSH Key
+        env:
+          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           mkdir -p .ssh
-          echo ${{ secrets.SSH_PRIVATE_KEY }} > .ssh/id_rsa
+          echo "$PRIVATE_KEY" > .ssh/id_rsa
           chmod 600 .ssh/id_rsa
 
       - name: Add Bastion to SSH Config
