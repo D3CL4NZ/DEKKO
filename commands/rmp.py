@@ -3,6 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 
 import config
+import common
 
 import requests
 import json
@@ -11,7 +12,7 @@ import time
 
 AUTH = "Basic dGVzdDp0ZXN0"
 SCHOOL_ID = "U2Nob29sLTEwOTQ=" # School ID for University of Delaware
-USER_AGENT = f"DEKKO!/{config.VERSION} (D3C OS; x64) D3CL4NZ/4.2.0 Gecko/20100101 BiteMe/69.0"
+USER_AGENT = f"DEKKO!/{common.VERSION} (D3C OS; x64) D3CL4NZ/4.2.0 Gecko/20100101 BiteMe/69.0"
 
 def generate_embed(rating: dict):
     color = discord.Colour.default()
@@ -32,7 +33,7 @@ def generate_embed(rating: dict):
     embed.add_field(name="Quality", value=rating["avg_rating"], inline=True)
     embed.add_field(name="Difficulty", value=rating["difficulty"], inline=True)
     embed.add_field(name="Would take again", value=f"{rating['would_take_again']}%", inline=True)
-    embed.set_footer(text=f"DEKKO! v{config.VERSION}")
+    embed.set_footer(text=f"DEKKO! v{common.VERSION}")
 
     return embed
 
