@@ -33,16 +33,13 @@ jobs:
       - name: Add Bastion to SSH Config
         run: |
           cat <<EOF > .ssh/config
-          Host *
-              StrictHostKeyChecking=no
-          
           Host ${{ secrets.SSH_HOST }}
               ProxyJump deployment@${{ secrets.SSH_BASTION }}
           EOF
 
       - name: Stop DEKKO Service on Remote Server
         run: |
-          systemctl --host ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} stop DEKKO.service
+          ssh -i .ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -o StrictHostKeyChecking=no 'sudo /bin/systemctl stop DEKKO.service'
 
       - name: Copy Files to Remote Server
         run: |
