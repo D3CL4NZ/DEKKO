@@ -1,0 +1,47 @@
+name: Deploy DEKKO to server
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy-over-ssh:
+    name: Deploy over SSH
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      actions: write
+      id-token: write
+  
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: master
+          submodules: recursive
+
+      - name: Install SSH Key
+        run: |
+          mkdir -p .ssh
+          echo ${{ secrets.SSH_PRIVATE_KEY }} > .ssh/id_rsa
+          chmod 600 .ssh/id_rsa
+
+      - name: Add Bastion to SSH Config
+        run: |
+          cat <<EOF > .ssh/config
+          Host *
+              StrictHostKeyChecking=no
+          
+          Host ${{ secrets.SSH_HOST }}
+              ProxyJump deployment@${{ secrets.SSH_BASTION }}
+          EOF
+
+      - name: Stop DEKKO Service on Remote Server
+        run: |
+          systemctl --user --host ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} stop DEKKO.service
+
+      - name: Copy Files to Remote Server
+        run: |
+          rsync -avzr --delete --exclude node_modules --exclude '.git*' -e 'ssh -i .ssh/id_rsa -o StrictHostKeyChecking=no' ${{ GITHUB_WORKSPACE }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/DEKKO
