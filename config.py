@@ -1,6 +1,5 @@
-# MAIN CONFIG
-
-VERSION = "1.5.0" # DON'T CHANGE THIS
+# VARIABLES
+import vars.py
 
 # CHANNEL CONFIG
 
