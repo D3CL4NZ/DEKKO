@@ -7,7 +7,11 @@ import signal
 import config
 
 import logging
-logger = logging.getLogger(__name__)
+
+logger = logging.getLogger('discord')
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler(sys.stdout)
+logger.addHandler(handler)
 
 intents = discord.Intents.all()
 intents.members = True
@@ -44,8 +48,6 @@ async def load_extensions():
     logger.info("[DECCYLoader] Finished initialization. Logging in...")
 
 async def main():
-    logger.setLevel(logging.INFO)
-
     async with bot:
         await load_extensions()
         await bot.start(config.TOKEN)
