@@ -50,7 +50,7 @@ def signal_handler(sig, frame):
     asyncio.get_event_loop().run_until_complete(bot.close())
 
 signal.signal(signal.SIGINT, signal_handler)
-signal.pause()
+signal.signal(signal.SIGTERM, signal_handler)
 
 if __name__ == '__main__':
     asyncio.get_event_loop().run_until_complete(main())
