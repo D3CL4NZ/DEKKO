@@ -1,6 +1,10 @@
 name: Deploy DEKKO to server
 
-on: [workflow_dispatch]
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
 
 jobs:
   deploy-over-ssh:
