@@ -27,20 +27,29 @@ jobs:
           PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           mkdir -p .ssh
-          echo "$PRIVATE_KEY" > .ssh/id_rsa
+          echo "${PRIVATE_KEY}" > .ssh/id_rsa
           chmod 600 .ssh/id_rsa
 
       - name: Add Bastion to SSH Config
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_BASTION: ${{ secrets.SSH_BASTION }}
         run: |
           cat <<EOF > .ssh/config
-          Host ${{ secrets.SSH_HOST }}
-              ProxyJump deployment@${{ secrets.SSH_BASTION }}
+          Host ${SSH_HOST}
+              ProxyJump deployment@${SSH_BASTION}
           EOF
 
       - name: Stop DEKKO Service on Remote Server
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
         run: |
-          ssh -i .ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -o StrictHostKeyChecking=no 'sudo /bin/systemctl stop DEKKO.service'
+          ssh -i .ssh/id_rsa ${SSH_USER}@${SSH_HOST} -o StrictHostKeyChecking=no 'sudo /bin/systemctl stop DEKKO.service'
 
       - name: Copy Files to Remote Server
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
         run: |
-          rsync -avzr --delete --exclude node_modules --exclude '.git*' -e 'ssh -i .ssh/id_rsa -o StrictHostKeyChecking=no' ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/DEKKO
+          rsync -avzr --delete --exclude node_modules --exclude '.git*' -e 'ssh -i .ssh/id_rsa -o StrictHostKeyChecking=no' ./ ${SSH_USER}@${SSH_HOST}:/home/${SSH_USER}/DEKKO
