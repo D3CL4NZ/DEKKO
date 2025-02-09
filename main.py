@@ -4,8 +4,6 @@ import asyncio
 
 import config
 
-load_dotenv()
-
 intents = discord.Intents.all()
 intents.members = True
 intents.message_content = True
