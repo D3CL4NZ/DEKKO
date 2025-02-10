@@ -50,6 +50,7 @@ jobs:
           Host *
               StrictHostKeyChecking no
           EOF
+          chmod 600 ~/.ssh/config
 
       - name: Stop DEKKO service on remote server
         env:
