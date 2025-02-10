@@ -812,8 +812,7 @@ class Events(commands.Cog):
                 pass
 
         else:
-            # print(f"Ignoring exception in command {ctx.command}:", file=sys.stderr)
-            # traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+            common.logger.error(f"Ignoring exception in command {ctx.command}:\n{''.join(traceback.format_exception(type(error), error, error.__traceback__))}")
             await error_channel.send(f":no_entry: **CYKA BLYAT!**\n`DEKKO Command Processor` has encountered an error :( ```ansi\n{''.join(traceback.format_exception(type(error), error, error.__traceback__))}```")
             await ctx.send(f":no_entry: **CYKA BLYAT!**\n`DEKKO Command Processor` has encountered an error :( ```ansi\n{str(error)}```")
 

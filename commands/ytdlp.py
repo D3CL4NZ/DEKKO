@@ -10,6 +10,7 @@ from discord.ext import commands
 import traceback
 
 import config
+import common
 
 # Silence useless bug reports messages
 youtube_dl.utils.bug_reports_message = lambda: ''
@@ -109,7 +110,7 @@ class YTDLP(commands.Cog):
 
         error = getattr(error, 'original', error)
 
-        # traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+        common.logger.error(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
         await ctx.send(':no_entry:  **CYKA BLYAT!**\n`DEKKO-YTDLPCC.XD` has encountered an error :( ```ansi\n{}```'.format(str(error)))
         await error_channel.send(':no_entry:  **CYKA BLYAT!**\n`DEKKO-YTDLPCC.XD` has encountered an error :( ```ansi\n{}```'.format("".join(traceback.format_exception(type(error), error, error.__traceback__))))
 

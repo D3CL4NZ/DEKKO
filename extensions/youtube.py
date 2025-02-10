@@ -327,7 +327,7 @@ class Music(commands.Cog):
 
         error = getattr(error, 'original', error)
 
-        # traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+        common.logger.error(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
         await ctx.send(':no_entry:  **CYKA BLYAT!**\n`DEKKOPlayer` has encountered an error :( ```ansi\n{}```'.format(str(error)))
         await error_channel.send(':no_entry:  **CYKA BLYAT!**\n`DEKKOPlayer` has encountered an error :( ```ansi\n{}```'.format("".join(traceback.format_exception(type(error), error, error.__traceback__))))
 
