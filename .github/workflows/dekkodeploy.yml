@@ -2,11 +2,11 @@ name: Deploy DEKKO to server
 
 on:
   workflow_dispatch:
-  push:
+  release:
+    types:
+      - published
     branches:
       - master
-    tags:
-      - '**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
