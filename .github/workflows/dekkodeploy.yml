@@ -23,7 +23,7 @@ jobs:
           path: master
           submodules: recursive
 
-      - name: Install SSH Key
+      - name: Install SSH key
         env:
           PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
@@ -31,7 +31,7 @@ jobs:
           echo "${PRIVATE_KEY}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Add Bastion to SSH Config
+      - name: Add bastion to SSH config
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_BASTION: ${{ secrets.SSH_BASTION }}
@@ -48,14 +48,14 @@ jobs:
               StrictHostKeyChecking no
           EOF
 
-      - name: Stop DEKKO Service on Remote Server
+      - name: Stop DEKKO systemd service on remote server
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
         run: |
           ssh -i ~/.ssh/id_rsa ${SSH_USER}@${SSH_HOST} -o StrictHostKeyChecking=no 'sudo /bin/systemctl stop DEKKO.service'
 
-      - name: Copy Files to Remote Server
+      - name: Copy files to remote server
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -63,7 +63,7 @@ jobs:
         run: |
           rsync -avzr --delete --exclude 'suspicious_users.db' --exclude 'config.py' --exclude '.git*' -e 'ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no' ./master/ ${SSH_USER}@${SSH_HOST}:/home/${SSH_USER}/DEKKO
 
-      - name: Start DEKKO Service on Remote Server
+      - name: Start DEKKO systemd service on remote server
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
