@@ -9,6 +9,10 @@ on:
       - '.git*'
       - '.git*/**'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy-over-ssh:
     name: Deploy over SSH
