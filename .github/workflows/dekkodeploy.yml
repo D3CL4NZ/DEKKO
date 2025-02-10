@@ -5,9 +5,8 @@ on:
   push:
     branches:
       - master
-    paths-ignore:
-      - '.git*'
-      - '.git*/**'
+    tags:
+      - '**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
