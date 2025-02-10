@@ -164,4 +164,4 @@ cython_debug/
 # Custom ignores
 outtmpl/
 config.py
-suspicious_users
+suspicious_users.db
