@@ -278,11 +278,11 @@ class Events(commands.Cog):
         
         # Determine channel type
         channel_type = (
-            "Text channel" if isinstance(before, discord.TextChannel) else
-            "Voice channel" if isinstance(before, discord.VoiceChannel) else
-            "Category" if isinstance(before, discord.CategoryChannel) else
-            "Stage channel" if isinstance(before, discord.StageChannel) else
-            "Forum channel" if isinstance(before, discord.ForumChannel) else
+            "Text channel" if isinstance(channel, discord.TextChannel) else
+            "Voice channel" if isinstance(channel, discord.VoiceChannel) else
+            "Category" if isinstance(channel, discord.CategoryChannel) else
+            "Stage channel" if isinstance(channel, discord.StageChannel) else
+            "Forum channel" if isinstance(channel, discord.ForumChannel) else
             "Channel"
         )
 
@@ -302,11 +302,11 @@ class Events(commands.Cog):
         
         # Determine channel type
         channel_type = (
-            "Text channel" if isinstance(before, discord.TextChannel) else
-            "Voice channel" if isinstance(before, discord.VoiceChannel) else
-            "Category" if isinstance(before, discord.CategoryChannel) else
-            "Stage channel" if isinstance(before, discord.StageChannel) else
-            "Forum channel" if isinstance(before, discord.ForumChannel) else
+            "Text channel" if isinstance(channel, discord.TextChannel) else
+            "Voice channel" if isinstance(channel, discord.VoiceChannel) else
+            "Category" if isinstance(channel, discord.CategoryChannel) else
+            "Stage channel" if isinstance(channel, discord.StageChannel) else
+            "Forum channel" if isinstance(channel, discord.ForumChannel) else
             "Channel"
         )
             
