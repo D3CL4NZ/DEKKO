@@ -3,10 +3,6 @@ import functools
 import itertools
 import math
 import random
-import time
-import os
-import unicodedata
-import string
 
 import discord
 from discord import app_commands
@@ -15,7 +11,6 @@ from async_timeout import timeout
 from discord.ext import commands
 
 # Needed for error handling
-import sys
 import traceback
 
 import config

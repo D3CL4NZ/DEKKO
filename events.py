@@ -3,7 +3,6 @@ from discord.ext import commands
 
 from typing import Union
 
-import sys
 import traceback
 
 import config

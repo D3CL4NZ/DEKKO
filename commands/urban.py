@@ -5,8 +5,6 @@ import requests
 import json
 from expiringdict import ExpiringDict
 
-import time
-
 def error_message(error):
     if (error == 404):
         return discord.Embed(title="Definition not found", description="ERR_HTTP_CYKA_BLYAT_404_NOT_FOUND", color=discord.Colour.red())

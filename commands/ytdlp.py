@@ -7,7 +7,6 @@ import yt_dlp as youtube_dl
 from discord.ext import commands
 
 # Needed for error handling
-import sys
 import traceback
 
 import config

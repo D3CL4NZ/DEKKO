@@ -5,8 +5,6 @@ from discord.utils import get
 
 import config
 
-import time
-
 class Verification(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
