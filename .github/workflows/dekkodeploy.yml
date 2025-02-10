@@ -1,6 +1,5 @@
 name: Deploy DEKKO to server
 
-
 on:
   workflow_dispatch:
   push:
