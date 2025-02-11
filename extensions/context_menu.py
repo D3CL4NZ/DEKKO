@@ -16,8 +16,8 @@ class ContextMenus(commands.Cog):
         self.bot.tree.add_command(self.reaction_info_stealth)
 
     async def cog_unload(self):
-        self.bot.tree.remove_command(self.reaction_info.name, type=self.reaction_menu.type)
-        self.bot.tree.remove_command(self.reaction_info_stealth.name, type=self.reaction_menu_stealth.type)
+        self.bot.tree.remove_command(self.reaction_info.name, type=self.reaction_info.type)
+        self.bot.tree.remove_command(self.reaction_info_stealth.name, type=self.reaction_info_stealth.type)
 
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
