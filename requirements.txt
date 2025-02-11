@@ -2,7 +2,6 @@ aiohttp==3.11.12
 async_timeout==5.0.1
 discord.py==2.4.0
 expiringdict==1.2.2
-ffmpeg==1.4
 lunardate==0.2.2
 Requests==2.32.3
 yt_dlp==2025.1.26
