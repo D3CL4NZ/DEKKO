@@ -37,7 +37,7 @@ async def load_extensions():
     common.logger.info("[DECCYLoader] Loading extensions...")
     for i in cog_files:
         await bot.load_extension(i)
-        common.logger.info("    %s has loaded." % i)
+        common.logger.info("    -> %s has loaded." % i)
     common.logger.info("[DECCYLoader] All extensions have finished loading.")
     common.logger.info("[DECCYLoader] Finished initialization. Logging in...")
 
