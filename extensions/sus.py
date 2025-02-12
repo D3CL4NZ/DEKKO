@@ -19,13 +19,13 @@ class SuspiciousUsers(commands.Cog):
     async def on_member_update(self, before: discord.Member, after: discord.Member):
         if not after.bot:
             if before.pending and not after.pending:
-                sus_role = after.guild.get_role(db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", after.guild.id))
-                purgatory_role = after.guild.get_role(db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", after.guild.id))
-                moderator_role = after.guild.get_role(db.fetch_one("SELECT mod_role_id FROM config WHERE guild = ?", after.guild.id))
+                sus_role = after.guild.get_role(await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", after.guild.id))
+                purgatory_role = after.guild.get_role(await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", after.guild.id))
+                moderator_role = after.guild.get_role(await db.fetch_one("SELECT mod_role_id FROM config WHERE guild = ?", after.guild.id))
 
-                log_channel = self.bot.get_channel(db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id))
-                admin_channel = self.bot.get_channel(db.fetch_one("SELECT admin_channel FROM config WHERE guild = ?", after.guild.id))
-                manver_channel = self.bot.get_channel(db.fetch_one("SELECT manver_channel FROM config WHERE guild = ?", after.guild.id))
+                log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id))
+                admin_channel = self.bot.get_channel(await db.fetch_one("SELECT admin_channel FROM config WHERE guild = ?", after.guild.id))
+                manver_channel = self.bot.get_channel(await db.fetch_one("SELECT manver_channel FROM config WHERE guild = ?", after.guild.id))
 
                 await after.edit(roles=[purgatory_role])
                 
@@ -40,7 +40,7 @@ Sus check: `In progress...` :hourglass:""")
                 sus_users = []
 
                 # Fetch suspicious users table from the database
-                data = db.fetch("SELECT * FROM naughty_list")
+                data = await db.fetch("SELECT * FROM naughty_list")
 
                 # Check if the user is in the suspicious users table
                 for user in data:
@@ -90,7 +90,7 @@ Sus check: `Pass` :white_check_mark:""")
     async def _naughtlylist(self, ctx):
         sus_users = []
 
-        data = db.fetch("SELECT * FROM naughty_list")
+        data = await db.fetch("SELECT * FROM naughty_list")
 
         for user in data:
             sus_users.append("<@{}> (`{}`)".format(str(user[0]), user[1]))
@@ -111,7 +111,7 @@ Sus check: `Pass` :white_check_mark:""")
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
-            log_channels = db.fetch("SELECT log_channel FROM config")
+            log_channels = await db.fetch("SELECT log_channel FROM config")
             
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -119,7 +119,7 @@ Sus check: `Pass` :white_check_mark:""")
 
             # Check if the user is already marked as sus
             sus_users = []
-            data = db.fetch("SELECT * FROM naughty_list")
+            data = await db.fetch("SELECT * FROM naughty_list")
 
             await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `SELECT * FROM naughty_list`
@@ -140,8 +140,8 @@ Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
 
             if ctx.guild.get_member(user.id) is not None:
-                sus_role = user.guild.get_role(db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", user.guild.id))
-                purgatory_role = user.guild.get_role(db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", user.guild.id))
+                sus_role = user.guild.get_role(await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", user.guild.id))
+                purgatory_role = user.guild.get_role(await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", user.guild.id))
 
                 if purgatory_role not in user.roles and sus_role not in user.roles:
                     await user.edit(roles=[purgatory_role, sus_role])
@@ -175,7 +175,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.sus(sus.java:33)
 ```""")
 
-            await self.bot.get_channel(db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            await self.bot.get_channel(await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
@@ -192,7 +192,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
-            log_channels = db.fetch("SELECT log_channel FROM config")
+            log_channels = await db.fetch("SELECT log_channel FROM config")
             
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -206,7 +206,7 @@ Query: `SELECT * FROM naughty_list`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
 
-            data = db.fetch("SELECT * FROM naughty_list")
+            data = await db.fetch("SELECT * FROM naughty_list")
 
             for u in data:
                 sus_users.append(u[0])
@@ -222,8 +222,8 @@ Started: <t:{int(time.time())}:R>""")
             db.execute("DELETE FROM naughty_list WHERE user_id = ?", user.id)
 
             if ctx.guild.get_member(user.id) is not None:
-                sus_role = user.guild.get_role(db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", user.guild.id))
-                purgatory_role = user.guild.get_role(db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", user.guild.id))
+                sus_role = user.guild.get_role(await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", user.guild.id))
+                purgatory_role = user.guild.get_role(await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", user.guild.id))
 
                 if purgatory_role in user.roles and sus_role in user.roles:
                     await user.edit(roles=[purgatory_role])
@@ -257,7 +257,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.sus(sus.java:33)
 ```""")
 
-            await self.bot.get_channel(db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            await self.bot.get_channel(await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)

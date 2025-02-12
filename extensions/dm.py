@@ -9,11 +9,12 @@ from database import db
 class DirectMessages(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.dm_channel = self.bot.get_channel(db.fetch_one("SELECT dm_channel FROM global_config"))
         common.logger.info("[Direct Messages] Hello :D")
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        self.dm_channel = self.bot.get_channel(await db.fetch_one("SELECT dm_channel FROM global_config"))
+
         if isinstance(message.channel, discord.channel.DMChannel) and message.author != self.bot.user:
             # Get attachments, if any
             attachments_string = "None"
