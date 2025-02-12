@@ -4,6 +4,8 @@ from discord.ext import commands
 
 import time
 
+import common
+
 from database import db
 
 class SetupDB(commands.Cog):
@@ -213,6 +215,47 @@ class SetupDB(commands.Cog):
                     await response.edit(content=f":white_check_mark:  **WISHLIST CHANNEL SET TO <#{value}>**")
                 else:
                     await response.edit(content=":warning:  **INVALID OPTION**")
+            elif subcommand.lower() == "showconfig":
+                config = await db.fetch_one("SELECT * FROM config WHERE guild = ?", ctx.guild.id)
+                holidata = await db.fetch_one("SELECT * FROM holidata WHERE guild = ?", ctx.guild.id)
+
+                if config and holidata:
+                    embed = discord.Embed(
+                        title=f"**Configuration for:** `{ctx.guild.name}`",
+                        description=None,
+                        color=0xda00ff
+                    )
+                    embed.add_field(name="__**Channels**__", value=f"""Log Channel: {"<#"+config[1]+">" if config[1] else "`Not set`"}
+Error Channel: {"<#"+config[2]+">" if config[2] else "`Not set`"}
+Admin Channel: {"<#"+config[3]+">" if config[3] else "`Not set`"}
+Verification Channel: {"<#"+config[4]+">" if config[4] else "`Not set`"}""", inline=False)
+                    embed.add_field(name="__**Roles**__", value=f"""Owner Role: {"<@&"+config[6]+">" if config[6] else "`Not set`"}
+Admin Role: {"<@&"+config[7]+">" if config[7] else "`Not set`"}
+Moderator Role: {"<@&"+config[8]+">" if config[8] else "`Not set`"}
+Bot Role: {"<@&"+config[9]+">" if config[9] else "`Not set`"}
+Human Role: {"<@&"+config[10]+">" if config[10] else "`Not set`"}
+Verified Role: {"<@&"+config[11]+">" if config[11] else "`Not set`"}
+Muted Role: {"<@&"+config[12]+">" if config[12] else "`Not set`"}
+Purgatory Role: {"<@&"+config[13]+">" if config[13] else "`Not set`"}
+Sus Role: {"<@&"+config[14]+">" if config[14] else "`Not set`"}""", inline=False)
+                    embed.add_field(name="__**Holidays**__", value=f"""New Years Channel: {"<#"+holidata[1]+">" if holidata[1] else "`Not set`"}
+Chinese New Years Channel: {"<#"+holidata[2]+">" if holidata[2] else "`Not set`"}
+Valentines Channel: {"<#"+holidata[3]+">" if holidata[3] else "`Not set`"}
+St. Patricks Channel: {"<#"+holidata[4]+">" if holidata[4] else "`Not set`"}
+Easter Channel: {"<#"+holidata[5]+">" if holidata[5] else "`Not set`"}
+Cinco De Mayo Channel: {"<#"+holidata[6]+">" if holidata[6] else "`Not set`"}
+Independence Day Channel: {"<#"+holidata[7]+">" if holidata[7] else "`Not set`"}
+Halloween Channel: {"<#"+holidata[8]+">" if holidata[8] else "`Not set`"}
+Thanksgiving Channel: {"<#"+holidata[9]+">" if holidata[9] else "`Not set`"}
+Christmas Channel: {"<#"+holidata[10]+">" if holidata[10] else "`Not set`"}
+Wishlist Channel: {"<#"+holidata[11]+">" if holidata[11] else "`Not set`"}""", inline=False)
+                    embed.set_footer(text=f"DEKKO! v{common.VERSION}")
+                    embed.timestamp = discord.utils.utcnow()
+
+                else:
+                    await response.edit(content=":warning:  **DATABASE NOT INITIALIZED**")
+            else:
+                await response.edit(content=":warning:  **INVALID SUBCOMMAND**")
 
     @commands.hybrid_command(name='dekkosetup-global', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
@@ -242,6 +285,8 @@ class SetupDB(commands.Cog):
     Started: <t:{int(time.time())}:R>""")
                     await db.execute("UPDATE global_config SET global_log_channel = ?", value)
                     await response.edit(content=f":white_check_mark:  **GLOBAL LOG CHANNEL SET TO <#{value}>**")
+                else:
+                    await response.edit(content=":warning:  **INVALID OPTION**")
             elif subcommand.lower() == "initialize-global":
                 existing_config = await db.fetch_one("SELECT * FROM global_config WHERE id = ?", 1)
 
