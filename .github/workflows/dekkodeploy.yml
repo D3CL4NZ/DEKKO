@@ -26,6 +26,7 @@ jobs:
         with:
           path: master
           submodules: recursive
+          ref: v1.5.2
 
       - name: Install SSH key
         env:
