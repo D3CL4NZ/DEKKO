@@ -11,6 +11,9 @@ from database import db
 class SuspiciousUsers(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.bot.loop.create_task(self.initialize_database())
+
+    async def initialize_database(self):
         common.logger.info("[Suspicious Users] Initializing database...")
         await db.execute("CREATE TABLE IF NOT EXISTS `naughty_list` (user_id INTEGER PRIMARY KEY, username TEXT, reason TEXT)")
         common.logger.info("[Suspicious Users] Successfully loaded suspicious users database.")
