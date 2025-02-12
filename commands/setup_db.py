@@ -257,6 +257,7 @@ Halloween Channel: {f"<#{holidata[8]}>" if holidata[8] else "`Not set`"}
 Thanksgiving Channel: {f"<#{holidata[9]}>" if holidata[9] else "`Not set`"}
 Christmas Channel: {f"<#{holidata[10]}>" if holidata[10] else "`Not set`"}
 Wishlist Channel: {f"<#{holidata[11]}>" if holidata[11] else "`Not set`"}""", inline=False)
+                    embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon.url)
                     embed.set_footer(text=f"DEKKO! v{common.VERSION}")
                     embed.timestamp = discord.utils.utcnow()
 
