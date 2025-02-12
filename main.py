@@ -100,6 +100,14 @@ async def initialize_db():
         )
     """)
 
+    await db.execute("""
+        CREATE TABLE IF NOT EXISTS `logging_webhooks` (
+            guild INTEGER PRIMARY KEY,
+            log_webhook INTEGER,
+            error_webhook INTEGER
+        )
+    """)
+
     common.logger.info("[DECCYLoader] Database initialized.")
 
 async def main():

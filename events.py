@@ -337,7 +337,9 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_channel_update(self, before: discord.abc.GuildChannel, after: discord.abc.GuildChannel):
         # Don't log channels that are excluded
-        excluded_channels = (await db.fetch_one("SELECT exclude_logging_channels FROM config WHERE guild = ?", after.guild.id))[0].split(',')
+        excluded_channels = await db.fetch_one("SELECT exclude_logging_channels FROM config WHERE guild = ?", after.guild.id)
+        if excluded_channels:
+            excluded_channels = excluded_channels[0].split(',')
 
         if before.id in excluded_channels:
             return
