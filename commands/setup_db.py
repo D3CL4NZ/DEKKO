@@ -227,6 +227,8 @@ class SetupDB(commands.Cog):
     Started: <t:{int(time.time())}:R>""")
                 holidata = await db.fetch_one("SELECT * FROM holidata WHERE guild = ?", ctx.guild.id)
 
+                ctx.channel.send(config) # Temporarily added line for debugging
+
                 if config and holidata:
                     embed = discord.Embed(
                         title=f"**Configuration for:** `{ctx.guild.name}`",
@@ -260,7 +262,7 @@ Wishlist Channel: {"<#"+holidata[11]+">" if holidata[11] else "`Not set`"}""", i
                     embed.set_footer(text=f"DEKKO! v{common.VERSION}")
                     embed.timestamp = discord.utils.utcnow()
 
-                    await response.edit(content=None, embed=embed)
+                    await response.edit(content=":pencil: Database transaction successful.", embed=embed)
                 else:
                     await response.edit(content=":warning:  **DATABASE NOT INITIALIZED**")
             else:
