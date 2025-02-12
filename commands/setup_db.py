@@ -236,7 +236,8 @@ class SetupDB(commands.Cog):
                     embed.add_field(name="__**Channels**__", value=f"""Log Channel: {f"<#{config[1]}>" if config[1] else "`Not set`"}
 Error Channel: {f"<#{config[2]}>" if config[2] else "`Not set`"}
 Admin Channel: {f"<#{config[3]}>" if config[3] else "`Not set`"}
-Verification Channel: {f"<#{config[4]}>" if config[4] else "`Not set`"}""", inline=False)
+Verification Channel: {f"<#{config[4]}>" if config[4] else "`Not set`"}
+Excluded Channels: `Not yet implemented`""", inline=False)
                     embed.add_field(name="__**Roles**__", value=f"""Owner Role: {f"<@&{config[6]}>" if config[6] else "`Not set`"}
 Admin Role: {f"<@&{config[7]}>" if config[7] else "`Not set`"}
 Moderator Role: {f"<@&{config[8]}>" if config[8] else "`Not set`"}
