@@ -1,4 +1,5 @@
 aiohttp==3.11.12
+aiosqlite==0.21.0
 async_timeout==5.0.1
 discord.py==2.4.0
 expiringdict==1.2.2
