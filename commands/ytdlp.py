@@ -107,7 +107,7 @@ class YTDLP(commands.Cog):
         self.bot = bot
 
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        error_channel = self.bot.get_channel(db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))
+        error_channel = self.bot.get_channel(await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))
 
         error = getattr(error, 'original', error)
 
@@ -127,7 +127,7 @@ class YTDLP(commands.Cog):
             file = await YTDownload.download_video(search)
         except YTDLError as e:
             await message.edit(content=':no_entry:  **An error occurred while processing this request:** ```ansi\n{}```'.format(str(e)))
-            await self.bot.get_channel(db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(':no_entry:  **An error occurred while processing this request:** ```ansi\n{}```'.format(str(e)))
+            await self.bot.get_channel(await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(':no_entry:  **An error occurred while processing this request:** ```ansi\n{}```'.format(str(e)))
         else:
             try:
                 await message.edit(content=':white_check_mark:  **Download complete**')

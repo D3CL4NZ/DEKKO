@@ -65,17 +65,17 @@ class Holidays(commands.Cog):
     async def _check_if_holiday(self):
         await self.bot.wait_until_ready()
 
-        NEW_YEARS_CHANNELS = db.fetch("SELECT new_years_channel FROM holidata")
-        CN_NEW_YEARS_CHANNELS = db.fetch("SELECT cn_new_years_channel FROM holidata")
-        VDAY_CHANNELS = db.fetch("SELECT vday_channel FROM holidata")
-        ST_PATTY_CHANNELS = db.fetch("SELECT st_patricks_channel FROM holidata")
-        EASTER_CHANNELS = db.fetch("SELECT easter_channel FROM holidata")
-        CDM_CHANNELS = db.fetch("SELECT cinco_de_mayo_channel FROM holidata")
-        J4_CHANNELS = db.fetch("SELECT j4_channel FROM holidata")
-        HALLOWEEN_CHANNELS = db.fetch("SELECT halloween_channel FROM holidata")
-        THANKSGIVING_CHANNELS = db.fetch("SELECT thanksgiving_channel FROM holidata")
-        CHRISTMAS_CHANNELS = db.fetch("SELECT christmas_channel FROM holidata")
-        WISHLIST_CHANNELS = db.fetch("SELECT wishlist_channel FROM holidata")
+        NEW_YEARS_CHANNELS = await db.fetch("SELECT new_years_channel FROM holidata")
+        CN_NEW_YEARS_CHANNELS = await db.fetch("SELECT cn_new_years_channel FROM holidata")
+        VDAY_CHANNELS = await db.fetch("SELECT vday_channel FROM holidata")
+        ST_PATTY_CHANNELS = await db.fetch("SELECT st_patricks_channel FROM holidata")
+        EASTER_CHANNELS = await db.fetch("SELECT easter_channel FROM holidata")
+        CDM_CHANNELS = await db.fetch("SELECT cinco_de_mayo_channel FROM holidata")
+        J4_CHANNELS = await db.fetch("SELECT j4_channel FROM holidata")
+        HALLOWEEN_CHANNELS = await db.fetch("SELECT halloween_channel FROM holidata")
+        THANKSGIVING_CHANNELS = await db.fetch("SELECT thanksgiving_channel FROM holidata")
+        CHRISTMAS_CHANNELS = await db.fetch("SELECT christmas_channel FROM holidata")
+        WISHLIST_CHANNELS = await db.fetch("SELECT wishlist_channel FROM holidata")
 
         for NEW_YEARS_CHANNEL, CN_NEW_YEARS_CHANNEL, VDAY_CHANNEL, ST_PATTY_CHANNEL, EASTER_CHANNEL, CDM_CHANNEL, J4_CHANNEL, HALLOWEEN_CHANNEL, THANKSGIVING_CHANNEL, CHRISTMAS_CHANNEL, WISHLIST_CHANNEL in zip(NEW_YEARS_CHANNELS, CN_NEW_YEARS_CHANNELS, VDAY_CHANNELS, ST_PATTY_CHANNELS, EASTER_CHANNELS, CDM_CHANNELS, J4_CHANNELS, HALLOWEEN_CHANNELS, THANKSGIVING_CHANNELS, CHRISTMAS_CHANNELS, WISHLIST_CHANNELS):
             NEW_YEARS_CHANNEL = self.bot.get_channel(NEW_YEARS_CHANNEL)
