@@ -16,6 +16,35 @@ class Setup(commands.Cog):
     async def _setup(self, ctx):
         await ctx.send(':warning:  **You must specify a subcommand**')
 
+    @_setup.command(name='initialize', invoke_without_subcommand=True, with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.has_permissions(administrator=True)
+    async def _setup_initialize(self, ctx):
+        """Initializes the database for the server"""
+
+        async with ctx.typing():
+            response = await ctx.send(":hourglass:  **Please wait...**")
+
+            await db.execute("INSERT INTO config (guild) VALUES (?)", ctx.guild.id)
+            await db.execute("INSERT INTO holidata (guild) VALUES (?)", ctx.guild.id)
+
+            await response.edit(content=":white_check_mark:  **INITIALIZED DATABASE**")
+
+    @_setup.command(name='initialize-global', invoke_without_subcommand=True, with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.is_owner()
+    async def _setup_initialize_global(self, ctx):
+        """Initializes DEKKO's global database"""
+
+        async with ctx.typing():
+            response = await ctx.send(":hourglass:  **Please wait...**")
+
+            await db.execute("INSERT INTO global_config (id) VALUES (?)", 1)
+
+            await response.edit(content=":white_check_mark:  **INITIALIZED GLOBAL DATABASE**")
+
     @_setup.command(name='global', invoke_without_subcommand=True, with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
@@ -35,23 +64,6 @@ Started: <t:{int(time.time())}:R>""")
                 await response.edit(content=f":white_check_mark:  **DM CHANNEL SET TO <#{value}>**")
             else:
                 await response.edit(content=":warning:  **INVALID OPTION**")
-
-    @_setup_global.error
-    async def _edit_global_config_error(self, ctx, error):
-        if isinstance(error, commands.CheckFailure):
-            await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
-Exception in thread "main" java.lang.SecurityException: Permission Denial
-\tat me.declanz.DEKKO(bot.java:249)
-\tat me.declanz.DEKKO.PermissionCheck(events.java:12)
-\tat me.declanz.DEKKO.setup(setup.java:37)
-```""")
-
-            await self.bot.get_channel(await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
-Exception in thread "main" java.lang.SecurityException: Permission Denial
-\tat me.declanz.DEKKO(bot.java:249)
-\tat me.declanz.DEKKO.PermissionCheck(events.java:12)
-\tat me.declanz.DEKKO.setup(setup.java:37)
-```""")
 
     @_setup.command(name='channels', invoke_without_subcommand=True, with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
@@ -93,23 +105,6 @@ Started: <t:{int(time.time())}:R>""")
                 await response.edit(content=f":white_check_mark:  **VERIFICATION CHANNEL SET TO {channel.mention}**")
             else:
                 await response.edit(content=":warning:  **INVALID OPTION**")
-
-    @_setup_channels.error
-    async def _edit_channel_config_error(self, ctx, error):
-        if isinstance(error, commands.CheckFailure):
-            await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
-Exception in thread "main" java.lang.SecurityException: Permission Denial
-\tat me.declanz.DEKKO(bot.java:249)
-\tat me.declanz.DEKKO.PermissionCheck(events.java:12)
-\tat me.declanz.DEKKO.setup(setup.java:13)
-```""")
-
-            await self.bot.get_channel(await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
-Exception in thread "main" java.lang.SecurityException: Permission Denial
-\tat me.declanz.DEKKO(bot.java:249)
-\tat me.declanz.DEKKO.PermissionCheck(events.java:12)
-\tat me.declanz.DEKKO.setup(setup.java:13)
-```""")
             
     @_setup.command(name='exclude-channels', invoke_without_subcommand=True, with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
@@ -129,23 +124,6 @@ Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
             await db.execute("UPDATE config SET exclude_logging_channels = ? WHERE guild = ?", channels, ctx.guild.id)
             await response.edit(content=f":white_check_mark:  **EXCLUDED CHANNELS UPDATED**")
-
-    @_setup_exclude_channels.error
-    async def _exclude_logging_channels(self, ctx, error):
-        if isinstance(error, commands.CheckFailure):
-            await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
-Exception in thread "main" java.lang.SecurityException: Permission Denial
-\tat me.declanz.DEKKO(bot.java:249)
-\tat me.declanz.DEKKO.PermissionCheck(events.java:12)
-\tat me.declanz.DEKKO.setup(setup.java:42)
-```""")
-
-            await self.bot.get_channel(await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
-Exception in thread "main" java.lang.SecurityException: Permission Denial
-\tat me.declanz.DEKKO(bot.java:249)
-\tat me.declanz.DEKKO.PermissionCheck(events.java:12)
-\tat me.declanz.DEKKO.setup(setup.java:42)
-```""")
 
     @_setup.command(name='roles', invoke_without_subcommand=True, with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
@@ -222,23 +200,6 @@ Started: <t:{int(time.time())}:R>""")
                 await response.edit(content=f":white_check_mark:  **SUS ROLE SET TO {role.mention}**")
             else:
                 await response.edit(content=":warning:  **INVALID OPTION**")
-
-    @_setup_roles.error
-    async def _edit_role_config_error(self, ctx, error):
-        if isinstance(error, commands.CheckFailure):
-            await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
-Exception in thread "main" java.lang.SecurityException: Permission Denial
-\tat me.declanz.DEKKO(bot.java:249)
-\tat me.declanz.DEKKO.PermissionCheck(events.java:12)
-\tat me.declanz.DEKKO.setup(setup.java:153)
-```""")
-
-            await self.bot.get_channel(await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
-Exception in thread "main" java.lang.SecurityException: Permission Denial
-\tat me.declanz.DEKKO(bot.java:249)
-\tat me.declanz.DEKKO.PermissionCheck(events.java:12)
-\tat me.declanz.DEKKO.setup(setup.java:153)
-```""")
             
     @_setup.command(name='holidays', invoke_without_subcommand=True, with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
