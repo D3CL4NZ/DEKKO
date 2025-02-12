@@ -111,7 +111,8 @@ async def main():
 
 # Function to gracefully handle shutdown signal
 def handle_shutdown():
-    loop.create_task(bot.close())
+    loop.call_soon_threadsafe(asyncio.create_task, bot.close())
+    loop.call_soon_threadsafe(asyncio.create_task, db.close())
     common.logger.warning("[DECCYLoader] Shutdown signal received. Closing bot...")
 
 # Register signal handlers
@@ -119,4 +120,11 @@ signal.signal(signal.SIGINT, lambda sig, frame: handle_shutdown())
 signal.signal(signal.SIGTERM, lambda sig, frame: handle_shutdown())
 
 if __name__ == '__main__':
-    loop.run_until_complete(main())
+    try:
+        loop.run_until_complete(main())
+    except KeyboardInterrupt:
+        pass
+    finally:
+        loop.run_until_complete(bot.close())
+        loop.run_until_complete(db.close())
+        loop.close()
