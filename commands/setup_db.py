@@ -216,7 +216,15 @@ class SetupDB(commands.Cog):
                 else:
                     await response.edit(content=":warning:  **INVALID OPTION**")
             elif subcommand.lower() == "showconfig":
+                await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
+    Query: `SELECT * FROM config WHERE guild = {ctx.guild.id}`
+    Requested by: `DEKKO Command Processor`
+    Started: <t:{int(time.time())}:R>""")
                 config = await db.fetch_one("SELECT * FROM config WHERE guild = ?", ctx.guild.id)
+                await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
+    Query: `SELECT * FROM holidata WHERE guild = {ctx.guild.id}`
+    Requested by: `DEKKO Command Processor`
+    Started: <t:{int(time.time())}:R>""")
                 holidata = await db.fetch_one("SELECT * FROM holidata WHERE guild = ?", ctx.guild.id)
 
                 if config and holidata:
@@ -252,6 +260,7 @@ Wishlist Channel: {"<#"+holidata[11]+">" if holidata[11] else "`Not set`"}""", i
                     embed.set_footer(text=f"DEKKO! v{common.VERSION}")
                     embed.timestamp = discord.utils.utcnow()
 
+                    await response.edit(content=None, embed=embed)
                 else:
                     await response.edit(content=":warning:  **DATABASE NOT INITIALIZED**")
             else:
