@@ -13,7 +13,8 @@ class DirectMessages(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        self.dm_channel = self.bot.get_channel((await db.fetch_one("SELECT dm_channel FROM global_config"))[0])
+        dm_channel_id = await db.fetch_one("SELECT dm_channel FROM global_config")
+        dm_channel = self.bot.get_channel(dm_channel_id[0]) if dm_channel_id else None
 
         if isinstance(message.channel, discord.channel.DMChannel) and message.author != self.bot.user:
             # Get attachments, if any
@@ -36,7 +37,7 @@ class DirectMessages(commands.Cog):
             embed.add_field(name="Attachments", value=attachments_string)
             embed.timestamp = discord.utils.utcnow()
             embed.set_footer(text=f"User ID: {message.author.id} | Message ID: {message.id}")
-            await self.dm_channel.send(embed=embed)
+            await dm_channel.send(embed=embed)
 
     @commands.hybrid_command(name='dm', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)

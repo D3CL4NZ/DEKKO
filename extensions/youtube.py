@@ -324,13 +324,15 @@ class Music(commands.Cog):
         ctx.voice_state = self.get_voice_state(ctx)
 
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        error_channel = self.bot.get_channel((await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))[0])
+        error_channel_id = await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)
+        error_channel = self.bot.get_channel(error_channel_id[0]) if error_channel_id else None
 
         error = getattr(error, 'original', error)
 
         common.logger.error(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
         await ctx.send(':no_entry:  **CYKA BLYAT!**\n`DEKKOPlayer` has encountered an error :( ```ansi\n{}```'.format(str(error)))
-        await error_channel.send(':no_entry:  **CYKA BLYAT!**\n`DEKKOPlayer` has encountered an error :( ```ansi\n{}```'.format("".join(traceback.format_exception(type(error), error, error.__traceback__))))
+        if error_channel:
+            await error_channel.send(':no_entry:  **CYKA BLYAT!**\n`DEKKOPlayer` has encountered an error :( ```ansi\n{}```'.format("".join(traceback.format_exception(type(error), error, error.__traceback__))))
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -577,8 +579,12 @@ class Music(commands.Cog):
             try:
                 source = await YTDLSource.create_source(ctx, search, loop=self.bot.loop)
             except YTDLError as e:
+                error_channel_id = await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)
+                error_channel = self.bot.get_channel(error_channel_id[0]) if error_channel_id else None
+
                 await message.edit(':no_entry:  **An error occurred while processing this request:** ```ansi\n{}```'.format(str(e)))
-                await self.bot.get_channel((await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))[0]).send(':no_entry:  **An error occurred while processing this request:** ```ansi\n{}```'.format(str(e)))
+                if error_channel:
+                    await error_channel.send(':no_entry:  **An error occurred while processing this request:** ```ansi\n{}```'.format(str(e)))
             else:
                 song = Song(source)
 

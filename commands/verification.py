@@ -15,11 +15,16 @@ class Verification(commands.Cog):
     async def _verify(self, ctx, *, member: discord.Member):
         """Verifies a user"""
 
-        verified_role = member.guild.get_role((await db.fetch_one("SELECT verified_role_id FROM config WHERE guild = ?", member.guild.id))[0])
-        human_role = member.guild.get_role((await db.fetch_one("SELECT human_role_id FROM config WHERE guild = ?", member.guild.id))[0])
-        log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", member.guild.id))[0])
+        verified_role_id = await db.fetch_one("SELECT verified_role_id FROM config WHERE guild = ?", member.guild.id)
+        verified_role = member.guild.get_role(verified_role_id[0]) if verified_role_id else None
 
-        if verified_role is None:
+        human_role_id = await db.fetch_one("SELECT human_role_id FROM config WHERE guild = ?", member.guild.id)
+        human_role = member.guild.get_role(human_role_id[0]) if human_role_id else None
+
+        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", member.guild.id)
+        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+
+        if verified_role is None or human_role is None:
             return await ctx.send(":warning:  **VERIFICATION IS NOT SET UP**")
 
         if member.id == self.bot.user.id:
@@ -58,6 +63,9 @@ class Verification(commands.Cog):
 
     @_verify.error
     async def _verify_error(self, ctx, error):
+        error_channel_id = await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)
+        error_channel = self.bot.get_channel(error_channel_id[0]) if error_channel_id else None
+
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
@@ -65,7 +73,8 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
 \tat me.declanz.DEKKO.verification(verification.java:33)
 ```""")
-            await self.bot.get_channel((await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))[0]).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            if error_channel:
+                await error_channel.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
@@ -79,8 +88,11 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
     async def _unverify(self, ctx, *, member: discord.Member):
         """Unverifies a user"""
 
-        purgatory_role = member.guild.get_role((await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", member.guild.id))[0])
-        log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", member.guild.id))[0])
+        purgatory_role_id = await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", member.guild.id)
+        purgatory_role = member.guild.get_role(purgatory_role_id[0]) if purgatory_role_id else None
+
+        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", member.guild.id)
+        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
 
         if purgatory_role is None:
             return await ctx.send(":warning:  **PURGATORY IS NOT SET UP**")
@@ -113,6 +125,9 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 
     @_unverify.error
     async def _unverify_error(self, ctx, error):
+        error_channel_id = await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)
+        error_channel = self.bot.get_channel(error_channel_id[0]) if error_channel_id else None
+
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
@@ -120,8 +135,8 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
 \tat me.declanz.DEKKO.verification(verification.java:33)
 ```""")
-
-            await self.bot.get_channel((await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))[0]).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            if error_channel:
+                await error_channel.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)

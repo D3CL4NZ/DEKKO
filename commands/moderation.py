@@ -17,7 +17,9 @@ class Moderation(commands.Cog):
 
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
-            log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id))[0])
+
+            log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id)
+            log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
 
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -66,6 +68,9 @@ class Moderation(commands.Cog):
 
     @_kick.error
     async def _kick_error(self, ctx, error):
+        error_channel_id = await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)
+        error_channel = self.bot.get_channel(error_channel_id[0]) if error_channel_id else None
+
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
@@ -73,7 +78,8 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
 \tat me.declanz.DEKKO.moderation(moderation.java:33)
 ```""")
-            await self.bot.get_channel((await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))[0]).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            if error_channel:
+                await error_channel.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
@@ -89,7 +95,9 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
-            log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id))[0])
+            
+            log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id)
+            log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
 
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -134,6 +142,9 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 
     @_ban.error
     async def _ban_error(self, ctx, error):
+        error_channel_id = await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)
+        error_channel = self.bot.get_channel(error_channel_id[0]) if error_channel_id else None
+
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
@@ -141,8 +152,8 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
 \tat me.declanz.DEKKO.moderation(moderation.java:33)
 ```""")
-
-            await self.bot.get_channel((await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))[0]).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            if error_channel:
+                await error_channel.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
@@ -158,7 +169,9 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
-            log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id))[0])
+            
+            log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id)
+            log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
 
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -197,6 +210,9 @@ Here is the link to join again: https://discord.gg/8JnExCu76H
 
     @_pardon.error
     async def _pardon_error(self, ctx, error):
+        error_channel_id = await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)
+        error_channel = self.bot.get_channel(error_channel_id[0]) if error_channel_id else None
+
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
@@ -204,8 +220,8 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
 \tat me.declanz.DEKKO.moderation(moderation.java:33)
 ```""")
-
-            await self.bot.get_channel((await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))[0]).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            if error_channel:
+                await error_channel.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)

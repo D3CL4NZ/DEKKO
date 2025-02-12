@@ -230,7 +230,7 @@ class SetupDB(commands.Cog):
                 if config and holidata:
                     embed = discord.Embed(
                         title=f"**Configuration for:** `{ctx.guild.name}`",
-                        description=None,
+                        description=f"Guild ID: `{ctx.guild.id}`",
                         color=0xda00ff
                     )
                     embed.add_field(name="__**Channels**__", value=f"""Log Channel: {f"<#{config[1]}>" if config[1] else "`Not set`"}

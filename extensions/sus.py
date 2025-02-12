@@ -22,13 +22,26 @@ class SuspiciousUsers(commands.Cog):
     async def on_member_update(self, before: discord.Member, after: discord.Member):
         if not after.bot:
             if before.pending and not after.pending:
-                sus_role = after.guild.get_role((await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", after.guild.id))[0])
-                purgatory_role = after.guild.get_role((await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", after.guild.id))[0])
-                moderator_role = after.guild.get_role((await db.fetch_one("SELECT mod_role_id FROM config WHERE guild = ?", after.guild.id))[0])
+                sus_role_id = await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", after.guild.id)
+                sus_role = after.guild.get_role(sus_role_id[0]) if sus_role_id else None
 
-                log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id))[0])
-                admin_channel = self.bot.get_channel((await db.fetch_one("SELECT admin_channel FROM config WHERE guild = ?", after.guild.id))[0])
-                manver_channel = self.bot.get_channel((await db.fetch_one("SELECT manver_channel FROM config WHERE guild = ?", after.guild.id))[0])
+                purgatory_role_id = await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", after.guild.id)
+                purgatory_role = after.guild.get_role(purgatory_role_id[0]) if purgatory_role_id else None
+
+                moderator_role_id = await db.fetch_one("SELECT mod_role_id FROM config WHERE guild = ?", after.guild.id)
+                moderator_role = after.guild.get_role(moderator_role_id[0]) if moderator_role_id else None
+
+                log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id)
+                log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+
+                admin_channel_id = await db.fetch_one("SELECT admin_channel FROM config WHERE guild = ?", after.guild.id)
+                admin_channel = self.bot.get_channel(admin_channel_id[0]) if admin_channel_id else None
+
+                manver_channel_id = await db.fetch_one("SELECT manver_channel FROM config WHERE guild = ?", after.guild.id)
+                manver_channel = self.bot.get_channel(manver_channel_id[0]) if manver_channel_id else None
+
+                if sus_role is None or purgatory_role is None or moderator_role is None or admin_channel is None or manver_channel is None:
+                    return
 
                 await after.edit(roles=[purgatory_role])
                 
@@ -61,19 +74,20 @@ Sus check: `FAIL` :x:""")
                         await admin_channel.send(":rotating_light: :rotating_light: **ATTENTION: A SUSPICIOUS USER HAS JOINED THE SERVER.**")
                         await manver_channel.send(f""":rotating_light: **ATTENTION: ACCOUNT {after.mention} IS ON THE NAUGHTY LIST** :rotating_light:
 
-**Reason:** [BAN SYNC] User is currently banned from another DEKKO-Secured server: `Военные без границ`""")
+**Reason:** {user[2]}""")
 
-                        embed = discord.Embed(
-                            title=None,
-                            description=f":rotating_light: {after.mention} **is on the naughty list**",
-                            color=discord.Colour.red()
-                        )
-                        embed.set_author(name=after.name, icon_url=after.display_avatar.url)
-                        embed.set_thumbnail(url=after.display_avatar.url)
-                        embed.timestamp = discord.utils.utcnow()
-                        embed.set_footer(text="User ID: {}".format(after.id))
+                        if log_channel:
+                            embed = discord.Embed(
+                                title=None,
+                                description=f":rotating_light: {after.mention} **is on the naughty list**",
+                                color=discord.Colour.red()
+                            )
+                            embed.set_author(name=after.name, icon_url=after.display_avatar.url)
+                            embed.set_thumbnail(url=after.display_avatar.url)
+                            embed.timestamp = discord.utils.utcnow()
+                            embed.set_footer(text="User ID: {}".format(after.id))
 
-                        await log_channel.send(embed=embed)
+                            await log_channel.send(embed=embed)
                         return
 
                 await verification_message.edit(content=f"""||@everyone|| {moderator_role.mention}
@@ -102,9 +116,9 @@ Sus check: `Pass` :white_check_mark:""")
 
         sus_users_string = '\n'.join(sus_users)
 
-        await ctx.send("""**__THE NAUGHTY LIST__**
+        await ctx.send(f"""**__THE NAUGHTY LIST__**
 
-{}""".format(sus_users_string))
+{sus_users_string}""")
 
     @commands.hybrid_command(name='sus', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
@@ -116,7 +130,8 @@ Sus check: `Pass` :white_check_mark:""")
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
-            log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id))[0])
+            log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id)
+            log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
             
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -145,8 +160,14 @@ Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
 
             if ctx.guild.get_member(user.id) is not None:
-                sus_role = user.guild.get_role((await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", user.guild.id))[0])
-                purgatory_role = user.guild.get_role((await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", user.guild.id))[0])
+                sus_role_id = await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", ctx.guild.id)
+                sus_role = user.guild.get_role(sus_role_id[0]) if sus_role_id else None
+
+                purgatory_role_id = await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", ctx.guild.id)
+                purgatory_role = user.guild.get_role(purgatory_role_id[0]) if purgatory_role_id else None
+
+                if sus_role is None or purgatory_role is None:
+                    return await ctx.send(":warning:  **NAUGHTY LIST IS NOT CONFIGURED**")
 
                 if purgatory_role not in user.roles and sus_role not in user.roles:
                     await user.edit(roles=[purgatory_role, sus_role])
@@ -170,6 +191,9 @@ Started: <t:{int(time.time())}:R>""")
 
     @_sus.error
     async def _sus_error(self, ctx, error):
+        error_channel_id = await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)
+        error_channel = self.bot.get_channel(error_channel_id[0]) if error_channel_id else None
+
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
@@ -177,8 +201,8 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
 \tat me.declanz.DEKKO.sus(sus.java:33)
 ```""")
-
-            await self.bot.get_channel((await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))[0]).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            if error_channel:
+                await error_channel.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
@@ -195,7 +219,8 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
-            log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id))[0])
+            log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id)
+            log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
             
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -225,8 +250,14 @@ Started: <t:{int(time.time())}:R>""")
             await db.execute("DELETE FROM naughty_list WHERE user_id = ?", user.id)
 
             if ctx.guild.get_member(user.id) is not None:
-                sus_role = user.guild.get_role((await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", user.guild.id))[0])
-                purgatory_role = user.guild.get_role((await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", user.guild.id))[0])
+                sus_role_id = await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", ctx.guild.id)
+                sus_role = user.guild.get_role(sus_role_id[0]) if sus_role_id else None
+
+                purgatory_role_id = await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", ctx.guild.id)
+                purgatory_role = user.guild.get_role(purgatory_role_id[0]) if purgatory_role_id else None
+
+                if sus_role is None or purgatory_role is None:
+                    return await ctx.send(":warning:  **NAUGHTY LIST IS NOT CONFIGURED**")
 
                 if purgatory_role in user.roles and sus_role in user.roles:
                     await user.edit(roles=[purgatory_role])
@@ -250,6 +281,9 @@ Started: <t:{int(time.time())}:R>""")
 
     @_unsus.error
     async def _unsus_error(self, ctx, error):
+        error_channel_id = await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)
+        error_channel = self.bot.get_channel(error_channel_id[0]) if error_channel_id else None
+
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
@@ -257,8 +291,8 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
 \tat me.declanz.DEKKO.sus(sus.java:33)
 ```""")
-
-            await self.bot.get_channel((await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))[0]).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            if error_channel:
+                await error_channel.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
