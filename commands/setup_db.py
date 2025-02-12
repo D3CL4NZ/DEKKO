@@ -10,17 +10,17 @@ class SetupDB(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.hybrid_group(name='setup', invoke_without_command=True)
+    @commands.hybrid_group(name='dekkosetup', invoke_without_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
-    async def _setup_command(self, ctx):
+    async def _dekkosetup(self, ctx):
         await ctx.send(':warning:  **You must specify a subcommand**')
     
-    @_setup_command.command(name='initialize', invoke_without_subcommand=True, with_app_command=True)
+    @_dekkosetup.command(name='initialize', invoke_without_subcommand=True, with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
-    async def _setup_initialize(self, ctx):
+    async def _dekkosetup_initialize(self, ctx):
         """Initializes the database for the server"""
 
         async with ctx.typing():
@@ -39,11 +39,11 @@ class SetupDB(commands.Cog):
 
             await response.edit(content=":white_check_mark:  **INITIALIZED DATABASE**")
 
-    @_setup_command.command(name='initialize-global', invoke_without_subcommand=True, with_app_command=True)
+    @_dekkosetup.command(name='initialize-global', invoke_without_subcommand=True, with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.is_owner()
-    async def _setup_initialize_global(self, ctx):
+    async def _dekkosetup_initialize_global(self, ctx):
         """Initializes DEKKO's global database"""
 
         async with ctx.typing():
@@ -59,11 +59,11 @@ class SetupDB(commands.Cog):
 
             await response.edit(content=":white_check_mark:  **INITIALIZED GLOBAL DATABASE**")
 
-    @_setup_command.command(name='global', invoke_without_subcommand=True, with_app_command=True)
+    @_dekkosetup.command(name='global', invoke_without_subcommand=True, with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.is_owner()
-    async def _setup_global(self, ctx, *, option: str, value: str):
+    async def _dekkosetup_global(self, ctx, *, option: str, value: str):
         """Edits a global configuration option"""
 
         async with ctx.typing():
@@ -79,11 +79,11 @@ Started: <t:{int(time.time())}:R>""")
             else:
                 await response.edit(content=":warning:  **INVALID OPTION**")
     
-    @_setup_command.command(name='channels', invoke_without_subcommand=True, with_app_command=True)
+    @_dekkosetup.command(name='channels', invoke_without_subcommand=True, with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
-    async def _setup_channels(self, ctx, *, option: str, channel: discord.TextChannel):
+    async def _dekkosetup_channels(self, ctx, *, option: str, channel: discord.TextChannel):
         """Edits a channel configuration option"""
 
         async with ctx.typing():
@@ -120,11 +120,11 @@ Started: <t:{int(time.time())}:R>""")
             else:
                 await response.edit(content=":warning:  **INVALID OPTION**")
 
-    @_setup_command.command(name='exclude-channels', invoke_without_subcommand=True, with_app_command=True)
+    @_dekkosetup.command(name='exclude-channels', invoke_without_subcommand=True, with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
-    async def _setup_exclude_channels(self, ctx, *, comma_separated_list_of_channel_ids: str):
+    async def _dekkosetup_exclude_channels(self, ctx, *, comma_separated_list_of_channel_ids: str):
         """Excludes a list of channels from logging"""
 
         async with ctx.typing():
@@ -139,11 +139,11 @@ Started: <t:{int(time.time())}:R>""")
             await db.execute("UPDATE config SET exclude_logging_channels = ? WHERE guild = ?", channels, ctx.guild.id)
             await response.edit(content=f":white_check_mark:  **EXCLUDED CHANNELS UPDATED**")
 
-    @_setup_command.command(name='roles', invoke_without_subcommand=True, with_app_command=True)
+    @_dekkosetup.command(name='roles', invoke_without_subcommand=True, with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
-    async def _setup_roles(self, ctx, *, option: str, role: discord.Role):
+    async def _dekkosetup_roles(self, ctx, *, option: str, role: discord.Role):
         """Edits a role configuration option"""
 
         async with ctx.typing():
@@ -215,11 +215,11 @@ Started: <t:{int(time.time())}:R>""")
             else:
                 await response.edit(content=":warning:  **INVALID OPTION**")
 
-    @_setup_command.command(name='holidays', invoke_without_subcommand=True, with_app_command=True)
+    @_dekkosetup.command(name='holidays', invoke_without_subcommand=True, with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
-    async def _setup_holidays(self, ctx, *, option: str, channel: discord.TextChannel):
+    async def _dekkosetup_holidays(self, ctx, *, option: str, channel: discord.TextChannel):
         """Edits a holiday configuration option"""
 
         async with ctx.typing():
