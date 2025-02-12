@@ -23,6 +23,7 @@ cog_files = [
     "commands.gulag",
     "commands.moderation",
     "commands.rmp",
+    "commands.setup",
     "commands.urban",
     "commands.verification",
     "commands.whois",
