@@ -12,7 +12,7 @@ class SuspiciousUsers(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         common.logger.info("[Suspicious Users] Initializing database...")
-        db.execute("CREATE TABLE IF NOT EXISTS `naughty_list` (user_id INTEGER PRIMARY KEY, username TEXT, reason TEXT)")
+        await db.execute("CREATE TABLE IF NOT EXISTS `naughty_list` (user_id INTEGER PRIMARY KEY, username TEXT, reason TEXT)")
         common.logger.info("[Suspicious Users] Successfully loaded suspicious users database.")
 
     @commands.Cog.listener()
@@ -132,7 +132,7 @@ Started: <t:{int(time.time())}:R>""")
                 await response.edit(content=f":warning: User {user.mention} is already on the naughty list.")
                 return
 
-            db.execute("INSERT INTO naughty_list VALUES (?, ?)", user.id, user.name)
+            await db.execute("INSERT INTO naughty_list VALUES (?, ?)", user.id, user.name)
 
             await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `INSERT INTO naughty_list VALUES ({user.id}, {user.name})`
@@ -219,7 +219,7 @@ Query: `DELETE FROM naughty_list WHERE user_id = {user.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
 
-            db.execute("DELETE FROM naughty_list WHERE user_id = ?", user.id)
+            await db.execute("DELETE FROM naughty_list WHERE user_id = ?", user.id)
 
             if ctx.guild.get_member(user.id) is not None:
                 sus_role = user.guild.get_role(await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", user.guild.id))
