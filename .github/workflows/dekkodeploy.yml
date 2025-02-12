@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   deploy-over-ssh:
-    name: Deploy over SSH
+    name: Securely deploy over SSH
     runs-on: ubuntu-latest
 
     permissions:
