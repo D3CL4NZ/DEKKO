@@ -1,9 +1,8 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from discord.utils import get
 
-import config
+from database import db
 
 class Moderation(commands.Cog):
     def __init__(self, bot):
@@ -12,13 +11,13 @@ class Moderation(commands.Cog):
     @commands.hybrid_command(name='kick', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
-    @commands.has_any_role("supreme leader", "administrator", "moderator", "Supreme Leader", "Administrator", "Moderator")
+    @commands.has_permissions(kick_members=True)
     async def _kick(self, ctx, *, user: discord.User, reason: str=None):
         """Kicks a user"""
 
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
-            log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+            log_channel = self.bot.get_channel(db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id))
 
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -29,17 +28,6 @@ class Moderation(commands.Cog):
                 return
 
             embed = discord.Embed(description=f"{user.mention} **has been kicked.**", color=discord.Colour.red())
-
-            log_embed = discord.Embed(
-                title=None,
-                description=f":boot: :dash: {user.mention} **was kicked**",
-                color=discord.Colour.red()
-            )
-            log_embed.set_author(name=user.name, icon_url=user.display_avatar.url)
-            log_embed.set_thumbnail(url=user.display_avatar.url)
-            log_embed.add_field(name="Reason", value=f"{reason if reason else 'No reason provided'}", inline=False)
-            log_embed.timestamp = discord.utils.utcnow()
-            log_embed.set_footer(text=f"User ID: {user.id}")
 
             try:
                 if reason:
@@ -61,7 +49,20 @@ class Moderation(commands.Cog):
 
             await ctx.guild.kick(user, reason=reason)
             await response.edit(content=None, embed=embed)
-            await log_channel.send(embed=log_embed)
+
+            if log_channel:
+                log_embed = discord.Embed(
+                    title=None,
+                    description=f":boot: :dash: {user.mention} **was kicked**",
+                    color=discord.Colour.red()
+                )
+                log_embed.set_author(name=user.name, icon_url=user.display_avatar.url)
+                log_embed.set_thumbnail(url=user.display_avatar.url)
+                log_embed.add_field(name="Reason", value=f"{reason if reason else 'No reason provided'}", inline=False)
+                log_embed.timestamp = discord.utils.utcnow()
+                log_embed.set_footer(text=f"User ID: {user.id}")
+
+                await log_channel.send(embed=log_embed)
 
     @_kick.error
     async def _kick_error(self, ctx, error):
@@ -72,7 +73,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
 \tat me.declanz.DEKKO.moderation(moderation.java:33)
 ```""")
-            await self.bot.get_channel(config.ERROR_CHANNEL_ID).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            await self.bot.get_channel(db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
@@ -82,29 +83,19 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
     @commands.hybrid_command(name='ban', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
-    @commands.has_any_role("supreme leader", "administrator", "moderator", "Supreme Leader", "Administrator", "Moderator")
+    @commands.has_permissions(ban_members=True)
     async def _ban(self, ctx, *, user: discord.User, reason: str=None):
         """Bans a user"""
 
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
-            log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+            log_channel = self.bot.get_channel(db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id))
 
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
                 return
 
             embed = discord.Embed(description=f"{user.mention} **has been banned.**", color=discord.Colour.red())
-
-            log_embed = discord.Embed(
-                title=None,
-                description=None,
-                color=discord.Colour.red()
-            )
-            log_embed.set_author(name=f"[BAN] {user.name}", icon_url=user.display_avatar.url)
-            log_embed.add_field(name="User", value=user.mention, inline=True)
-            log_embed.add_field(name="Moderator", value=ctx.author.mention, inline=True)
-            log_embed.add_field(name="Reason", value=f"{reason if reason else 'Unspecified'}", inline=True)
 
             try:
                 if reason:
@@ -127,7 +118,19 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
             await ctx.guild.ban(user, reason=reason)
 
             await response.edit(content=None, embed=embed)
-            await log_channel.send(embed=log_embed)
+
+            if log_channel:
+                log_embed = discord.Embed(
+                    title=None,
+                    description=None,
+                    color=discord.Colour.red()
+                )
+                log_embed.set_author(name=f"[BAN] {user.name}", icon_url=user.display_avatar.url)
+                log_embed.add_field(name="User", value=user.mention, inline=True)
+                log_embed.add_field(name="Moderator", value=ctx.author.mention, inline=True)
+                log_embed.add_field(name="Reason", value=f"{reason if reason else 'Unspecified'}", inline=True)
+
+                await log_channel.send(embed=log_embed)
 
     @_ban.error
     async def _ban_error(self, ctx, error):
@@ -139,7 +142,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.moderation(moderation.java:33)
 ```""")
 
-            await self.bot.get_channel(config.ERROR_CHANNEL_ID).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            await self.bot.get_channel(db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
@@ -149,13 +152,13 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
     @commands.hybrid_command(name='pardon', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
-    @commands.has_any_role("supreme leader", "administrator", "moderator", "Supreme Leader", "Administrator", "Moderator")
+    @commands.has_permissions(ban_members=True)
     async def _pardon(self, ctx, *, user: discord.User):
         """Unbans a user"""
 
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
-            log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+            log_channel = self.bot.get_channel(db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id))
 
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -202,7 +205,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.moderation(moderation.java:33)
 ```""")
 
-            await self.bot.get_channel(config.ERROR_CHANNEL_ID).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            await self.bot.get_channel(db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)

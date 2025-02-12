@@ -16,6 +16,8 @@ import traceback
 import config
 import common
 
+from database import db
+
 # Silence useless bug reports messages
 youtube_dl.utils.bug_reports_message = lambda: ''
 
@@ -156,7 +158,7 @@ class Song:
                  .add_field(name='Uploader', value='[{0.source.uploader}]({0.source.uploader_url})'.format(self))
                  .add_field(name='URL', value='[Click]({0.source.url})'.format(self))
                  .set_thumbnail(url=self.source.thumbnail)
-                 .set_footer(text=f"DEKKOPlayer v0.8.2\u03b2 | DEKKO! v{common.VERSION}", icon_url="attachment://dekko_record_cropped.gif"))
+                 .set_footer(text=f"DEKKOPlayer v0.8.2\u03b2 | DEKKO! v{common.VERSION}", icon_url="attachment://dekko_record.gif"))
 
         return embed
 
@@ -268,7 +270,7 @@ class VoiceState:
                 await self.stop()
                 return
 
-            self.NowPlayingMessage = await self.current.source.channel.send(content=":warning: **IMPORTANT:** If playback does not start, it means the bot has crashed. Please let <@286969929633103872> know if this is the case.",file=discord.File("./img/dekko_record_cropped.gif", "dekko_record_cropped.gif"), embed=self.current.create_embed(), allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
+            self.NowPlayingMessage = await self.current.source.channel.send(content=":warning: **IMPORTANT:** If playback does not start, it means the bot has crashed. Please let <@286969929633103872> know if this is the case.",file=discord.File("./img/dekko_record.gif", "dekko_record.gif"), embed=self.current.create_embed(), allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
 
             await self.next.wait()
 
@@ -323,7 +325,7 @@ class Music(commands.Cog):
         ctx.voice_state = self.get_voice_state(ctx)
 
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        error_channel = self.bot.get_channel(config.ERROR_CHANNEL_ID)
+        error_channel = self.bot.get_channel(db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))
 
         error = getattr(error, 'original', error)
 
@@ -419,7 +421,7 @@ class Music(commands.Cog):
     async def _now(self, ctx: commands.Context):
         """Displays the currently playing song"""
 
-        await ctx.send(file=discord.File("./img/dekko_record_cropped.gif", "dekko_record_cropped.gif"), embed=ctx.voice_state.current.create_embed())
+        await ctx.send(file=discord.File("./img/dekko_record.gif", "dekko_record.gif"), embed=ctx.voice_state.current.create_embed())
 
     @yt.command(name='pause', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
@@ -577,7 +579,7 @@ class Music(commands.Cog):
                 source = await YTDLSource.create_source(ctx, search, loop=self.bot.loop)
             except YTDLError as e:
                 await message.edit(':no_entry:  **An error occurred while processing this request:** ```ansi\n{}```'.format(str(e)))
-                await self.bot.get_channel(config.ERROR_CHANNEL_ID).send(':no_entry:  **An error occurred while processing this request:** ```ansi\n{}```'.format(str(e)))
+                await self.bot.get_channel(db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(':no_entry:  **An error occurred while processing this request:** ```ansi\n{}```'.format(str(e)))
             else:
                 song = Song(source)
 

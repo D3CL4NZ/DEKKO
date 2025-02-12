@@ -10,7 +10,7 @@ import json
 import time
 
 AUTH = "Basic dGVzdDp0ZXN0"
-SCHOOL_ID = "U2Nob29sLTEwOTQ=" # School ID for University of Delaware
+SCHOOL_ID = "U2Nob29sLTEwOTQ=" # School ID for University of Delaware || Change this for your own school
 USER_AGENT = f"DEKKO!/{common.VERSION} (D3C OS; x64) D3CL4NZ/4.2.0 Gecko/20100101 BiteMe/69.0"
 
 def generate_embed(rating: dict):

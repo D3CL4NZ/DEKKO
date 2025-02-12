@@ -1,9 +1,8 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from discord.utils import get
 
-import config
+from database import db
 
 class Verification(commands.Cog):
     def __init__(self, bot):
@@ -16,9 +15,12 @@ class Verification(commands.Cog):
     async def _verify(self, ctx, *, member: discord.Member):
         """Verifies a user"""
 
-        verified_role = discord.utils.get(member.guild.roles, name='Citizen')
-        human_role = discord.utils.get(member.guild.roles, name='human')
-        log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+        verified_role = member.guild.get_role(db.fetch_one("SELECT verified_role_id FROM config WHERE guild = ?", member.guild.id))
+        human_role = member.guild.get_role(db.fetch_one("SELECT human_role_id FROM config WHERE guild = ?", member.guild.id))
+        log_channel = self.bot.get_channel(db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", member.guild.id))
+
+        if verified_role is None:
+            return await ctx.send(":warning:  **VERIFICATION IS NOT SET UP**")
 
         if member.id == self.bot.user.id:
             await ctx.send("Bite me.")
@@ -35,23 +37,24 @@ class Verification(commands.Cog):
 
 -# **Notice:** I am a bot. This message was sent automatically. Please do not respond to this message.""")
         except:
-            await ctx.send(f"Warning: {user.mention} has their DMs closed. Make sure you let them know that they are now verified.", embed=embed)
+            await ctx.send(f"Warning: {member.mention} has their DMs closed. Make sure you let them know that they are now verified.", embed=embed)
         else:
             await ctx.send(embed=embed)
 
         await member.edit(roles=[human_role, verified_role])
 
-        log_embed = discord.Embed(
-            title=None,
-            description=f":white_check_mark: {member.mention} **was verified**",
-            color=discord.Colour.green()
-        )
-        log_embed.set_author(name=member.name, icon_url=member.display_avatar.url)
-        log_embed.set_thumbnail(url=member.display_avatar.url)
-        log_embed.timestamp = discord.utils.utcnow()
-        log_embed.set_footer(text=f"User ID: {member.id}")
+        if log_channel:
+            log_embed = discord.Embed(
+                title=None,
+                description=f":white_check_mark: {member.mention} **was verified**",
+                color=discord.Colour.green()
+            )
+            log_embed.set_author(name=member.name, icon_url=member.display_avatar.url)
+            log_embed.set_thumbnail(url=member.display_avatar.url)
+            log_embed.timestamp = discord.utils.utcnow()
+            log_embed.set_footer(text=f"User ID: {member.id}")
 
-        await log_channel.send(embed=log_embed)
+            await log_channel.send(embed=log_embed)
 
     @_verify.error
     async def _verify_error(self, ctx, error):
@@ -62,7 +65,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
 \tat me.declanz.DEKKO.verification(verification.java:33)
 ```""")
-            await self.bot.get_channel(config.ERROR_CHANNEL_ID).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            await self.bot.get_channel(db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
@@ -76,8 +79,11 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
     async def _unverify(self, ctx, *, member: discord.Member):
         """Unverifies a user"""
 
-        purgatory_role = discord.utils.get(member.guild.roles, name='purgatory')
-        log_channel = self.bot.get_channel(config.LOG_CHANNEL_ID)
+        purgatory_role = member.guild.get_role(db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", member.guild.id))
+        log_channel = self.bot.get_channel(db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", member.guild.id))
+
+        if purgatory_role is None:
+            return await ctx.send(":warning:  **PURGATORY IS NOT SET UP**")
 
         if member.id == self.bot.user.id:
             await ctx.send("Bite me.")
@@ -90,18 +96,20 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
         await member.edit(roles=[purgatory_role])
         embed = discord.Embed(description=f"{member.mention} **is no longer verified.**", color=discord.Colour.red())
 
-        log_embed = discord.Embed(
-            title=None,
-            description=f":prohibited: {member.mention} **was unverified**",
-            color=discord.Colour.red()
-        )
-        log_embed.set_author(name=member.name, icon_url=member.display_avatar.url)
-        log_embed.set_thumbnail(url=member.display_avatar.url)
-        log_embed.timestamp = discord.utils.utcnow()
-        log_embed.set_footer(text=f"User ID: {member.id}")
-
         await ctx.send(embed=embed)
-        await log_channel.send(embed=log_embed)
+
+        if log_channel:
+            log_embed = discord.Embed(
+                title=None,
+                description=f":prohibited: {member.mention} **was unverified**",
+                color=discord.Colour.red()
+            )
+            log_embed.set_author(name=member.name, icon_url=member.display_avatar.url)
+            log_embed.set_thumbnail(url=member.display_avatar.url)
+            log_embed.timestamp = discord.utils.utcnow()
+            log_embed.set_footer(text=f"User ID: {member.id}")
+
+            await log_channel.send(embed=log_embed)
 
     @_unverify.error
     async def _unverify_error(self, ctx, error):
@@ -113,7 +121,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.verification(verification.java:33)
 ```""")
 
-            await self.bot.get_channel(config.ERROR_CHANNEL_ID).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            await self.bot.get_channel(db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)

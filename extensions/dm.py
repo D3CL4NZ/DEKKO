@@ -2,12 +2,14 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-import config
 import common
+
+from database import db
 
 class DirectMessages(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.dm_channel = self.bot.get_channel(db.fetch_one("SELECT dm_channel FROM global_config"))
         common.logger.info("[Direct Messages] Hello :D")
 
     @commands.Cog.listener()
@@ -26,7 +28,6 @@ class DirectMessages(commands.Cog):
             if message.content:
                 content = message.content
 
-            dm_channel = self.bot.get_channel(config.DM_CHANNEL_ID)
             embed = discord.Embed(title="DM Received", description=f":mailbox_with_mail: {message.author.mention} **sent you a DM!**", color=discord.Colour.blurple())
             embed.set_author(name=message.author.name, icon_url=message.author.display_avatar.url)
             embed.set_thumbnail(url=message.author.display_avatar.url)
@@ -34,12 +35,12 @@ class DirectMessages(commands.Cog):
             embed.add_field(name="Attachments", value=attachments_string)
             embed.timestamp = discord.utils.utcnow()
             embed.set_footer(text=f"User ID: {message.author.id} | Message ID: {message.id}")
-            await dm_channel.send(embed=embed)
+            await self.dm_channel.send(embed=embed)
 
     @commands.hybrid_command(name='dm', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
-    @commands.has_any_role("supreme leader", "administrator", "moderator", "Supreme Leader", "Administrator", "Moderator")
+    @commands.is_owner()
     async def _dm(self, ctx, *, member: discord.Member, content):
         """Sends the specified user a DM"""
         try:
