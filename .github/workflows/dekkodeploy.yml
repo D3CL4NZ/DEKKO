@@ -65,8 +65,17 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_BASTION: ${{ secrets.SSH_BASTION }}
-        run: |
-          rsync -avzr --delete --exclude 'config.py' --exclude '.git*' --exclude 'outtmpl*' --exclude 'suspicious_users.db' --exclude '.venv*' -e 'ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no' ./master/ ${SSH_USER}@${SSH_HOST}:/home/${SSH_USER}/DEKKO
+        run: >
+          rsync -avzr --delete
+          --exclude 'config.py'
+          --exclude 'database.db'
+          --exclude '.git*'
+          --exclude 'outtmpl*'
+          --exclude 'README.md'
+          --exclude '.venv*'
+          -e 'ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no'
+          ./master/
+          ${SSH_USER}@${SSH_HOST}:/home/${SSH_USER}/DEKKO
 
       - name: Start DEKKO service on remote server
         env:
