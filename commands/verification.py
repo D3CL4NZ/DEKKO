@@ -11,7 +11,7 @@ class Verification(commands.Cog):
     @commands.hybrid_command(name='verify', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
-    @commands.has_any_role("supreme leader", "administrator", "moderator", "Supreme Leader", "Administrator", "Moderator")
+    @commands.has_permissions(moderate_members=True)
     async def _verify(self, ctx, *, member: discord.Member):
         """Verifies a user"""
 
@@ -75,7 +75,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
     @commands.hybrid_command(name='unverify', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
-    @commands.has_any_role("supreme leader", "administrator", "moderator", "Supreme Leader", "Administrator", "Moderator")
+    @commands.has_permissions(moderate_members=True)
     async def _unverify(self, ctx, *, member: discord.Member):
         """Unverifies a user"""
 

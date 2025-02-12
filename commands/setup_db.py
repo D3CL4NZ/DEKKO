@@ -6,17 +6,17 @@ import time
 
 from database import db
 
-class Setup(commands.Cog):
+class SetupDB(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.hybrid_group(name="setup", invoke_without_command=True)
+    @commands.hybrid_group(name='setup', invoke_without_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
-    async def _setup(self, ctx):
+    async def _setup_command(self, ctx):
         await ctx.send(':warning:  **You must specify a subcommand**')
-
-    @_setup.command(name='initialize', invoke_without_subcommand=True, with_app_command=True)
+    
+    @_setup_command.command(name='initialize', invoke_without_subcommand=True, with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
@@ -26,12 +26,20 @@ class Setup(commands.Cog):
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
+            # Check if the guild already exists in the database
+            existing_config = await db.fetch_one("SELECT * FROM config WHERE guild = ?", ctx.guild.id)
+            existing_holidata = await db.fetch_one("SELECT * FROM holidata WHERE guild = ?", ctx.guild.id)
+
+            if existing_config or existing_holidata:
+                await response.edit(content=":warning:  **DATABASE ALREADY INITIALIZED FOR THIS SERVER**")
+                return
+
             await db.execute("INSERT INTO config (guild) VALUES (?)", ctx.guild.id)
             await db.execute("INSERT INTO holidata (guild) VALUES (?)", ctx.guild.id)
 
             await response.edit(content=":white_check_mark:  **INITIALIZED DATABASE**")
 
-    @_setup.command(name='initialize-global', invoke_without_subcommand=True, with_app_command=True)
+    @_setup_command.command(name='initialize-global', invoke_without_subcommand=True, with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.is_owner()
@@ -41,11 +49,17 @@ class Setup(commands.Cog):
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
+            existing_config = await db.fetch_one("SELECT * FROM global_config WHERE id = ?", 1)
+
+            if existing_config:
+                await response.edit(content=":warning:  **GLOBAL DATABASE ALREADY INITIALIZED**")
+                return
+
             await db.execute("INSERT INTO global_config (id) VALUES (?)", 1)
 
             await response.edit(content=":white_check_mark:  **INITIALIZED GLOBAL DATABASE**")
 
-    @_setup.command(name='global', invoke_without_subcommand=True, with_app_command=True)
+    @_setup_command.command(name='global', invoke_without_subcommand=True, with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.is_owner()
@@ -64,12 +78,12 @@ Started: <t:{int(time.time())}:R>""")
                 await response.edit(content=f":white_check_mark:  **DM CHANNEL SET TO <#{value}>**")
             else:
                 await response.edit(content=":warning:  **INVALID OPTION**")
-
-    @_setup.command(name='channels', invoke_without_subcommand=True, with_app_command=True)
+    
+    @_setup_command.command(name='channels', invoke_without_subcommand=True, with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
-    async def _setup_channels(self, ctx, *, option: str, channel: discord.abc.GuildChannel):
+    async def _setup_channels(self, ctx, *, option: str, channel: discord.TextChannel):
         """Edits a channel configuration option"""
 
         async with ctx.typing():
@@ -105,8 +119,8 @@ Started: <t:{int(time.time())}:R>""")
                 await response.edit(content=f":white_check_mark:  **VERIFICATION CHANNEL SET TO {channel.mention}**")
             else:
                 await response.edit(content=":warning:  **INVALID OPTION**")
-            
-    @_setup.command(name='exclude-channels', invoke_without_subcommand=True, with_app_command=True)
+
+    @_setup_command.command(name='exclude-channels', invoke_without_subcommand=True, with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
@@ -125,7 +139,7 @@ Started: <t:{int(time.time())}:R>""")
             await db.execute("UPDATE config SET exclude_logging_channels = ? WHERE guild = ?", channels, ctx.guild.id)
             await response.edit(content=f":white_check_mark:  **EXCLUDED CHANNELS UPDATED**")
 
-    @_setup.command(name='roles', invoke_without_subcommand=True, with_app_command=True)
+    @_setup_command.command(name='roles', invoke_without_subcommand=True, with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
@@ -200,12 +214,12 @@ Started: <t:{int(time.time())}:R>""")
                 await response.edit(content=f":white_check_mark:  **SUS ROLE SET TO {role.mention}**")
             else:
                 await response.edit(content=":warning:  **INVALID OPTION**")
-            
-    @_setup.command(name='holidays', invoke_without_subcommand=True, with_app_command=True)
+
+    @_setup_command.command(name='holidays', invoke_without_subcommand=True, with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
-    async def _setup_holidays(self, ctx, *, option: str, channel: discord.abc.GuildChannel):
+    async def _setup_holidays(self, ctx, *, option: str, channel: discord.TextChannel):
         """Edits a holiday configuration option"""
 
         async with ctx.typing():
@@ -291,6 +305,5 @@ Started: <t:{int(time.time())}:R>""")
             else:
                 await response.edit(content=":warning:  **INVALID OPTION**")
 
-
 async def setup(bot):
-    await bot.add_cog(Setup(bot))
+    await bot.add_cog(SetupDB(bot))

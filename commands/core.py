@@ -22,7 +22,7 @@ class Core(commands.Cog):
     async def sync(self, ctx):
         """Synchronizes the command tree"""
 
-        log_channels = await db.fetch("SELECT log_channel FROM config")
+        log_channel = self.bot.get_channel(await db.fetch_one("SELECT global_log_channel FROM global_config"))
         common.logger.info("Command tree sync requested...")
 
         message = await ctx.send(""":hourglass:  **DEKKO is processing requests...**
@@ -32,9 +32,7 @@ Started: <t:{}:R>""".format(ctx.command, ctx.author.mention, int(time.time())))
 
         await self.bot.tree.sync()
 
-        for log_channel_id in log_channels:
-            log_channel = self.bot.get_channel(log_channel_id)
-
+        if log_channel:
             embed = discord.Embed(
                 title=None,
                 description=":deciduous_tree: **Global command tree synced**",
@@ -87,14 +85,12 @@ Started: <t:{}:R>""".format(ctx.command, ctx.author.mention, int(time.time())))
         """Reboots DEKKO"""
         await self.bot.change_presence(status=discord.Status.dnd, activity=discord.CustomActivity(name=f"DEKKO is rebooting..."))
 
-        log_channels = await db.fetch("SELECT log_channel FROM config")
+        log_channel = self.bot.get_channel(await db.fetch_one("SELECT global_log_channel FROM global_config"))
 
         message = await ctx.send(f":hourglass:  **Reboot <t:{int(time.time()) + 5}:R>**")
         time.sleep(4)
-        
-        for log_channel_id in log_channels:
-            log_channel = self.bot.get_channel(log_channel_id)
 
+        if log_channel:
             embed = discord.Embed(
                 title=None,
                 description=f":electric_plug: **DEKKO was rebooted**",

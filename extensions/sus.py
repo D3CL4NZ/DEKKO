@@ -114,7 +114,7 @@ Sus check: `Pass` :white_check_mark:""")
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
-            log_channels = await db.fetch("SELECT log_channel FROM config")
+            log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id))
             
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -151,9 +151,7 @@ Started: <t:{int(time.time())}:R>""")
 
             embed = discord.Embed(description=f"{user.mention} **has been added to the naughty list.**", color=discord.Colour.red())
 
-            for log_channel_id in log_channels:
-                log_channel = self.bot.get_channel(log_channel_id)
-
+            if log_channel:
                 log_embed = discord.Embed(
                     title=None,
                     description=f":triangular_flag_on_post: {user.mention} **was added to the naughty list**",
@@ -195,7 +193,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
-            log_channels = await db.fetch("SELECT log_channel FROM config")
+            log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id))
             
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -233,9 +231,7 @@ Started: <t:{int(time.time())}:R>""")
 
             embed = discord.Embed(description=f"{user.mention} **has been removed from the naughty list.**", color=discord.Colour.green())
 
-            for log_channel_id in log_channels:
-                log_channel = self.bot.get_channel(log_channel_id)
-
+            if log_channel:
                 log_embed = discord.Embed(
                     title=None,
                     description=f":flag_white: {user.mention} **was removed from the naughty list**",

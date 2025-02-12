@@ -839,11 +839,9 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        log_channels = await db.fetch("SELECT log_channel FROM config")
+        log_channel = self.bot.get_channel(await db.fetch_one("SELECT global_log_channel FROM global_config"))
 
-        for log_channel_id in log_channels:
-            log_channel = self.bot.get_channel(log_channel_id)
-
+        if log_channel:
             common.logger.info("Logged in as {0.user}".format(self.bot))
             embed = discord.Embed(
                 title=None,
@@ -856,11 +854,9 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_shutdown(self):
-        log_channels = await db.fetch("SELECT log_channel FROM config")
+        log_channel = self.bot.get_channel(await db.fetch_one("SELECT global_log_channel FROM global_config"))
 
-        for log_channel_id in log_channels:
-            log_channel = self.bot.get_channel(log_channel_id)
-
+        if log_channel:
             embed = discord.Embed(
                 title=None,
                 description=f":electric_plug: **DEKKO was shut down**",

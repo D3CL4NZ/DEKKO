@@ -13,7 +13,6 @@ from discord.ext import commands
 # Needed for error handling
 import traceback
 
-import config
 import common
 
 from database import db

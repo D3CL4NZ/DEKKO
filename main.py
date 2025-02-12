@@ -23,7 +23,7 @@ cog_files = [
     "commands.gulag",
     "commands.moderation",
     "commands.rmp",
-    "commands.setup",
+    "commands.setup_db",
     "commands.urban",
     "commands.verification",
     "commands.whois",
@@ -50,6 +50,7 @@ async def initialize_db():
     await db.execute("""
         CREATE TABLE IF NOT EXISTS `global_config` (
             id INTEGER PRIMARY KEY,
+            global_log_channel INTEGER,
             dm_channel INTEGER
         )
     """)
