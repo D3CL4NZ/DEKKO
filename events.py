@@ -375,18 +375,6 @@ class Events(commands.Cog):
                                 neutralized_permissions.append(perm.replace("_"," "))
                     return neutralized_permissions
 
-                    neutralized_permissions = []
-                    for perm in dir(before_overwrite):
-                        if not perm.startswith('__') and not callable(getattr(before_overwrite, perm)):
-                            before_value = getattr(before_overwrite, perm)
-                            after_value = getattr(after_overwrite, perm)
-                            
-                            # Check if the permission was explicitly set to None in after_overwrite,
-                            # while it was explicitly set to either True or False in before_overwrite
-                            if before_value is not None and after_value is None:
-                                neutralized_permissions.append(perm)
-                    return neutralized_permissions
-
                 # Handle added overwrites
                 for target, overwrite in added_overwrites.items():
                     allow, deny = overwrite.pair()
