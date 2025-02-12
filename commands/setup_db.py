@@ -14,7 +14,7 @@ class SetupDB(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
-    async def _dekkosetup(self, ctx, *, subcommand: str, option: str=None, value: int=None):
+    async def _dekkosetup(self, ctx, *, subcommand: str, option: str=None, value: str=None):
         """Configures DEKKO for your server"""
 
         if subcommand is None:
@@ -218,7 +218,7 @@ class SetupDB(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.is_owner()
-    async def _dekkosetup_global(self, ctx, *, subcommand: str, option: str=None, value: int=None):
+    async def _dekkosetup_global(self, ctx, *, subcommand: str, option: str=None, value: str=None):
         """Changes global settings"""
 
         if subcommand is None:
