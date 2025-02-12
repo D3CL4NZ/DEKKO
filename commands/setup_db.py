@@ -15,6 +15,8 @@ class SetupDB(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
     async def _dekkosetup(self, ctx, *, subcommand: str, option: str=None, value: int=None):
+        """Configures DEKKO for your server"""
+
         if subcommand is None:
             return await ctx.send(':warning:  **You must specify a subcommand**')
 
@@ -217,6 +219,8 @@ class SetupDB(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.is_owner()
     async def _dekkosetup_global(self, ctx, *, subcommand: str, option: str=None, value: int=None):
+        """Changes global settings"""
+
         if subcommand is None:
             return await ctx.send(':warning:  **You must specify a subcommand**')
         
