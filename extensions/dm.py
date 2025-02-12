@@ -13,7 +13,7 @@ class DirectMessages(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        self.dm_channel = self.bot.get_channel(await db.fetch_one("SELECT dm_channel FROM global_config"))
+        self.dm_channel = self.bot.get_channel((await db.fetch_one("SELECT dm_channel FROM global_config"))[0])
 
         if isinstance(message.channel, discord.channel.DMChannel) and message.author != self.bot.user:
             # Get attachments, if any

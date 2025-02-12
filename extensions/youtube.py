@@ -324,7 +324,7 @@ class Music(commands.Cog):
         ctx.voice_state = self.get_voice_state(ctx)
 
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        error_channel = self.bot.get_channel(await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))
+        error_channel = self.bot.get_channel((await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))[0])
 
         error = getattr(error, 'original', error)
 
@@ -578,7 +578,7 @@ class Music(commands.Cog):
                 source = await YTDLSource.create_source(ctx, search, loop=self.bot.loop)
             except YTDLError as e:
                 await message.edit(':no_entry:  **An error occurred while processing this request:** ```ansi\n{}```'.format(str(e)))
-                await self.bot.get_channel(await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(':no_entry:  **An error occurred while processing this request:** ```ansi\n{}```'.format(str(e)))
+                await self.bot.get_channel((await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))[0]).send(':no_entry:  **An error occurred while processing this request:** ```ansi\n{}```'.format(str(e)))
             else:
                 song = Song(source)
 

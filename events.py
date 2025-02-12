@@ -20,8 +20,8 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", member.guild.id))
-        bot_role = member.guild.get_role(await db.fetch_one("SELECT bot_role_id FROM config WHERE guild = ?", member.guild.id))
+        log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", member.guild.id))[0])
+        bot_role = member.guild.get_role((await db.fetch_one("SELECT bot_role_id FROM config WHERE guild = ?", member.guild.id))[0])
 
         if log_channel:
             embed = discord.Embed(
@@ -43,7 +43,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
-        log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", member.guild.id))
+        log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", member.guild.id))[0])
         general_channel = member.guild.system_channel
 
         if log_channel:
@@ -70,7 +70,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
-        log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id))
+        log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id))[0])
 
         if log_channel:
             to_send = False
@@ -162,7 +162,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_user_update(self, before: discord.User, after: discord.User):
-        log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id))
+        log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id))[0])
 
         if log_channel:
             to_send = False
@@ -240,7 +240,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild: discord.Guild, user: Union[discord.User, discord.Member]):
-        log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", guild))
+        log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", guild))[0])
 
         if log_channel:
             embed = discord.Embed(
@@ -257,7 +257,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_unban(self, guild: discord.Guild, user: Union[discord.User, discord.Member]):
-        log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", guild))
+        log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", guild))[0])
 
         embed = discord.Embed(
             title=None,
@@ -277,7 +277,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_channel_create(self, channel: discord.abc.GuildChannel):
-        log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", channel.guild.id))
+        log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", channel.guild.id))[0])
         
         # Determine channel type
         channel_type = (
@@ -301,7 +301,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_channel_delete(self, channel: discord.abc.GuildChannel):
-        log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", channel.guild.id))
+        log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", channel.guild.id))[0])
         
         # Determine channel type
         channel_type = (
@@ -326,12 +326,12 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_channel_update(self, before: discord.abc.GuildChannel, after: discord.abc.GuildChannel):
         # Don't log channels that are excluded
-        excluded_channels = await db.fetch_one("SELECT exclude_logging_channels FROM config WHERE guild = ?", after.guild.id).split(',')
+        excluded_channels = (await db.fetch_one("SELECT exclude_logging_channels FROM config WHERE guild = ?", after.guild.id))[0].split(',')
 
         if before.id in excluded_channels:
             return
 
-        log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id))
+        log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id))[0])
 
         if log_channel:
             embed_list = []
@@ -547,7 +547,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_role_create(self, role: discord.Role):
-        log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", role.guild.id))
+        log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", role.guild.id))[0])
 
         if log_channel:
             perms_list = [perm[0].replace("_", " ") for perm in role.permissions if perm[1]]
@@ -565,7 +565,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_role_delete(self, role: discord.Role):
-        log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", role.guild.id))
+        log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", role.guild.id))[0])
 
         if log_channel:
             perms_list = [perm[0].replace("_", " ") for perm in role.permissions if perm[1]]
@@ -587,7 +587,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_role_update(self, before: discord.Role, after: discord.Role):
-        log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id))
+        log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id))[0])
 
         if log_channel:
             embed = discord.Embed(
@@ -631,7 +631,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_update(self, before: discord.Guild, after: discord.Guild):
-        log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id))
+        log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id))[0])
 
         if log_channel:
             embed = discord.Embed(
@@ -704,7 +704,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_emojis_update(self, guild, before, after):
-        log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", guild))
+        log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", guild))[0])
 
         if log_channel:
 
@@ -761,7 +761,7 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.author.id != self.bot.user.id:
-            if message.channel.id == await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", message.guild.id):
+            if message.channel.id == (await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", message.guild.id))[0]:
                 return await message.delete()
 
             if "thanks dekko" in message.content.lower() or "thank you dekko" in message.content.lower() or "thx dekko" in message.content.lower():
@@ -774,7 +774,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command(self, ctx):
-        log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id))
+        log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id))[0])
 
         if log_channel:
             user = ctx.author
@@ -800,7 +800,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
-        error_channel = self.bot.get_channel(await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))
+        error_channel = self.bot.get_channel((await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))[0])
 
         if error_channel:
             if hasattr(ctx.command, 'on_error'):
@@ -839,7 +839,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        log_channel = self.bot.get_channel(await db.fetch_one("SELECT global_log_channel FROM global_config"))
+        log_channel = self.bot.get_channel((await db.fetch_one("SELECT global_log_channel FROM global_config"))[0])
 
         if log_channel:
             common.logger.info("Logged in as {0.user}".format(self.bot))
@@ -854,7 +854,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_shutdown(self):
-        log_channel = self.bot.get_channel(await db.fetch_one("SELECT global_log_channel FROM global_config"))
+        log_channel = self.bot.get_channel((await db.fetch_one("SELECT global_log_channel FROM global_config"))[0])
 
         if log_channel:
             embed = discord.Embed(
@@ -868,7 +868,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
-        log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", member.guild.id))
+        log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", member.guild.id))[0])
 
         if log_channel:
             if before.channel is None and after.channel is not None:

@@ -22,13 +22,13 @@ class SuspiciousUsers(commands.Cog):
     async def on_member_update(self, before: discord.Member, after: discord.Member):
         if not after.bot:
             if before.pending and not after.pending:
-                sus_role = after.guild.get_role(await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", after.guild.id))
-                purgatory_role = after.guild.get_role(await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", after.guild.id))
-                moderator_role = after.guild.get_role(await db.fetch_one("SELECT mod_role_id FROM config WHERE guild = ?", after.guild.id))
+                sus_role = after.guild.get_role((await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", after.guild.id))[0])
+                purgatory_role = after.guild.get_role((await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", after.guild.id))[0])
+                moderator_role = after.guild.get_role((await db.fetch_one("SELECT mod_role_id FROM config WHERE guild = ?", after.guild.id))[0])
 
-                log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id))
-                admin_channel = self.bot.get_channel(await db.fetch_one("SELECT admin_channel FROM config WHERE guild = ?", after.guild.id))
-                manver_channel = self.bot.get_channel(await db.fetch_one("SELECT manver_channel FROM config WHERE guild = ?", after.guild.id))
+                log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id))[0])
+                admin_channel = self.bot.get_channel((await db.fetch_one("SELECT admin_channel FROM config WHERE guild = ?", after.guild.id))[0])
+                manver_channel = self.bot.get_channel((await db.fetch_one("SELECT manver_channel FROM config WHERE guild = ?", after.guild.id))[0])
 
                 await after.edit(roles=[purgatory_role])
                 
@@ -116,7 +116,7 @@ Sus check: `Pass` :white_check_mark:""")
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
-            log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id))
+            log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id))[0])
             
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -145,8 +145,8 @@ Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
 
             if ctx.guild.get_member(user.id) is not None:
-                sus_role = user.guild.get_role(await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", user.guild.id))
-                purgatory_role = user.guild.get_role(await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", user.guild.id))
+                sus_role = user.guild.get_role((await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", user.guild.id))[0])
+                purgatory_role = user.guild.get_role((await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", user.guild.id))[0])
 
                 if purgatory_role not in user.roles and sus_role not in user.roles:
                     await user.edit(roles=[purgatory_role, sus_role])
@@ -178,7 +178,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.sus(sus.java:33)
 ```""")
 
-            await self.bot.get_channel(await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            await self.bot.get_channel((await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))[0]).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
@@ -195,7 +195,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
-            log_channel = self.bot.get_channel(await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id))
+            log_channel = self.bot.get_channel((await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id))[0])
             
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -225,8 +225,8 @@ Started: <t:{int(time.time())}:R>""")
             await db.execute("DELETE FROM naughty_list WHERE user_id = ?", user.id)
 
             if ctx.guild.get_member(user.id) is not None:
-                sus_role = user.guild.get_role(await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", user.guild.id))
-                purgatory_role = user.guild.get_role(await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", user.guild.id))
+                sus_role = user.guild.get_role((await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", user.guild.id))[0])
+                purgatory_role = user.guild.get_role((await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", user.guild.id))[0])
 
                 if purgatory_role in user.roles and sus_role in user.roles:
                     await user.edit(roles=[purgatory_role])
@@ -258,7 +258,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.sus(sus.java:33)
 ```""")
 
-            await self.bot.get_channel(await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            await self.bot.get_channel((await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))[0]).send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
