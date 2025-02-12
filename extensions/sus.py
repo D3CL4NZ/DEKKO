@@ -91,6 +91,8 @@ Sus check: `Pass` :white_check_mark:""")
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(moderate_members=True)
     async def _naughtlylist(self, ctx):
+        """Displays the naughty list"""
+
         sus_users = []
 
         data = await db.fetch("SELECT * FROM naughty_list")
