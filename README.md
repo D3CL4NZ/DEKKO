@@ -31,4 +31,4 @@ DEKKO is a general-purpose moderation, music, and server management Discord bot.
 - A global "naughty list" that applies to all servers DEKKO is in
 - Ban syncing across servers
 
-..and much more!
+...and much more!
