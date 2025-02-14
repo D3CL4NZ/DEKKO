@@ -8,7 +8,7 @@
 [![GitHub release](https://img.shields.io/github/v/release/D3CL4NZ/DEKKO)](#)
 [![GitHub release date](https://img.shields.io/github/release-date/D3CL4NZ/DEKKO)](#)
 [![GitHub last commit](https://img.shields.io/github/last-commit/D3CL4NZ/DEKKO)](#)
-[![Discord API status](https://img.shields.io/website?url=https%3A%2F%2Fdiscordstatus.com%2Fapi%2Fv2%2Fstatus.json&logo=discord&logoColor=ffffff&label=API%20status)](https://discordstatus.com/)
+[![Discord API Status](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fdiscordstatus.com%2Fapi%2Fv2%2Fstatus.json&query=%24.status.description&logo=discord&logoColor=ffffff&label=API%20Status&color=green)](https://discordstatus.com/)
 [![Deploy DEKKO to server](https://github.com/D3CL4NZ/DEKKO/actions/workflows/dekkodeploy.yml/badge.svg)](https://github.com/D3CL4NZ/DEKKO/actions/workflows/dekkodeploy.yml)
 [![getting started](https://img.shields.io/badge/getting_started-guide-1D76DB)](https://www.declanz.me/web/dekko/)
 [![Free](https://img.shields.io/badge/free_for_non_commercial_use-brightgreen)](#)
