@@ -52,7 +52,7 @@ class Moderation(commands.Cog):
             await response.edit(content=None, embed=embed)
 
             log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
-            log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+            log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
             if log_webhook:
                 log_embed = discord.Embed(
@@ -71,7 +71,7 @@ class Moderation(commands.Cog):
     @_kick.error
     async def _kick_error(self, ctx, error):
         error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
-        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if not(error_webhook_url is None or (isinstance(error_webhook_url, tuple) and all(url is None for url in error_webhook_url))) else None
 
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
@@ -127,7 +127,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
             await response.edit(content=None, embed=embed)
 
             log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
-            log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+            log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
             if log_webhook:
                 log_embed = discord.Embed(
@@ -145,7 +145,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
     @_ban.error
     async def _ban_error(self, ctx, error):
         error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
-        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if not(error_webhook_url is None or (isinstance(error_webhook_url, tuple) and all(url is None for url in error_webhook_url))) else None
 
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
@@ -187,7 +187,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
             embed = discord.Embed(description=f"{user.mention} **has been unbanned.**", color=discord.Colour.green())
 
             log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
-            log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+            log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
             if log_webhook:
                 log_embed = discord.Embed(
@@ -214,7 +214,7 @@ Here is the link to join again: https://discord.gg/8JnExCu76H
     @_pardon.error
     async def _pardon_error(self, ctx, error):
         error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
-        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if not(error_webhook_url is None or (isinstance(error_webhook_url, tuple) and all(url is None for url in error_webhook_url))) else None
 
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java

@@ -52,7 +52,7 @@ class Gulag(commands.Cog):
             pass
 
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", member.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if log_webhook:
             log_embed = discord.Embed(
@@ -70,7 +70,7 @@ class Gulag(commands.Cog):
     @_gulag.error
     async def _gulag_error(self, ctx, error):
         error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
-        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if not(error_webhook_url is None or (isinstance(error_webhook_url, tuple) and all(url is None for url in error_webhook_url))) else None
 
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
@@ -114,7 +114,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
         await ctx.send(embed=embed)
 
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", member.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if log_webhook:
             log_embed = discord.Embed(
@@ -132,7 +132,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
     @_release.error
     async def _release_error(self, ctx, error):
         error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
-        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if not(error_webhook_url is None or (isinstance(error_webhook_url, tuple) and all(url is None for url in error_webhook_url))) else None
 
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java

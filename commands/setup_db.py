@@ -68,12 +68,12 @@ Started: <t:{int(time.time())}:R>""")
 
                     await db.execute("UPDATE config SET log_channel = ? WHERE guild = ?", value, ctx.guild.id)
 
-                    existing_webhooks = log_channel.webhooks()
+                    existing_webhooks = await log_channel.webhooks()
                     for webhook in existing_webhooks:
                         if webhook.user == self.bot.user:
                             await webhook.delete()
                     
-                    webhook = await log_channel.create_webhook(name="DEKKO Logging", avatar=self.bot.user.avatar.url)
+                    webhook = await log_channel.create_webhook(name="DEKKO Logging", avatar=await self.bot.user.avatar.read())
 
                     await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE logging_webhooks SET log_webhook = [REDACTED] WHERE guild = {ctx.guild.id}`
@@ -87,7 +87,7 @@ Started: <t:{int(time.time())}:R>""")
 Query: `UPDATE config SET error_channel = {value} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
-                    error_channel = self.bot.get_channel(value)
+                    error_channel = self.bot.get_channel(int(value))
 
                     if not error_channel:
                         return await response.edit(content=":warning:  **INVALID CHANNEL**")
@@ -99,7 +99,7 @@ Started: <t:{int(time.time())}:R>""")
                         if webhook.user == self.bot.user:
                             await webhook.delete()
 
-                    webhook = await error_channel.create_webhook(name="DEKKO Error Logging", avatar=self.bot.user.avatar.url)
+                    webhook = await error_channel.create_webhook(name="DEKKO Error Logging", avatar=await self.bot.user.avatar.read())
 
                     await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE logging_webhooks SET error_webhook = [REDACTED] WHERE guild = {ctx.guild.id}`

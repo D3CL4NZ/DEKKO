@@ -23,7 +23,7 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", member.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         bot_role_id = await db.fetch_one("SELECT bot_role_id FROM config WHERE guild = ?", member.guild.id)
         bot_role = member.guild.get_role(bot_role_id[0]) if bot_role_id else None
@@ -49,7 +49,7 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", member.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         general_channel = member.guild.system_channel
 
@@ -78,7 +78,7 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if log_webhook:
             to_send = False
@@ -171,7 +171,7 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_user_update(self, before: discord.User, after: discord.User):
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if log_webhook:
             to_send = False
@@ -250,7 +250,7 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_member_ban(self, guild: discord.Guild, user: Union[discord.User, discord.Member]):
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if log_webhook:
             embed = discord.Embed(
@@ -268,7 +268,7 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_member_unban(self, guild: discord.Guild, user: Union[discord.User, discord.Member]):
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         embed = discord.Embed(
             title=None,
@@ -289,7 +289,7 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_channel_create(self, channel: discord.abc.GuildChannel):
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", channel.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
         
         # Determine channel type
         channel_type = (
@@ -314,7 +314,7 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_channel_delete(self, channel: discord.abc.GuildChannel):
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", channel.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
         
         # Determine channel type
         channel_type = (
@@ -347,7 +347,7 @@ class Events(commands.Cog):
             return
 
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if log_webhook:
             embed_list = []
@@ -552,7 +552,7 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_role_create(self, role: discord.Role):
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", role.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if log_webhook:
             perms_list = [perm[0].replace("_", " ") for perm in role.permissions if perm[1]]
@@ -571,7 +571,7 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_role_delete(self, role: discord.Role):
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", role.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if log_webhook:
             perms_list = [perm[0].replace("_", " ") for perm in role.permissions if perm[1]]
@@ -594,7 +594,7 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_role_update(self, before: discord.Role, after: discord.Role):
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if log_webhook:
             embed = discord.Embed(
@@ -639,7 +639,7 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_update(self, before: discord.Guild, after: discord.Guild):
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if log_webhook:
             embed = discord.Embed(
@@ -713,7 +713,7 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_emojis_update(self, guild, before, after):
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if log_webhook:
 
@@ -769,7 +769,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        if message.author.id != self.bot.user.id:
+        if message.author.id != self.bot.user.id and not message.webhook_id:
             log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", message.guild.id)
             log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
 
@@ -787,7 +787,7 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_command(self, ctx):
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if log_webhook:
             user = ctx.author
@@ -814,7 +814,7 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
-        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if not(error_webhook_url is None or (isinstance(error_webhook_url, tuple) and all(url is None for url in error_webhook_url))) else None
 
         if error_webhook:
             if hasattr(ctx.command, 'on_error'):
@@ -885,7 +885,7 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", member.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if log_webhook:
             if before.channel is None and after.channel is not None:

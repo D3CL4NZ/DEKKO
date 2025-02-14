@@ -34,7 +34,7 @@ class SuspiciousUsers(commands.Cog):
                 moderator_role = after.guild.get_role(moderator_role_id[0]) if moderator_role_id else None
 
                 log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
-                log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+                log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
                 admin_channel_id = await db.fetch_one("SELECT admin_channel FROM config WHERE guild = ?", after.guild.id)
                 admin_channel = self.bot.get_channel(admin_channel_id[0]) if admin_channel_id else None
@@ -133,7 +133,7 @@ Sus check: `Pass` :white_check_mark:""")
             response = await ctx.send(":hourglass:  **Please wait...**")
 
             log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
-            log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+            log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
             
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -194,7 +194,7 @@ Started: <t:{int(time.time())}:R>""")
     @_sus.error
     async def _sus_error(self, ctx, error):
         error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
-        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if not(error_webhook_url is None or (isinstance(error_webhook_url, tuple) and all(url is None for url in error_webhook_url))) else None
 
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
@@ -222,7 +222,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
             response = await ctx.send(":hourglass:  **Please wait...**")
 
             log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
-            log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+            log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
             
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -284,7 +284,7 @@ Started: <t:{int(time.time())}:R>""")
     @_unsus.error
     async def _unsus_error(self, ctx, error):
         error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
-        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if not(error_webhook_url is None or (isinstance(error_webhook_url, tuple) and all(url is None for url in error_webhook_url))) else None
 
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java

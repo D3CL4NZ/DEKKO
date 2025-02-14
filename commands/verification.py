@@ -24,7 +24,7 @@ class Verification(commands.Cog):
         human_role = member.guild.get_role(human_role_id[0]) if human_role_id else None
 
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", member.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if verified_role is None or human_role is None:
             return await ctx.send(":warning:  **VERIFICATION IS NOT SET UP**")
@@ -66,7 +66,7 @@ class Verification(commands.Cog):
     @_verify.error
     async def _verify_error(self, ctx, error):
         error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
-        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if not(error_webhook_url is None or (isinstance(error_webhook_url, tuple) and all(url is None for url in error_webhook_url))) else None
 
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
@@ -94,7 +94,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
         purgatory_role = member.guild.get_role(purgatory_role_id[0]) if purgatory_role_id else None
 
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", member.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if purgatory_role is None:
             return await ctx.send(":warning:  **PURGATORY IS NOT SET UP**")
@@ -128,7 +128,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
     @_unverify.error
     async def _unverify_error(self, ctx, error):
         error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
-        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if not(error_webhook_url is None or (isinstance(error_webhook_url, tuple) and all(url is None for url in error_webhook_url))) else None
 
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
