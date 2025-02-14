@@ -20,7 +20,7 @@
 
 ## About
 
-DEKKO is a general-purpose moderation, music, and server management Discord ~~bot~~ app (I still do not know why Discord decided to change the name from bot to app).
+DEKKO is a general-purpose moderation, music, and server management Discord ~~bot~~ app (I still do not know why Discord decided to change the name from bot to app), originally created to be a free, open-source alternative to MEE6, after they more or less became a money grab. DEKKO's rich feature set and frequent updates make it a great addition to your Discord server. Feel free to fork this repo and modify DEKKO as you wish. If you decide to make any modifications and host your own fork of DEKKO, all I ask is that you do credit the original.
 
 ## Features
 
