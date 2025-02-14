@@ -16,6 +16,7 @@
 ## Table of Contents
 - [About](#about)
 - [Features](#features)
+- [Installation](#installation)
 
 ## About
 
