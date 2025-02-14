@@ -94,7 +94,7 @@ Started: <t:{int(time.time())}:R>""")
 
                     await db.execute("UPDATE logging_webhooks SET error_channel = ? WHERE guild = ?", value, ctx.guild.id)
 
-                    existing_webhooks = error_channel.webhooks()
+                    existing_webhooks = await error_channel.webhooks()
                     for webhook in existing_webhooks:
                         if webhook.user == self.bot.user:
                             await webhook.delete()
