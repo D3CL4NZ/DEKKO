@@ -32,3 +32,7 @@ DEKKO is a general-purpose moderation, music, and server management Discord bot.
 - Ban syncing across servers
 
 ...and much more!
+
+## Installation
+
+Information about installing and configuring DEKKO for your server can be found [here](https://www.declanz.me/web/dekko/setup.html).
