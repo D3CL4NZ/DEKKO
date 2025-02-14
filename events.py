@@ -270,17 +270,18 @@ class Events(commands.Cog):
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
         log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
-        embed = discord.Embed(
-            title=None,
-            description=f":man_police_officer: :unlock: {user.mention} **was unbanned**",
-            color=discord.Colour.green()
-        )
-        embed.set_author(name=user.name, icon_url=user.display_avatar.url)
-        embed.set_thumbnail(url=user.display_avatar.url)
-        embed.timestamp = discord.utils.utcnow()
-        embed.set_footer(text=f"User ID: {user.id}")
+        if log_webhook:
+            embed = discord.Embed(
+                title=None,
+                description=f":man_police_officer: :unlock: {user.mention} **was unbanned**",
+                color=discord.Colour.green()
+            )
+            embed.set_author(name=user.name, icon_url=user.display_avatar.url)
+            embed.set_thumbnail(url=user.display_avatar.url)
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"User ID: {user.id}")
 
-        await log_webhook.send(embed=embed)
+            await log_webhook.send(embed=embed)
 
     # ============
     #  Server Log
@@ -291,50 +292,52 @@ class Events(commands.Cog):
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", channel.guild.id)
         log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
         
-        # Determine channel type
-        channel_type = (
-            "Text channel" if isinstance(channel, discord.TextChannel) else
-            "Voice channel" if isinstance(channel, discord.VoiceChannel) else
-            "Category" if isinstance(channel, discord.CategoryChannel) else
-            "Stage channel" if isinstance(channel, discord.StageChannel) else
-            "Forum channel" if isinstance(channel, discord.ForumChannel) else
-            "Channel"
-        )
-
-        embed = discord.Embed(
-                title=None,
-                description=f":new: **{channel_type} created: #{channel.name}**",
-                color=discord.Colour.green()
+        if log_webhook:
+            # Determine channel type
+            channel_type = (
+                "Text channel" if isinstance(channel, discord.TextChannel) else
+                "Voice channel" if isinstance(channel, discord.VoiceChannel) else
+                "Category" if isinstance(channel, discord.CategoryChannel) else
+                "Stage channel" if isinstance(channel, discord.StageChannel) else
+                "Forum channel" if isinstance(channel, discord.ForumChannel) else
+                "Channel"
             )
-        embed.timestamp = discord.utils.utcnow()
-        embed.set_footer(text=f"Channel ID: {channel.id}")
 
-        await log_webhook.send(embed=embed)
+            embed = discord.Embed(
+                    title=None,
+                    description=f":new: **{channel_type} created: #{channel.name}**",
+                    color=discord.Colour.green()
+                )
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"Channel ID: {channel.id}")
+
+            await log_webhook.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_guild_channel_delete(self, channel: discord.abc.GuildChannel):
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", channel.guild.id)
         log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
         
-        # Determine channel type
-        channel_type = (
-            "Text channel" if isinstance(channel, discord.TextChannel) else
-            "Voice channel" if isinstance(channel, discord.VoiceChannel) else
-            "Category" if isinstance(channel, discord.CategoryChannel) else
-            "Stage channel" if isinstance(channel, discord.StageChannel) else
-            "Forum channel" if isinstance(channel, discord.ForumChannel) else
-            "Channel"
-        )
-            
-        embed = discord.Embed(
-                title=None,
-                description=f":wastebasket: **{channel_type} deleted: #{channel.name}**",
-                color=discord.Colour.red()
+        if log_webhook:
+            # Determine channel type
+            channel_type = (
+                "Text channel" if isinstance(channel, discord.TextChannel) else
+                "Voice channel" if isinstance(channel, discord.VoiceChannel) else
+                "Category" if isinstance(channel, discord.CategoryChannel) else
+                "Stage channel" if isinstance(channel, discord.StageChannel) else
+                "Forum channel" if isinstance(channel, discord.ForumChannel) else
+                "Channel"
             )
-        embed.timestamp = discord.utils.utcnow()
-        embed.set_footer(text=f"Channel ID: {channel.id}")
+                
+            embed = discord.Embed(
+                    title=None,
+                    description=f":wastebasket: **{channel_type} deleted: #{channel.name}**",
+                    color=discord.Colour.red()
+                )
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"Channel ID: {channel.id}")
 
-        await log_webhook.send(embed=embed)
+            await log_webhook.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_guild_channel_update(self, before: discord.abc.GuildChannel, after: discord.abc.GuildChannel):
@@ -716,10 +719,6 @@ class Events(commands.Cog):
         log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if log_webhook:
-
-            before_emojis = set(before)
-            after_emojis = set(after)
-
             added_emojis = [x for x in after if x not in before]
             removed_emojis = [x for x in before if x not in after]
 
