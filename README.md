@@ -14,8 +14,8 @@
 [![Free](https://img.shields.io/badge/free_for_non_commercial_use-brightgreen)](#)
 
 ## Table of Contents
-- [About](#-about)
-- [Features](#-features)
+- [About](#about)
+- [Features](#features)
 
 ## About
 
