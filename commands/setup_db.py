@@ -61,7 +61,7 @@ Started: <t:{int(time.time())}:R>""")
 Query: `UPDATE config SET log_channel = {value} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
-                    log_channel = self.bot.get_channel(value)
+                    log_channel = self.bot.get_channel(int(value))
                     
                     if not log_channel:
                         return await response.edit(content=":warning:  **INVALID CHANNEL**")
