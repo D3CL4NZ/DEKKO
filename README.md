@@ -20,7 +20,7 @@
 
 ## About
 
-DEKKO is a general-purpose moderation, music, and server management Discord bot.
+DEKKO is a general-purpose moderation, music, and server management Discord ~~bot~~ app (I still do not know why Discord decided to change the name from bot to app).
 
 ## Features
 
