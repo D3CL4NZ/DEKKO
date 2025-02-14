@@ -84,7 +84,7 @@ Started: <t:{int(time.time())}:R>""")
                     await response.edit(content=f":white_check_mark:  **LOG CHANNEL SET TO <#{value}>**")
                 elif option.lower() == "error_channel":
                     await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
-Query: `UPDATE logging_webhooks SET error_channel = {value} WHERE guild = {ctx.guild.id}`
+Query: `UPDATE config SET error_channel = {value} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                     error_channel = self.bot.get_channel(int(value))
@@ -92,7 +92,7 @@ Started: <t:{int(time.time())}:R>""")
                     if not error_channel:
                         return await response.edit(content=":warning:  **INVALID CHANNEL**")
 
-                    await db.execute("UPDATE logging_webhooks SET error_channel = ? WHERE guild = ?", value, ctx.guild.id)
+                    await db.execute("UPDATE config SET error_channel = ? WHERE guild = ?", value, ctx.guild.id)
 
                     existing_webhooks = await error_channel.webhooks()
                     for webhook in existing_webhooks:
