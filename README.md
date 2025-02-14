@@ -1,7 +1,7 @@
 <p align="center"><img alt="DEKKO!" src="https://www.declanz.me/web/img/dekko/dekko.png" width="128" height="128"></p>
 <h1 align="center">DEKKO!</h1>
 
-[![discord.py](https://img.shields.io/badge/discord.py-2.4.0-5865f2)](https://github.com/Rapptz/discord.py)
+[![discord.py](https://img.shields.io/badge/discord.py-v2.4.0-5865f2)](https://github.com/Rapptz/discord.py)
 [![language](https://img.shields.io/badge/language-Python-ffd343)](https://www.python.org/)
 [![OS](https://img.shields.io/badge/OS-linux-0078d4)](https://www.kernel.org/)
 [![CPU](https://img.shields.io/badge/CPU-x86%2C%20x64-FF8C00)](#)
