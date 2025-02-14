@@ -2,7 +2,7 @@ import sys
 import logging
 
 # Important stuff
-VERSION = "1.6.3" # DON'T CHANGE THIS
+VERSION = "1.7.0" # DON'T CHANGE THIS
 
 # Logging
 logger = logging.getLogger('discord')
