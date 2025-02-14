@@ -13,6 +13,8 @@ from discord.ext import commands
 # Needed for error handling
 import traceback
 
+from webhook import DiscordWebhookSender
+
 import common
 
 from database import db
@@ -324,15 +326,15 @@ class Music(commands.Cog):
         ctx.voice_state = self.get_voice_state(ctx)
 
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        error_channel_id = await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)
-        error_channel = self.bot.get_channel(error_channel_id[0]) if error_channel_id else None
+        error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
 
         error = getattr(error, 'original', error)
 
         common.logger.error(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
         await ctx.send(':no_entry:  **CYKA BLYAT!**\n`DEKKOPlayer` has encountered an error :( ```ansi\n{}```'.format(str(error)))
-        if error_channel:
-            await error_channel.send(':no_entry:  **CYKA BLYAT!**\n`DEKKOPlayer` has encountered an error :( ```ansi\n{}```'.format("".join(traceback.format_exception(type(error), error, error.__traceback__))))
+        if error_webhook:
+            await error_webhook.send(':no_entry:  **CYKA BLYAT!**\n`DEKKOPlayer` has encountered an error :( ```ansi\n{}```'.format("".join(traceback.format_exception(type(error), error, error.__traceback__))))
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -579,12 +581,12 @@ class Music(commands.Cog):
             try:
                 source = await YTDLSource.create_source(ctx, search, loop=self.bot.loop)
             except YTDLError as e:
-                error_channel_id = await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)
-                error_channel = self.bot.get_channel(error_channel_id[0]) if error_channel_id else None
+                error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
+                error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
 
                 await message.edit(':no_entry:  **An error occurred while processing this request:** ```ansi\n{}```'.format(str(e)))
-                if error_channel:
-                    await error_channel.send(':no_entry:  **An error occurred while processing this request:** ```ansi\n{}```'.format(str(e)))
+                if error_webhook:
+                    await error_webhook.send(':no_entry:  **An error occurred while processing this request:** ```ansi\n{}```'.format(str(e)))
             else:
                 song = Song(source)
 

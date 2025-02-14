@@ -2,6 +2,8 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+from webhook import DiscordWebhookSender
+
 from database import db
 
 class Verification(commands.Cog):
@@ -21,8 +23,8 @@ class Verification(commands.Cog):
         human_role_id = await db.fetch_one("SELECT human_role_id FROM config WHERE guild = ?", member.guild.id)
         human_role = member.guild.get_role(human_role_id[0]) if human_role_id else None
 
-        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", member.guild.id)
-        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", member.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
 
         if verified_role is None or human_role is None:
             return await ctx.send(":warning:  **VERIFICATION IS NOT SET UP**")
@@ -48,7 +50,7 @@ class Verification(commands.Cog):
 
         await member.edit(roles=[human_role, verified_role])
 
-        if log_channel:
+        if log_webhook:
             log_embed = discord.Embed(
                 title=None,
                 description=f":white_check_mark: {member.mention} **was verified**",
@@ -59,12 +61,12 @@ class Verification(commands.Cog):
             log_embed.timestamp = discord.utils.utcnow()
             log_embed.set_footer(text=f"User ID: {member.id}")
 
-            await log_channel.send(embed=log_embed)
+            await log_webhook.send(embed=log_embed)
 
     @_verify.error
     async def _verify_error(self, ctx, error):
-        error_channel_id = await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)
-        error_channel = self.bot.get_channel(error_channel_id[0]) if error_channel_id else None
+        error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
 
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
@@ -73,8 +75,8 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
 \tat me.declanz.DEKKO.verification(verification.java:33)
 ```""")
-            if error_channel:
-                await error_channel.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            if error_webhook:
+                await error_webhook.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
@@ -91,8 +93,8 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
         purgatory_role_id = await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", member.guild.id)
         purgatory_role = member.guild.get_role(purgatory_role_id[0]) if purgatory_role_id else None
 
-        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", member.guild.id)
-        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", member.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
 
         if purgatory_role is None:
             return await ctx.send(":warning:  **PURGATORY IS NOT SET UP**")
@@ -110,7 +112,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 
         await ctx.send(embed=embed)
 
-        if log_channel:
+        if log_webhook:
             log_embed = discord.Embed(
                 title=None,
                 description=f":prohibited: {member.mention} **was unverified**",
@@ -121,12 +123,12 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
             log_embed.timestamp = discord.utils.utcnow()
             log_embed.set_footer(text=f"User ID: {member.id}")
 
-            await log_channel.send(embed=log_embed)
+            await log_webhook.send(embed=log_embed)
 
     @_unverify.error
     async def _unverify_error(self, ctx, error):
-        error_channel_id = await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)
-        error_channel = self.bot.get_channel(error_channel_id[0]) if error_channel_id else None
+        error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
 
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
@@ -135,8 +137,8 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
 \tat me.declanz.DEKKO.verification(verification.java:33)
 ```""")
-            if error_channel:
-                await error_channel.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            if error_webhook:
+                await error_webhook.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)

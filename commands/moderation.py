@@ -2,6 +2,8 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+from webhook import DiscordWebhookSender
+
 from database import db
 
 class Moderation(commands.Cog):
@@ -17,9 +19,6 @@ class Moderation(commands.Cog):
 
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
-
-            log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id)
-            log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
 
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -52,7 +51,10 @@ class Moderation(commands.Cog):
             await ctx.guild.kick(user, reason=reason)
             await response.edit(content=None, embed=embed)
 
-            if log_channel:
+            log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
+            log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+
+            if log_webhook:
                 log_embed = discord.Embed(
                     title=None,
                     description=f":boot: :dash: {user.mention} **was kicked**",
@@ -64,12 +66,12 @@ class Moderation(commands.Cog):
                 log_embed.timestamp = discord.utils.utcnow()
                 log_embed.set_footer(text=f"User ID: {user.id}")
 
-                await log_channel.send(embed=log_embed)
+                await log_webhook.send(embed=log_embed)
 
     @_kick.error
     async def _kick_error(self, ctx, error):
-        error_channel_id = await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)
-        error_channel = self.bot.get_channel(error_channel_id[0]) if error_channel_id else None
+        error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
 
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
@@ -78,8 +80,8 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
 \tat me.declanz.DEKKO.moderation(moderation.java:33)
 ```""")
-            if error_channel:
-                await error_channel.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            if error_webhook:
+                await error_webhook.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
@@ -95,9 +97,6 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
-            
-            log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id)
-            log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
 
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -127,7 +126,10 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 
             await response.edit(content=None, embed=embed)
 
-            if log_channel:
+            log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
+            log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+
+            if log_webhook:
                 log_embed = discord.Embed(
                     title=None,
                     description=None,
@@ -138,12 +140,12 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
                 log_embed.add_field(name="Moderator", value=ctx.author.mention, inline=True)
                 log_embed.add_field(name="Reason", value=f"{reason if reason else 'Unspecified'}", inline=True)
 
-                await log_channel.send(embed=log_embed)
+                await log_webhook.send(embed=log_embed)
 
     @_ban.error
     async def _ban_error(self, ctx, error):
-        error_channel_id = await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)
-        error_channel = self.bot.get_channel(error_channel_id[0]) if error_channel_id else None
+        error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
 
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
@@ -152,8 +154,8 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
 \tat me.declanz.DEKKO.moderation(moderation.java:33)
 ```""")
-            if error_channel:
-                await error_channel.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            if error_webhook:
+                await error_webhook.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
@@ -169,9 +171,6 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
-            
-            log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id)
-            log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
 
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -183,20 +182,24 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
                 await response.edit(content=None, embed=discord.Embed(description=f"{user.mention} **is not currently banned.**", color=discord.Colour.yellow()))
                 return
 
-            embed = discord.Embed(description=f"{user.mention} **has been unbanned.**", color=discord.Colour.green())
-
-            log_embed = discord.Embed(
-                title=None,
-                description=None,
-                color=discord.Colour.green()
-            )
-            log_embed.set_author(name=f"[UNBAN] {user.name}", icon_url=user.display_avatar.url)
-            log_embed.add_field(name="User", value=user.mention, inline=True)
-            log_embed.add_field(name="Moderator", value=ctx.author.mention, inline=True)
-
             await ctx.guild.unban(user)
 
-            await log_channel.send(embed=log_embed)
+            embed = discord.Embed(description=f"{user.mention} **has been unbanned.**", color=discord.Colour.green())
+
+            log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
+            log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
+
+            if log_webhook:
+                log_embed = discord.Embed(
+                    title=None,
+                    description=None,
+                    color=discord.Colour.green()
+                )
+                log_embed.set_author(name=f"[UNBAN] {user.name}", icon_url=user.display_avatar.url)
+                log_embed.add_field(name="User", value=user.mention, inline=True)
+                log_embed.add_field(name="Moderator", value=ctx.author.mention, inline=True)
+
+                await log_webhook.send(embed=log_embed)
 
             try:
                 await user.send(f"""You have been unbanned from `{ctx.guild.name}`.
@@ -210,8 +213,8 @@ Here is the link to join again: https://discord.gg/8JnExCu76H
 
     @_pardon.error
     async def _pardon_error(self, ctx, error):
-        error_channel_id = await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)
-        error_channel = self.bot.get_channel(error_channel_id[0]) if error_channel_id else None
+        error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
 
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
@@ -220,8 +223,8 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
 \tat me.declanz.DEKKO.moderation(moderation.java:33)
 ```""")
-            if error_channel:
-                await error_channel.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            if error_webhook:
+                await error_webhook.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)

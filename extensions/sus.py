@@ -4,6 +4,8 @@ from discord.ext import commands
 
 import common
 
+from webhook import DiscordWebhookSender
+
 import time
 
 from database import db
@@ -31,8 +33,8 @@ class SuspiciousUsers(commands.Cog):
                 moderator_role_id = await db.fetch_one("SELECT mod_role_id FROM config WHERE guild = ?", after.guild.id)
                 moderator_role = after.guild.get_role(moderator_role_id[0]) if moderator_role_id else None
 
-                log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id)
-                log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+                log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
+                log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
 
                 admin_channel_id = await db.fetch_one("SELECT admin_channel FROM config WHERE guild = ?", after.guild.id)
                 admin_channel = self.bot.get_channel(admin_channel_id[0]) if admin_channel_id else None
@@ -76,7 +78,7 @@ Sus check: `FAIL` :x:""")
 
 **Reason:** {user[2]}""")
 
-                        if log_channel:
+                        if log_webhook:
                             embed = discord.Embed(
                                 title=None,
                                 description=f":rotating_light: {after.mention} **is on the naughty list**",
@@ -87,7 +89,7 @@ Sus check: `FAIL` :x:""")
                             embed.timestamp = discord.utils.utcnow()
                             embed.set_footer(text="User ID: {}".format(after.id))
 
-                            await log_channel.send(embed=embed)
+                            await log_webhook.send(embed=embed)
                         return
 
                 await verification_message.edit(content=f"""||@everyone|| {moderator_role.mention}
@@ -130,8 +132,8 @@ Sus check: `Pass` :white_check_mark:""")
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
-            log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id)
-            log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+            log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
+            log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
             
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -174,7 +176,7 @@ Started: <t:{int(time.time())}:R>""")
 
             embed = discord.Embed(description=f"{user.mention} **has been added to the naughty list.**", color=discord.Colour.red())
 
-            if log_channel:
+            if log_webhook:
                 log_embed = discord.Embed(
                     title=None,
                     description=f":triangular_flag_on_post: {user.mention} **was added to the naughty list**",
@@ -185,14 +187,14 @@ Started: <t:{int(time.time())}:R>""")
                 log_embed.timestamp = discord.utils.utcnow()
                 log_embed.set_footer(text=f"User ID: {user.id}")
 
-                await log_channel.send(embed=log_embed)
+                await log_webhook.send(embed=log_embed)
 
             await response.edit(content=":pencil: Database transaction successful.", embed=embed)
 
     @_sus.error
     async def _sus_error(self, ctx, error):
-        error_channel_id = await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)
-        error_channel = self.bot.get_channel(error_channel_id[0]) if error_channel_id else None
+        error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
 
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
@@ -201,8 +203,8 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
 \tat me.declanz.DEKKO.sus(sus.java:33)
 ```""")
-            if error_channel:
-                await error_channel.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            if error_webhook:
+                await error_webhook.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
@@ -219,8 +221,8 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
-            log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id)
-            log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+            log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
+            log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
             
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -264,7 +266,7 @@ Started: <t:{int(time.time())}:R>""")
 
             embed = discord.Embed(description=f"{user.mention} **has been removed from the naughty list.**", color=discord.Colour.green())
 
-            if log_channel:
+            if log_webhook:
                 log_embed = discord.Embed(
                     title=None,
                     description=f":flag_white: {user.mention} **was removed from the naughty list**",
@@ -275,14 +277,14 @@ Started: <t:{int(time.time())}:R>""")
                 log_embed.timestamp = discord.utils.utcnow()
                 log_embed.set_footer(text="User ID: {}".format(user.id))
 
-                await log_channel.send(embed=log_embed)
+                await log_webhook.send(embed=log_embed)
 
             await response.edit(content=":pencil: Database transaction successful.", embed=embed)
 
     @_unsus.error
     async def _unsus_error(self, ctx, error):
-        error_channel_id = await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)
-        error_channel = self.bot.get_channel(error_channel_id[0]) if error_channel_id else None
+        error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
 
         if isinstance(error, commands.CheckFailure):
             await ctx.send(""":no_entry:  **ACCESS DENIED CYKA**```java
@@ -291,8 +293,8 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)
 \tat me.declanz.DEKKO.sus(sus.java:33)
 ```""")
-            if error_channel:
-                await error_channel.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
+            if error_webhook:
+                await error_webhook.send(""":no_entry:  **AN ERROR HAS OCCURED**```java
 Exception in thread "main" java.lang.SecurityException: Permission Denial
 \tat me.declanz.DEKKO(bot.java:249)
 \tat me.declanz.DEKKO.PermissionCheck(events.java:12)

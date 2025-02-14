@@ -9,6 +9,8 @@ from discord.ext import commands
 # Needed for error handling
 import traceback
 
+from webhook import DiscordWebhookSender
+
 import common
 
 from database import db
@@ -107,13 +109,14 @@ class YTDLP(commands.Cog):
         self.bot = bot
 
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        error_channel = self.bot.get_channel(await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id))
+        error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
 
         error = getattr(error, 'original', error)
 
         common.logger.error(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
         await ctx.send(':no_entry:  **CYKA BLYAT!**\n`DEKKO-YTDLPCC.XD` has encountered an error :( ```ansi\n{}```'.format(str(error)))
-        await error_channel.send(':no_entry:  **CYKA BLYAT!**\n`DEKKO-YTDLPCC.XD` has encountered an error :( ```ansi\n{}```'.format("".join(traceback.format_exception(type(error), error, error.__traceback__))))
+        await error_webhook.send(':no_entry:  **CYKA BLYAT!**\n`DEKKO-YTDLPCC.XD` has encountered an error :( ```ansi\n{}```'.format("".join(traceback.format_exception(type(error), error, error.__traceback__))))
 
     @commands.hybrid_command(name='ytdlp', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
@@ -126,8 +129,11 @@ class YTDLP(commands.Cog):
         try:
             file = await YTDownload.download_video(search)
         except YTDLError as e:
+            error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
+            error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
+
             await message.edit(content=':no_entry:  **An error occurred while processing this request:** ```ansi\n{}```'.format(str(e)))
-            await self.bot.get_channel(await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)).send(':no_entry:  **An error occurred while processing this request:** ```ansi\n{}```'.format(str(e)))
+            await error_webhook.send(':no_entry:  **An error occurred while processing this request:** ```ansi\n{}```'.format(str(e)))
         else:
             try:
                 await message.edit(content=':white_check_mark:  **Download complete**')

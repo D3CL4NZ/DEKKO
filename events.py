@@ -5,6 +5,8 @@ from typing import Union
 
 import traceback
 
+from webhook import DiscordWebhookSender
+
 import common
 
 from database import db
@@ -20,13 +22,13 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", member.guild.id)
-        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", member.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
 
         bot_role_id = await db.fetch_one("SELECT bot_role_id FROM config WHERE guild = ?", member.guild.id)
         bot_role = member.guild.get_role(bot_role_id[0]) if bot_role_id else None
 
-        if log_channel:
+        if log_webhook:
             embed = discord.Embed(
                 title=None,
                 description=f":tada: {member.mention} **joined the server**",
@@ -38,7 +40,7 @@ class Events(commands.Cog):
             embed.timestamp = discord.utils.utcnow()
             embed.set_footer(text=f"User ID: {member.id}")
 
-            await log_channel.send(embed=embed)
+            await log_webhook.send(embed=embed)
 
         if bot_role:
             if member.bot:
@@ -46,12 +48,12 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
-        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", member.guild.id)
-        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", member.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
 
         general_channel = member.guild.system_channel
 
-        if log_channel:
+        if log_webhook:
             roles = []
 
             for i in range(1, len(member.roles)):
@@ -69,16 +71,16 @@ class Events(commands.Cog):
             embed.timestamp = discord.utils.utcnow()
             embed.set_footer(text=f"User ID: {member.id}")
 
-            await log_channel.send(embed=embed)
+            await log_webhook.send(embed=embed)
 
         await general_channel.send(f"{member.mention} **left the server :(**", allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
 
     @commands.Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
-        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id)
-        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
 
-        if log_channel:
+        if log_webhook:
             to_send = False
             embed_list = []
 
@@ -164,14 +166,14 @@ class Events(commands.Cog):
                     embed_list.append(embed)
 
             if to_send:
-                await log_channel.send(embeds=embed_list)
+                await log_webhook.send(embeds=embed_list)
 
     @commands.Cog.listener()
     async def on_user_update(self, before: discord.User, after: discord.User):
-        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id)
-        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
 
-        if log_channel:
+        if log_webhook:
             to_send = False
             embed_list = []
 
@@ -243,14 +245,14 @@ class Events(commands.Cog):
                 embed_list.append(embed)
 
             if to_send:
-                await log_channel.send(embeds=embed_list)
+                await log_webhook.send(embeds=embed_list)
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild: discord.Guild, user: Union[discord.User, discord.Member]):
-        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", user.guild.id)
-        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
 
-        if log_channel:
+        if log_webhook:
             embed = discord.Embed(
                 title=None,
                 description=f":man_police_officer: :lock: {user.mention} **was banned**",
@@ -261,12 +263,12 @@ class Events(commands.Cog):
             embed.timestamp = discord.utils.utcnow()
             embed.set_footer(text=f"User ID: {user.id}")
 
-            await log_channel.send(embed=embed)
+            await log_webhook.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_member_unban(self, guild: discord.Guild, user: Union[discord.User, discord.Member]):
-        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", user.guild.id)
-        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
 
         embed = discord.Embed(
             title=None,
@@ -278,7 +280,7 @@ class Events(commands.Cog):
         embed.timestamp = discord.utils.utcnow()
         embed.set_footer(text=f"User ID: {user.id}")
 
-        await log_channel.send(embed=embed)
+        await log_webhook.send(embed=embed)
 
     # ============
     #  Server Log
@@ -286,8 +288,8 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_channel_create(self, channel: discord.abc.GuildChannel):
-        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", channel.guild.id)
-        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", channel.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
         
         # Determine channel type
         channel_type = (
@@ -307,12 +309,12 @@ class Events(commands.Cog):
         embed.timestamp = discord.utils.utcnow()
         embed.set_footer(text=f"Channel ID: {channel.id}")
 
-        await log_channel.send(embed=embed)
+        await log_webhook.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_guild_channel_delete(self, channel: discord.abc.GuildChannel):
-        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", channel.guild.id)
-        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", channel.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
         
         # Determine channel type
         channel_type = (
@@ -332,7 +334,7 @@ class Events(commands.Cog):
         embed.timestamp = discord.utils.utcnow()
         embed.set_footer(text=f"Channel ID: {channel.id}")
 
-        await log_channel.send(embed=embed)
+        await log_webhook.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_guild_channel_update(self, before: discord.abc.GuildChannel, after: discord.abc.GuildChannel):
@@ -344,10 +346,10 @@ class Events(commands.Cog):
         if before.id in excluded_channels:
             return
 
-        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id)
-        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
 
-        if log_channel:
+        if log_webhook:
             embed_list = []
 
             # Determine channel type
@@ -545,14 +547,14 @@ class Events(commands.Cog):
             if embed_list:
                 for i in range(0, len(embed_list), 10):
                     chunk = embed_list[i:i + 10]
-                    await log_channel.send(embeds=chunk)
+                    await log_webhook.send(embeds=chunk)
 
     @commands.Cog.listener()
     async def on_guild_role_create(self, role: discord.Role):
-        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", role.guild.id)
-        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", role.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
 
-        if log_channel:
+        if log_webhook:
             perms_list = [perm[0].replace("_", " ") for perm in role.permissions if perm[1]]
 
             embed = discord.Embed(
@@ -564,14 +566,14 @@ class Events(commands.Cog):
             embed.timestamp = discord.utils.utcnow()
             embed.set_footer(text=f"Role ID: {role.id}")
 
-            await log_channel.send(embed=embed)
+            await log_webhook.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_guild_role_delete(self, role: discord.Role):
-        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", role.guild.id)
-        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", role.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
 
-        if log_channel:
+        if log_webhook:
             perms_list = [perm[0].replace("_", " ") for perm in role.permissions if perm[1]]
 
             embed = discord.Embed(
@@ -587,14 +589,14 @@ class Events(commands.Cog):
             embed.timestamp = discord.utils.utcnow()
             embed.set_footer(text=f"Role ID: {role.id}")
 
-            await log_channel.send(embed=embed)
+            await log_webhook.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_guild_role_update(self, before: discord.Role, after: discord.Role):
-        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id)
-        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
 
-        if log_channel:
+        if log_webhook:
             embed = discord.Embed(
                 title=None,
                 description=f":pencil: **Role updated: {before.name}**",
@@ -632,14 +634,14 @@ class Events(commands.Cog):
             embed.timestamp = discord.utils.utcnow()
             embed.set_footer(text=f"Role ID: {before.id}")
 
-            await log_channel.send(embed=embed)
+            await log_webhook.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_guild_update(self, before: discord.Guild, after: discord.Guild):
-        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id)
-        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
 
-        if log_channel:
+        if log_webhook:
             embed = discord.Embed(
                 title=None,
                 description=f":pencil: **Server information updated!**",
@@ -706,14 +708,14 @@ class Events(commands.Cog):
             embed.timestamp = discord.utils.utcnow()
             embed.set_footer(text=f"Guild ID: {before.id}")
 
-            await log_channel.send(embed=embed)
+            await log_webhook.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_guild_emojis_update(self, guild, before, after):
-        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", after.guild.id)
-        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
 
-        if log_channel:
+        if log_webhook:
 
             before_emojis = set(before)
             after_emojis = set(after)
@@ -732,7 +734,7 @@ class Events(commands.Cog):
                     embed.timestamp = discord.utils.utcnow()
                     embed.set_footer(text=f"Emoji ID: {emoji.id}")
 
-                    await log_channel.send(embed=embed)
+                    await log_webhook.send(embed=embed)
 
             if removed_emojis:
                 for emoji in removed_emojis:
@@ -745,7 +747,7 @@ class Events(commands.Cog):
                     embed.timestamp = discord.utils.utcnow()
                     embed.set_footer(text=f"Emoji ID: {emoji.id}")
 
-                    await log_channel.send(embed=embed)
+                    await log_webhook.send(embed=embed)
 
             for before_emoji in before:
                 for after_emoji in after:
@@ -759,7 +761,7 @@ class Events(commands.Cog):
                         embed.timestamp = discord.utils.utcnow()
                         embed.set_footer(text=f"Emoji ID: {before_emoji.id}")
 
-                        await log_channel.send(embed=embed)
+                        await log_webhook.send(embed=embed)
 
     # =============
     #  Message Log
@@ -784,10 +786,10 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command(self, ctx):
-        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", ctx.guild.id)
-        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
 
-        if log_channel:
+        if log_webhook:
             user = ctx.author
             command = ctx.command
             channel = ctx.channel
@@ -803,7 +805,7 @@ class Events(commands.Cog):
             embed.timestamp = discord.utils.utcnow()
             embed.set_footer(text=f"User ID: {user.id} | Channel ID: {channel.id}")
 
-            await log_channel.send(embed=embed)
+            await log_webhook.send(embed=embed)
 
     # ===========
     #  Error Log
@@ -882,10 +884,10 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
-        log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", member.guild.id)
-        log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", member.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if log_webhook_url else None
 
-        if log_channel:
+        if log_webhook:
             if before.channel is None and after.channel is not None:
                 embed = discord.Embed(
                     title=None,
@@ -895,7 +897,7 @@ class Events(commands.Cog):
                 embed.set_author(name=member.name, icon_url=member.display_avatar.url)
                 embed.timestamp = discord.utils.utcnow()
 
-                await log_channel.send(embed=embed)
+                await log_webhook.send(embed=embed)
 
             elif before.channel is not None and after.channel is None:
                 embed = discord.Embed(
@@ -906,7 +908,7 @@ class Events(commands.Cog):
                 embed.set_author(name=member.name, icon_url=member.display_avatar.url)
                 embed.timestamp = discord.utils.utcnow()
 
-                await log_channel.send(embed=embed)
+                await log_webhook.send(embed=embed)
 
             elif before.channel is not None and after.channel is not None and before.channel != after.channel:
                 embedList = []
@@ -930,7 +932,7 @@ class Events(commands.Cog):
                 embedList.append(leave_embed)
                 embedList.append(join_embed)
 
-                await log_channel.send(embeds=embedList)
+                await log_webhook.send(embeds=embedList)
             else:
                 return
 
