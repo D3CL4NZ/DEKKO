@@ -813,10 +813,10 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
-        error_channel_id = await db.fetch_one("SELECT error_channel FROM config WHERE guild = ?", ctx.guild.id)
-        error_channel = self.bot.get_channel(error_channel_id[0]) if error_channel_id else None
+        error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if error_webhook_url else None
 
-        if error_channel:
+        if error_webhook:
             if hasattr(ctx.command, 'on_error'):
                 return
 
@@ -844,7 +844,7 @@ class Events(commands.Cog):
 
             else:
                 common.logger.error(f"Ignoring exception in command {ctx.command}:\n{''.join(traceback.format_exception(type(error), error, error.__traceback__))}")
-                await error_channel.send(f":no_entry: **CYKA BLYAT!**\n`DEKKO Command Processor` has encountered an error :( ```ansi\n{''.join(traceback.format_exception(type(error), error, error.__traceback__))}```")
+                await error_webhook.send(f":no_entry: **CYKA BLYAT!**\n`DEKKO Command Processor` has encountered an error :( ```ansi\n{''.join(traceback.format_exception(type(error), error, error.__traceback__))}```")
                 await ctx.send(f":no_entry: **CYKA BLYAT!**\n`DEKKO Command Processor` has encountered an error :( ```ansi\n{str(error)}```")
 
     # ==============
