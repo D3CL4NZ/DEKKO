@@ -26,6 +26,7 @@ DEKKO is a general-purpose moderation, music, and server management Discord bot.
 
 - Automatic server join/leave messages
 - Automatic role management
+- Member verification
 - Member action logging
 - VC music player
 - Urban Dictionary search command
