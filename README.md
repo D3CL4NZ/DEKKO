@@ -12,3 +12,23 @@
 [![Deploy DEKKO to server](https://github.com/D3CL4NZ/DEKKO/actions/workflows/dekkodeploy.yml/badge.svg)](https://github.com/D3CL4NZ/DEKKO/actions/workflows/dekkodeploy.yml)
 [![getting started](https://img.shields.io/badge/getting_started-guide-1D76DB)](https://www.declanz.me/web/dekko/)
 [![Free](https://img.shields.io/badge/free_for_non_commercial_use-brightgreen)](#)
+
+## Table of Contents
+- [About](#-about)
+- [Features](#-features)
+
+## About
+
+DEKKO is a general-purpose moderation, music, and server management Discord bot.
+
+## Features
+
+- Automatic server join/leave messages
+- Automatic role management
+- Member action logging
+- VC music player
+- Urban Dictionary search command
+- A global "naughty list" that applies to all servers DEKKO is in
+- Ban syncing across servers
+
+..and much more!
