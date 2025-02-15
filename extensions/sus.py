@@ -179,7 +179,11 @@ Started: <t:{int(time.time())}:R>""")
                     purgatory_role_id = await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", guild.id)
                     purgatory_role = guild.get_role(purgatory_role_id[0]) if not(purgatory_role_id is None or (isinstance(purgatory_role_id, tuple) and all(roleid is None for roleid in purgatory_role_id))) else None
 
-                    if sus_role is None or purgatory_role is None:
+                    moderator_role_id = await db.fetch_one("SELECT mod_role_id FROM config WHERE guild = ?", guild.id)
+                    admin_channel_id = await db.fetch_one("SELECT admin_channel FROM config WHERE guild = ?", guild.id)
+                    manver_channel_id = await db.fetch_one("SELECT manver_channel FROM config WHERE guild = ?", guild.id)
+
+                    if sus_role is None or purgatory_role is None or (moderator_role_id is None or (isinstance(moderator_role_id, tuple) and all(roleid is None for roleid in moderator_role_id))) or (admin_channel_id is None or (isinstance(admin_channel_id, tuple) and all(chanid is None for chanid in admin_channel_id))) or (manver_channel_id is None or (isinstance(manver_channel_id, tuple) and all(chanid is None for chanid in manver_channel_id))):
                         continue
 
                     if purgatory_role not in member.roles and sus_role not in member.roles:
@@ -274,7 +278,11 @@ Started: <t:{int(time.time())}:R>""")
                     purgatory_role_id = await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", guild.id)
                     purgatory_role = guild.get_role(purgatory_role_id[0]) if not(purgatory_role_id is None or (isinstance(purgatory_role_id, tuple) and all(roleid is None for roleid in purgatory_role_id))) else None
 
-                    if sus_role is None or purgatory_role is None:
+                    moderator_role_id = await db.fetch_one("SELECT mod_role_id FROM config WHERE guild = ?", guild.id)
+                    admin_channel_id = await db.fetch_one("SELECT admin_channel FROM config WHERE guild = ?", guild.id)
+                    manver_channel_id = await db.fetch_one("SELECT manver_channel FROM config WHERE guild = ?", guild.id)
+
+                    if sus_role is None or purgatory_role is None or (moderator_role_id is None or (isinstance(moderator_role_id, tuple) and all(roleid is None for roleid in moderator_role_id))) or (admin_channel_id is None or (isinstance(admin_channel_id, tuple) and all(chanid is None for chanid in admin_channel_id))) or (manver_channel_id is None or (isinstance(manver_channel_id, tuple) and all(chanid is None for chanid in manver_channel_id))):
                         continue
 
                     if purgatory_role in member.roles and sus_role in member.roles:
