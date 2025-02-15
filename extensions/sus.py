@@ -25,22 +25,22 @@ class SuspiciousUsers(commands.Cog):
         if not after.bot:
             if before.pending and not after.pending:
                 sus_role_id = await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", after.guild.id)
-                sus_role = after.guild.get_role(sus_role_id[0]) if sus_role_id else None
+                sus_role = after.guild.get_role(sus_role_id[0]) if not(sus_role_id is None or (isinstance(sus_role_id, tuple) and all(roleid is None for roleid in sus_role_id))) else None
 
                 purgatory_role_id = await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", after.guild.id)
-                purgatory_role = after.guild.get_role(purgatory_role_id[0]) if purgatory_role_id else None
+                purgatory_role = after.guild.get_role(purgatory_role_id[0]) if not(purgatory_role_id is None or (isinstance(purgatory_role_id, tuple) and all(roleid is None for roleid in purgatory_role_id))) else None
 
                 moderator_role_id = await db.fetch_one("SELECT mod_role_id FROM config WHERE guild = ?", after.guild.id)
-                moderator_role = after.guild.get_role(moderator_role_id[0]) if moderator_role_id else None
+                moderator_role = after.guild.get_role(moderator_role_id[0]) if not(moderator_role_id is None or (isinstance(moderator_role_id, tuple) and all(roleid is None for roleid in moderator_role_id))) else None
 
                 log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
                 log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
                 admin_channel_id = await db.fetch_one("SELECT admin_channel FROM config WHERE guild = ?", after.guild.id)
-                admin_channel = self.bot.get_channel(admin_channel_id[0]) if admin_channel_id else None
+                admin_channel = self.bot.get_channel(admin_channel_id[0]) if not(admin_channel_id is None or (isinstance(admin_channel_id, tuple) and all(chanid is None for chanid in admin_channel_id))) else None
 
                 manver_channel_id = await db.fetch_one("SELECT manver_channel FROM config WHERE guild = ?", after.guild.id)
-                manver_channel = self.bot.get_channel(manver_channel_id[0]) if manver_channel_id else None
+                manver_channel = self.bot.get_channel(manver_channel_id[0]) if not(manver_channel_id is None or (isinstance(manver_channel_id, tuple) and all(chanid is None for chanid in manver_channel_id))) else None
 
                 if sus_role is None or purgatory_role is None or moderator_role is None or admin_channel is None or manver_channel is None:
                     return
@@ -139,9 +139,6 @@ Sus check: `Pass` :white_check_mark:""")
 
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
-
-            log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
-            log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
             
             if user.id == self.bot.user.id:
                 await response.edit(content="Bite me.")
@@ -170,33 +167,38 @@ Started: <t:{int(time.time())}:R>""")
 
             await db.execute("INSERT INTO naughty_list VALUES (?, ?, ?)", user.id, user.name, reason)
 
-            if ctx.guild.get_member(user.id) is not None:
-                sus_role_id = await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", ctx.guild.id)
-                sus_role = user.guild.get_role(sus_role_id[0]) if sus_role_id else None
+            for guild in self.bot.guilds:
+                log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", guild.id)
+                log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
-                purgatory_role_id = await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", ctx.guild.id)
-                purgatory_role = user.guild.get_role(purgatory_role_id[0]) if purgatory_role_id else None
+                member = guild.get_member(user.id)
+                if member is not None:
+                    sus_role_id = await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", guild.id)
+                    sus_role = guild.get_role(sus_role_id[0]) if not(sus_role_id is None or (isinstance(sus_role_id, tuple) and all(roleid is None for roleid in sus_role_id))) else None
 
-                if sus_role is None or purgatory_role is None:
-                    return await ctx.send(":warning:  **NAUGHTY LIST IS NOT CONFIGURED**")
+                    purgatory_role_id = await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", guild.id)
+                    purgatory_role = guild.get_role(purgatory_role_id[0]) if not(purgatory_role_id is None or (isinstance(purgatory_role_id, tuple) and all(roleid is None for roleid in purgatory_role_id))) else None
 
-                if purgatory_role not in user.roles and sus_role not in user.roles:
-                    await user.edit(roles=[purgatory_role, sus_role])
+                    if sus_role is None or purgatory_role is None:
+                        continue
+
+                    if purgatory_role not in member.roles and sus_role not in member.roles:
+                        await member.edit(roles=[purgatory_role, sus_role])
+
+                if log_webhook:
+                    log_embed = discord.Embed(
+                        title=None,
+                        description=f":triangular_flag_on_post: {user.mention} **was added to the naughty list**",
+                        color=discord.Colour.red()
+                    )
+                    log_embed.set_author(name=user.name, icon_url=user.display_avatar.url)
+                    log_embed.set_thumbnail(url=user.display_avatar.url)
+                    log_embed.timestamp = discord.utils.utcnow()
+                    log_embed.set_footer(text=f"User ID: {user.id}")
+
+                    await log_webhook.send(embed=log_embed)
 
             embed = discord.Embed(description=f"{user.mention} **has been added to the naughty list.**", color=discord.Colour.red())
-
-            if log_webhook:
-                log_embed = discord.Embed(
-                    title=None,
-                    description=f":triangular_flag_on_post: {user.mention} **was added to the naughty list**",
-                    color=discord.Colour.red()
-                )
-                log_embed.set_author(name=user.name, icon_url=user.display_avatar.url)
-                log_embed.set_thumbnail(url=user.display_avatar.url)
-                log_embed.timestamp = discord.utils.utcnow()
-                log_embed.set_footer(text=f"User ID: {user.id}")
-
-                await log_webhook.send(embed=log_embed)
 
             await response.edit(content=":pencil: Database transaction successful.", embed=embed)
 
@@ -260,33 +262,38 @@ Started: <t:{int(time.time())}:R>""")
 
             await db.execute("DELETE FROM naughty_list WHERE user_id = ?", user.id)
 
-            if ctx.guild.get_member(user.id) is not None:
-                sus_role_id = await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", ctx.guild.id)
-                sus_role = user.guild.get_role(sus_role_id[0]) if sus_role_id else None
+            for guild in self.bot.guilds:
+                log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", guild.id)
+                log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
-                purgatory_role_id = await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", ctx.guild.id)
-                purgatory_role = user.guild.get_role(purgatory_role_id[0]) if purgatory_role_id else None
+                member = guild.get_member(user.id)
+                if member is not None:
+                    sus_role_id = await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", guild.id)
+                    sus_role = guild.get_role(sus_role_id[0]) if not(sus_role_id is None or (isinstance(sus_role_id, tuple) and all(roleid is None for roleid in sus_role_id))) else None
 
-                if sus_role is None or purgatory_role is None:
-                    return await ctx.send(":warning:  **NAUGHTY LIST IS NOT CONFIGURED**")
+                    purgatory_role_id = await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", guild.id)
+                    purgatory_role = guild.get_role(purgatory_role_id[0]) if not(purgatory_role_id is None or (isinstance(purgatory_role_id, tuple) and all(roleid is None for roleid in purgatory_role_id))) else None
 
-                if purgatory_role in user.roles and sus_role in user.roles:
-                    await user.edit(roles=[purgatory_role])
+                    if sus_role is None or purgatory_role is None:
+                        continue
+
+                    if purgatory_role in member.roles and sus_role in member.roles:
+                        await member.edit(roles=[purgatory_role])
+
+                if log_webhook:
+                    log_embed = discord.Embed(
+                        title=None,
+                        description=f":flag_white: {user.mention} **was removed from the naughty list**",
+                        color=discord.Colour.green()
+                    )
+                    log_embed.set_author(name=user.name, icon_url=user.display_avatar.url)
+                    log_embed.set_thumbnail(url=user.display_avatar.url)
+                    log_embed.timestamp = discord.utils.utcnow()
+                    log_embed.set_footer(text="User ID: {}".format(user.id))
+
+                    await log_webhook.send(embed=log_embed)
 
             embed = discord.Embed(description=f"{user.mention} **has been removed from the naughty list.**", color=discord.Colour.green())
-
-            if log_webhook:
-                log_embed = discord.Embed(
-                    title=None,
-                    description=f":flag_white: {user.mention} **was removed from the naughty list**",
-                    color=discord.Colour.green()
-                )
-                log_embed.set_author(name=user.name, icon_url=user.display_avatar.url)
-                log_embed.set_thumbnail(url=user.display_avatar.url)
-                log_embed.timestamp = discord.utils.utcnow()
-                log_embed.set_footer(text="User ID: {}".format(user.id))
-
-                await log_webhook.send(embed=log_embed)
 
             await response.edit(content=":pencil: Database transaction successful.", embed=embed)
 
