@@ -768,7 +768,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        if message.author.id != self.bot.user.id and not message.webhook_id:
+        if message.author.id != self.bot.user.id and not message.webhook_id and message.guild:
             log_channel_id = await db.fetch_one("SELECT log_channel FROM config WHERE guild = ?", message.guild.id)
             log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
 
@@ -785,7 +785,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command(self, ctx):
-        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id) if ctx.guild else None
         log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if log_webhook:
@@ -812,39 +812,38 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
-        error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
+        error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id) if ctx.guild else None
         error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if not(error_webhook_url is None or (isinstance(error_webhook_url, tuple) and all(url is None for url in error_webhook_url))) else None
 
-        if error_webhook:
-            if hasattr(ctx.command, 'on_error'):
+        if hasattr(ctx.command, 'on_error'):
+            return
+
+        cog = ctx.cog
+        if cog:
+            if cog._get_overridden_method(cog.cog_command_error) is not None:
                 return
 
-            cog = ctx.cog
-            if cog:
-                if cog._get_overridden_method(cog.cog_command_error) is not None:
-                    return
+        error = getattr(error, 'original', error)
 
-            error = getattr(error, 'original', error)
+        if isinstance(error, commands.CommandNotFound):
+            await ctx.send(":no_entry: **Invalid command!**")
 
-            if isinstance(error, commands.CommandNotFound):
-                await ctx.send(":no_entry: **Invalid command!**")
+        elif isinstance(error, commands.DisabledCommand):
+            await ctx.send(f":no_entry: **Command** `{ctx.command}` **has been disabled.**")
 
-            elif isinstance(error, commands.DisabledCommand):
-                await ctx.send(f":no_entry: **Command** `{ctx.command}` **has been disabled.**")
+        elif isinstance(error, commands.CheckFailure):
+            await ctx.send(":no_entry: **ACCESS DENIED**")
 
-            elif isinstance(error, commands.CheckFailure):
-                await ctx.send(":no_entry: **ACCESS DENIED**")
+        elif isinstance(error, commands.NoPrivateMessage):
+            try:
+                await ctx.author.send(f":no_entry: **Command** `{ctx.command}` **can not be used in Private Messages.**")
+            except discord.HTTPException:
+                pass
 
-            elif isinstance(error, commands.NoPrivateMessage):
-                try:
-                    await ctx.author.send(f":no_entry: **Command** `{ctx.command}` **can not be used in Private Messages.**")
-                except discord.HTTPException:
-                    pass
-
-            else:
-                common.logger.error(f"Ignoring exception in command {ctx.command}:\n{''.join(traceback.format_exception(type(error), error, error.__traceback__))}")
-                await error_webhook.send(f":no_entry: **CYKA BLYAT!**\n`DEKKO Command Processor` has encountered an error :( ```ansi\n{''.join(traceback.format_exception(type(error), error, error.__traceback__))}```")
-                await ctx.send(f":no_entry: **CYKA BLYAT!**\n`DEKKO Command Processor` has encountered an error :( ```ansi\n{str(error)}```")
+        else:
+            common.logger.error(f"Ignoring exception in command {ctx.command}:\n{''.join(traceback.format_exception(type(error), error, error.__traceback__))}")
+            if error_webhook: await error_webhook.send(f":no_entry: **CYKA BLYAT!**\n`DEKKO Command Processor` has encountered an error :( ```ansi\n{''.join(traceback.format_exception(type(error), error, error.__traceback__))}```")
+            await ctx.send(f":no_entry: **CYKA BLYAT!**\n`DEKKO Command Processor` has encountered an error :( ```ansi\n{str(error)}```")
 
     # ==============
     #  Misc Logging
