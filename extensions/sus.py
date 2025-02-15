@@ -119,10 +119,10 @@ Sus check: `Pass` :white_check_mark:""")
         current_chunk = "**__THE NAUGHTY LIST__**\n\n"
         
         for sus_user in sus_users:
-            if len(current_chunk) + len(sus_user) + 1 > 2000:
+            if len(current_chunk) + len(sus_user) + 2 > 2000:
                 message_chunks.append(current_chunk)
                 current_chunk = ""
-            current_chunk += sus_user + "\n"
+            current_chunk += sus_user + "\n\n"
         
         if current_chunk:
             message_chunks.append(current_chunk)
