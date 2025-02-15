@@ -114,9 +114,9 @@ Sus check: `Pass` :white_check_mark:""")
         data = await db.fetch("SELECT * FROM naughty_list")
 
         for user in data:
-            sus_users.append("<@{}> (`{}`)".format(str(user[0]), user[1]))
+            sus_users.append(f"<@{str(user[0])}> (`{user[1]}`)\n**Reason:** {user[2]}")
 
-        sus_users_string = '\n'.join(sus_users)
+        sus_users_string = '\n\n'.join(sus_users)
 
         await ctx.send(f"""**__THE NAUGHTY LIST__**
 
@@ -126,7 +126,7 @@ Sus check: `Pass` :white_check_mark:""")
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(moderate_members=True)
-    async def _sus(self, ctx, *, user: discord.User):
+    async def _sus(self, ctx, *, user: discord.User, reason: str):
         """Manually flags a user as suspicious"""
 
         async with ctx.typing():
@@ -141,12 +141,13 @@ Sus check: `Pass` :white_check_mark:""")
 
             # Check if the user is already marked as sus
             sus_users = []
-            data = await db.fetch("SELECT * FROM naughty_list")
 
             await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `SELECT * FROM naughty_list`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
+
+            data = await db.fetch("SELECT * FROM naughty_list")
 
             for u in data:
                 sus_users.append(u[0])
@@ -154,12 +155,12 @@ Started: <t:{int(time.time())}:R>""")
                 await response.edit(content=f":warning: User {user.mention} is already on the naughty list.")
                 return
 
-            await db.execute("INSERT INTO naughty_list VALUES (?, ?)", user.id, user.name)
-
             await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
-Query: `INSERT INTO naughty_list VALUES ({user.id}, {user.name})`
+Query: `INSERT INTO naughty_list VALUES ({user.id}, {user.name}, {reason})`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
+
+            await db.execute("INSERT INTO naughty_list VALUES (?, ?, ?)", user.id, user.name, reason)
 
             if ctx.guild.get_member(user.id) is not None:
                 sus_role_id = await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", ctx.guild.id)
