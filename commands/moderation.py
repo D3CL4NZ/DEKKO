@@ -51,7 +51,7 @@ class Moderation(commands.Cog):
             await ctx.guild.kick(user, reason=reason)
             await response.edit(content=None, embed=embed)
 
-            log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
+            log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
             log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
             if log_webhook:
@@ -126,7 +126,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 
             await response.edit(content=None, embed=embed)
 
-            log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
+            log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
             log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
             if log_webhook:
@@ -186,7 +186,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 
             embed = discord.Embed(description=f"{user.mention} **has been unbanned.**", color=discord.Colour.green())
 
-            log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
+            log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
             log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
             if log_webhook:

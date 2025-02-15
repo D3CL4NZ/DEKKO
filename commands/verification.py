@@ -17,13 +17,13 @@ class Verification(commands.Cog):
     async def _verify(self, ctx, *, member: discord.Member):
         """Verifies a user"""
 
-        verified_role_id = await db.fetch_one("SELECT verified_role_id FROM config WHERE guild = ?", member.guild.id)
+        verified_role_id = await db.fetch_one("SELECT verified_role_id FROM config WHERE guild = ?", ctx.guild.id)
         verified_role = member.guild.get_role(verified_role_id[0]) if verified_role_id else None
 
-        human_role_id = await db.fetch_one("SELECT human_role_id FROM config WHERE guild = ?", member.guild.id)
+        human_role_id = await db.fetch_one("SELECT human_role_id FROM config WHERE guild = ?", ctx.guild.id)
         human_role = member.guild.get_role(human_role_id[0]) if human_role_id else None
 
-        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", member.guild.id)
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
         log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if verified_role is None or human_role is None:
@@ -90,10 +90,10 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
     async def _unverify(self, ctx, *, member: discord.Member):
         """Unverifies a user"""
 
-        purgatory_role_id = await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", member.guild.id)
+        purgatory_role_id = await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", ctx.guild.id)
         purgatory_role = member.guild.get_role(purgatory_role_id[0]) if purgatory_role_id else None
 
-        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", member.guild.id)
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
         log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if purgatory_role is None:

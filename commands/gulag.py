@@ -17,7 +17,7 @@ class Gulag(commands.Cog):
     async def _gulag(self, ctx, *, member: discord.Member):
         """Sends the user to GULAG"""
 
-        gulag_role_id = await db.fetch_one("SELECT mute_role_id FROM config WHERE guild = ?", member.guild.id)
+        gulag_role_id = await db.fetch_one("SELECT mute_role_id FROM config WHERE guild = ?", ctx.guild.id)
         gulag_role = member.guild.get_role(gulag_role_id[0]) if gulag_role_id else None
 
         if gulag_role is None:
@@ -51,7 +51,7 @@ class Gulag(commands.Cog):
         except:
             pass
 
-        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", member.guild.id)
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
         log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if log_webhook:
@@ -94,7 +94,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
     async def _release(self, ctx, *, member: discord.Member):
         """Releases the user from GULAG"""
 
-        gulag_role_id = await db.fetch_one("SELECT mute_role_id FROM config WHERE guild = ?", member.guild.id)
+        gulag_role_id = await db.fetch_one("SELECT mute_role_id FROM config WHERE guild = ?", ctx.guild.id)
         gulag_role = member.guild.get_role(gulag_role_id[0]) if gulag_role_id else None
 
         if gulag_role is None:
@@ -113,7 +113,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 
         await ctx.send(embed=embed)
 
-        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", member.guild.id)
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
         log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
         if log_webhook:

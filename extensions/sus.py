@@ -55,8 +55,6 @@ Accepted rules: `True` :white_check_mark:
 Reputation check: `Pass` :white_check_mark:
 Sus check: `In progress...` :hourglass:""")
 
-                sus_users = []
-
                 # Fetch suspicious users table from the database
                 data = await db.fetch("SELECT * FROM naughty_list")
 
@@ -132,7 +130,7 @@ Sus check: `Pass` :white_check_mark:""")
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
-            log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
+            log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
             log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
             
             if user.id == self.bot.user.id:
@@ -222,7 +220,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
-            log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", user.guild.id)
+            log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
             log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
             
             if user.id == self.bot.user.id:
