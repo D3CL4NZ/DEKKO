@@ -8,4 +8,7 @@ class DiscordWebhookSender:
     async def send(self, content=None, *, username=None, avatar_url=None, embed=None, embeds=None):
         async with aiohttp.ClientSession() as session:
             webhook = Webhook.from_url(self.url, session=session)
-            await webhook.send(content=content, username=username, avatar_url=avatar_url, embed=embed, embeds=embeds)
+            if embeds and not embed:
+                await webhook.send(content=content, username=username, avatar_url=avatar_url, embeds=embeds)
+            else:
+                await webhook.send(content=content, username=username, avatar_url=avatar_url, embed=embed)
