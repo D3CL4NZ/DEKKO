@@ -104,7 +104,7 @@ Sus check: `Pass` :white_check_mark:""")
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(moderate_members=True)
-    async def _naughtlylist(self, ctx):
+    async def _naughtylist(self, ctx):
         """Displays the naughty list"""
 
         sus_users = []
@@ -114,11 +114,21 @@ Sus check: `Pass` :white_check_mark:""")
         for user in data:
             sus_users.append(f"<@{str(user[0])}> (`{user[1]}`)\n**Reason:** {user[2]}")
 
-        sus_users_string = '\n\n'.join(sus_users)
+        # Join the sus_users list into a single string, ensuring the total length does not exceed 2000 characters
+        message_chunks = []
+        current_chunk = "**__THE NAUGHTY LIST__**\n\n"
+        
+        for sus_user in sus_users:
+            if len(current_chunk) + len(sus_user) + 1 > 2000:
+                message_chunks.append(current_chunk)
+                current_chunk = ""
+            current_chunk += sus_user + "\n"
+        
+        if current_chunk:
+            message_chunks.append(current_chunk)
 
-        await ctx.send(f"""**__THE NAUGHTY LIST__**
-
-{sus_users_string}""")
+        for chunk in message_chunks:
+            await ctx.send(chunk)
 
     @commands.hybrid_command(name='sus', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
