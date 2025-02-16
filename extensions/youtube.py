@@ -1,11 +1,3 @@
-"""
-This example cog demonstrates basic usage of Lavalink.py, using the DefaultPlayer.
-As this example primarily showcases usage in conjunction with discord.py, you will need to make
-modifications as necessary for use with another Discord library.
-
-Usage of this cog requires Python 3.6 or higher due to the use of f-strings.
-Compatibility with Python 3.5 should be possible if f-strings are removed.
-"""
 import re
 
 import discord
@@ -16,8 +8,9 @@ from lavalink.errors import ClientError
 from lavalink.filters import LowPass
 from lavalink.server import LoadType
 
-url_rx = re.compile(r'https?://(?:www\.)?.+')
+import config
 
+url_rx = re.compile(r'https?://(?:www\.)?.+')
 
 class LavalinkVoiceClient(discord.VoiceProtocol):
     """
@@ -38,7 +31,7 @@ class LavalinkVoiceClient(discord.VoiceProtocol):
             # We store it in `self.client` so that it may persist across cog reloads,
             # however this is not mandatory.
             self.client.lavalink = lavalink.Client(client.user.id)
-            self.client.lavalink.add_node(host='localhost', port=2333, password='youshallnotpass',
+            self.client.lavalink.add_node(host=config.LL_HOST, port=config.LL_PORT, password=config.LL_PASSWORD,
                                           region='us', name='default-node')
 
         # Create a shortcut to the Lavalink client here.
@@ -122,7 +115,7 @@ class Music(commands.Cog):
 
         if not hasattr(bot, 'lavalink'):
             bot.lavalink = lavalink.Client(bot.user.id)
-            bot.lavalink.add_node(host='localhost', port=2333, password='youshallnotpass',
+            bot.lavalink.add_node(host=config.LL_HOST, port=config.LL_PORT, password=config.LL_PASSWORD,
                                   region='us', name='default-node')
 
         self.lavalink: lavalink.Client = bot.lavalink
@@ -174,7 +167,7 @@ class Music(commands.Cog):
                 raise commands.CommandInvokeError('You need to join my voice channel first.')
 
             # Otherwise, tell them to join any voice channel to begin playing music.
-            raise commands.CommandInvokeError('Join a voicechannel first.')
+            raise commands.CommandInvokeError('Join a voice channel first.')
 
         voice_channel = ctx.author.voice.channel
 
