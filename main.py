@@ -32,8 +32,7 @@ cog_files = [
     "extensions.context_menu",
     "extensions.dm",
     "extensions.holidays",
-    "extensions.sus",
-    "extensions.youtube"
+    "extensions.sus"
 ]
 
 async def load_extensions():
