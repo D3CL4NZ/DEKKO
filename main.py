@@ -30,6 +30,7 @@ cog_files = [
     "commands.ytdlp",
     "events",
     "extensions.context_menu",
+    "extensions.deccyloader",
     "extensions.dm",
     "extensions.holidays",
     "extensions.sus"
