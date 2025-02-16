@@ -132,6 +132,10 @@ class Music(commands.Cog):
         """
         self.lavalink._event_hooks.clear()
 
+        # Clean up the lavalink session if it exists.
+        if hasattr(self.bot, 'lavalink'):
+            self.bot.lavalink._session.close()
+
     async def cog_command_error(self, ctx, error):
         if isinstance(error, commands.CommandInvokeError):
             await ctx.send(error.original)
@@ -194,6 +198,24 @@ class Music(commands.Cog):
             raise commands.CommandInvokeError('You need to join my voice channel first.')
 
         return True
+    
+    @staticmethod
+    def parse_duration(duration: int):
+        minutes, seconds = divmod(duration, 60)
+        hours, minutes = divmod(minutes, 60)
+        days, hours = divmod(hours, 24)
+
+        duration = []
+        if days > 0:
+            duration.append('{}'.format(days))
+        if hours > 0:
+            duration.append('{}'.format(hours))
+        if minutes > 0:
+            duration.append('{}'.format(minutes))
+        if seconds > 0:
+            duration.append('{}'.format(seconds))
+
+        return ':'.join(duration)
 
     @lavalink.listener(TrackStartEvent)
     async def on_track_start(self, event: TrackStartEvent):
@@ -208,11 +230,13 @@ class Music(commands.Cog):
 
         if channel:
             await channel.send(embed=discord.Embed(
-                title='Now Playing',
-                description=f'[{event.track.title}]({event.track.uri})',
+                title=':musical_note:  Now Playing',
+                description=f'```\n{event.track.title}\n```',
                 color=0xda00ff)
+            .add_field(name='Duration', value=self.parse_duration(event.track.duration))
             .add_field(name='Requested by', value=f"<@{event.track.requester}>")
             .add_field(name='Uploader', value=event.track.author)
+            .add_field(name='URL', value=f'[Click]({event.track.uri})')
             .set_thumbnail(url=event.track.artwork_url)
             .set_footer(text=f"DEKKOPlayer Redux v1.0.0 | DEKKO! v{common.VERSION}", icon_url="attachment://dekko_record.gif"), file=discord.File("./img/dekko_record.gif", "dekko_record.gif"))
 
@@ -249,7 +273,7 @@ class Music(commands.Cog):
         # Get the results for the query from Lavalink.
         results = await player.node.get_tracks(query)
 
-        embed = discord.Embed(color=discord.Color.blurple())
+        embed = discord.Embed(color=0xda00ff)
 
         # Valid load_types are:
         #   TRACK    - direct URL to a track
@@ -303,7 +327,7 @@ class Music(commands.Cog):
         # extreme values from being entered. This will enforce a maximum of 100.
         strength = min(100, strength)
 
-        embed = discord.Embed(color=discord.Color.blurple(), title='Low Pass Filter')
+        embed = discord.Embed(color=0xda00ff, title='Low Pass Filter')
 
         # A strength of 0 effectively means this filter won't function, so we can disable it.
         if strength == 0.0:
