@@ -170,82 +170,83 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_user_update(self, before: discord.User, after: discord.User):
-        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
-        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
+        for guild in after.mutual_guilds:
+            log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", guild.id)
+            log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
-        if log_webhook:
-            to_send = False
-            embed_list = []
+            if log_webhook:
+                to_send = False
+                embed_list = []
 
-            if before.display_avatar != after.display_avatar:
-                to_send = True
+                if before.display_avatar != after.display_avatar:
+                    to_send = True
 
-                embed = discord.Embed(
-                    title=None,
-                    description=f"{before.mention} **updated their profile!**",
-                    color=0xfaa41b
-                )
-                embed.set_author(name=before.name, icon_url=before.display_avatar.url)
-                embed.set_thumbnail(url=after.display_avatar.url)
-                embed.add_field(name="Avatar", value=f"[[before]]({before.display_avatar.url}) -> [[after]]({after.display_avatar.url})", inline=False)
-                embed.timestamp = discord.utils.utcnow()
-                embed.set_footer(text=f"User ID: {before.id}")
+                    embed = discord.Embed(
+                        title=None,
+                        description=f"{before.mention} **updated their profile!**",
+                        color=0xfaa41b
+                    )
+                    embed.set_author(name=before.name, icon_url=before.display_avatar.url)
+                    embed.set_thumbnail(url=after.display_avatar.url)
+                    embed.add_field(name="Avatar", value=f"[[before]]({before.display_avatar.url}) -> [[after]]({after.display_avatar.url})", inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"User ID: {before.id}")
 
-                embed_list.append(embed)
+                    embed_list.append(embed)
 
-            if before.global_name != after.global_name:
-                to_send = True
+                if before.global_name != after.global_name:
+                    to_send = True
 
-                embed = discord.Embed(
-                    title=None,
-                    description=f"{before.mention} **updated their profile!**",
-                    color=0xfaa41b
-                )
-                embed.set_author(name=before.name, icon_url=after.display_avatar.url)
-                embed.set_thumbnail(url=after.display_avatar.url)
-                embed.add_field(name="Global name", value=f"{before.global_name} -> {after.global_name}", inline=False)
-                embed.timestamp = discord.utils.utcnow()
-                embed.set_footer(text=f"User ID: {before.id}")
+                    embed = discord.Embed(
+                        title=None,
+                        description=f"{before.mention} **updated their profile!**",
+                        color=0xfaa41b
+                    )
+                    embed.set_author(name=before.name, icon_url=after.display_avatar.url)
+                    embed.set_thumbnail(url=after.display_avatar.url)
+                    embed.add_field(name="Global name", value=f"{before.global_name} -> {after.global_name}", inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"User ID: {before.id}")
 
-                embed_list.append(embed)
+                    embed_list.append(embed)
 
-            if before.name != after.name:
-                to_send = True
+                if before.name != after.name:
+                    to_send = True
 
-                embed = discord.Embed(
-                    title=None,
-                    description=f"{before.mention} **updated their profile!**",
-                    color=0xfaa41b
-                )
-                embed.set_author(name=before.name, icon_url=after.display_avatar.url)
-                embed.set_thumbnail(url=after.display_avatar.url)
-                embed.add_field(name="Username", value=f"{before.name} -> {after.name}", inline=False)
-                embed.timestamp = discord.utils.utcnow()
-                embed.set_footer(text=f"User ID: {before.id}")
+                    embed = discord.Embed(
+                        title=None,
+                        description=f"{before.mention} **updated their profile!**",
+                        color=0xfaa41b
+                    )
+                    embed.set_author(name=before.name, icon_url=after.display_avatar.url)
+                    embed.set_thumbnail(url=after.display_avatar.url)
+                    embed.add_field(name="Username", value=f"{before.name} -> {after.name}", inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"User ID: {before.id}")
 
-                embed_list.append(embed)
+                    embed_list.append(embed)
 
-            if before.discriminator != after.discriminator:
-                to_send = True
+                if before.discriminator != after.discriminator:
+                    to_send = True
 
-                before_discriminator = '{:04}'.format(before.discriminator)
-                after_discriminator = '{:04}'.format(after.discriminator)
+                    before_discriminator = '{:04}'.format(before.discriminator)
+                    after_discriminator = '{:04}'.format(after.discriminator)
 
-                embed = discord.Embed(
-                    title=None,
-                    description=f"{before.mention} **updated their profile!**",
-                    color=0xfaa41b
-                )
-                embed.set_author(name=after.name, icon_url=after.display_avatar.url)
-                embed.set_thumbnail(url=after.display_avatar.url)
-                embed.add_field(name="Discriminator", value=f"#{before_discriminator} -> #{after_discriminator}", inline=False)
-                embed.timestamp = discord.utils.utcnow()
-                embed.set_footer(text=f"User ID: {before.id}")
+                    embed = discord.Embed(
+                        title=None,
+                        description=f"{before.mention} **updated their profile!**",
+                        color=0xfaa41b
+                    )
+                    embed.set_author(name=after.name, icon_url=after.display_avatar.url)
+                    embed.set_thumbnail(url=after.display_avatar.url)
+                    embed.add_field(name="Discriminator", value=f"#{before_discriminator} -> #{after_discriminator}", inline=False)
+                    embed.timestamp = discord.utils.utcnow()
+                    embed.set_footer(text=f"User ID: {before.id}")
 
-                embed_list.append(embed)
+                    embed_list.append(embed)
 
-            if to_send:
-                await log_webhook.send(embeds=embed_list)
+                if to_send:
+                    await log_webhook.send(embeds=embed_list)
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild: discord.Guild, user: Union[discord.User, discord.Member]):
