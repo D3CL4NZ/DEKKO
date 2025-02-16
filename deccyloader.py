@@ -36,7 +36,7 @@ class DeccyLoader(commands.Cog):
     async def _load(self, ctx, extension):
         """Loads an extension"""
         try:
-            self.bot.load_extension(extension)
+            await self.bot.load_extension(extension)
             common.logger.info(f"[DECCYLoader]    -> {extension} has been manually loaded.")
         except Exception as e:
             raise commands.ExtensionError(f"Failed to load extension {extension}") from e
@@ -50,7 +50,7 @@ class DeccyLoader(commands.Cog):
     async def _unload(self, ctx, extension):
         """Unloads an extension"""
         try:
-            self.bot.unload_extension(extension)
+            await self.bot.unload_extension(extension)
             common.logger.info(f"[DECCYLoader]    -> {extension} has been manually unloaded.")
         except Exception as e:
             raise commands.ExtensionError(f"Failed to unload extension {extension}") from e
@@ -64,7 +64,7 @@ class DeccyLoader(commands.Cog):
     async def _reload(self, ctx, extension):
         """Reloads an extension"""
         try:
-            self.bot.reload_extension(extension)
+            await self.bot.reload_extension(extension)
             common.logger.info(f"[DECCYLoader]    -> {extension} has been manually reloaded.")
         except Exception as e:
             raise commands.ExtensionError(f"Failed to reload extension {extension}") from e
