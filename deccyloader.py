@@ -6,7 +6,7 @@ import traceback
 
 import common
 from webhook import DiscordWebhookSender
-import database as db
+from database import db
 
 class DeccyLoader(commands.Cog):
     def __init__(self, bot):
