@@ -123,7 +123,7 @@ class Music(commands.Cog):
         self.lavalink: lavalink.Client = bot.lavalink
         self.lavalink.add_event_hooks(self)
 
-    async def cog_unload(self):
+    def cog_unload(self):
         """
         This will remove any registered event hooks when the cog is unloaded.
         They will subsequently be registered again once the cog is loaded.
@@ -131,10 +131,6 @@ class Music(commands.Cog):
         This effectively allows for event handlers to be updated when the cog is reloaded.
         """
         self.lavalink._event_hooks.clear()
-
-        # Clean up the lavalink session if it exists.
-        if hasattr(self.bot, 'lavalink'):
-            await self.bot.lavalink._session.close()
 
     async def cog_command_error(self, ctx, error):
         if isinstance(error, commands.CommandInvokeError):
