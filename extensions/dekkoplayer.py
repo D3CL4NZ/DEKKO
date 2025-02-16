@@ -248,10 +248,10 @@ class Music(commands.Cog):
     @commands.hybrid_group(invoke_without_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
-    async def yt(self, ctx):
+    async def dp(self, ctx):
         await ctx.send(':warning:  **You must specify a subcommand**')
 
-    @yt.command(name='play', with_app_command=True)
+    @dp.command(name='play', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.check(create_player)
@@ -307,7 +307,7 @@ class Music(commands.Cog):
         if not player.is_playing:
             await player.play()
 
-    @yt.command(name='lowpass', with_app_command=True)
+    @dp.command(name='lowpass', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.check(create_player)
@@ -343,7 +343,7 @@ class Music(commands.Cog):
         embed.description = f'Set **Low Pass Filter** strength to {strength}.'
         await ctx.send(embed=embed)
 
-    @yt.command(name='leave', aliases=['disconnect'], with_app_command=True)
+    @dp.command(name='leave', aliases=['disconnect'], with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.check_any(commands.is_owner(), commands.has_permissions(manage_guild=True))

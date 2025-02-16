@@ -855,7 +855,7 @@ class Events(commands.Cog):
         await self.bot.wait_until_ready()
 
         common.logger.info("[DECCYLoader] Loading Lavalink...")
-        await self.bot.load_extension("extensions.youtube")
+        await self.bot.load_extension("extensions.dekkoplayer")
         common.logger.info("[DECCYLoader] Lavalink has loaded.")
 
         log_channel_id = await db.fetch_one("SELECT global_log_channel FROM global_config")
