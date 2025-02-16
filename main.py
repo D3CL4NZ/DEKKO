@@ -17,6 +17,7 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or("$dekko "), intents
 loop = asyncio.get_event_loop()
 
 cog_files = [
+    "deccyloader",
     "commands.core",
     "commands.emoji_grabber",
     "commands.entropy",
@@ -30,7 +31,6 @@ cog_files = [
     "commands.ytdlp",
     "events",
     "extensions.context_menu",
-    "extensions.deccyloader",
     "extensions.dm",
     "extensions.holidays",
     "extensions.sus"
