@@ -1,3 +1,9 @@
 # GLOBAL CONFIG
 
 TOKEN = "Redacted lol. Bite me"
+
+# LAVALINK CONFIG
+
+LL_HOST = 'localhost'
+LL_PORT = 2333
+LL_PASSWORD = 'youshallnotpass'

@@ -851,11 +851,16 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
+        await self.bot.wait_until_ready()
+
+        common.logger.info("[DECCYLoader] Loading Lavalink...")
+        await self.bot.load_extension("extensions.youtube")
+        common.logger.info("[DECCYLoader] Lavalink has loaded.")
+
         log_channel_id = await db.fetch_one("SELECT global_log_channel FROM global_config")
         log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
 
         if log_channel:
-            common.logger.info("Logged in as {0.user}".format(self.bot))
             embed = discord.Embed(
                 title=None,
                 description=":electric_plug: **DEKKO has (re)connected**",
@@ -864,6 +869,8 @@ class Events(commands.Cog):
             embed.timestamp = discord.utils.utcnow()
             
             await log_channel.send(embed=embed)
+
+        common.logger.info("Logged in as {0.user}".format(self.bot))
 
     @commands.Cog.listener()
     async def on_shutdown(self):
