@@ -239,7 +239,7 @@ class Music(commands.Cog):
             .add_field(name='Uploader', value=event.track.author)
             .add_field(name='URL', value=f'[Click]({event.track.uri})')
             .set_thumbnail(url=event.track.artwork_url)
-            .set_footer(text=f"DEKKOPlayer Redux v1.0.0 | DEKKO! v{common.VERSION}", icon_url="attachment://dekko_record.gif"), file=discord.File("./img/dekko_record.gif", "dekko_record.gif"))
+            .set_footer(text=f"DEKKOPlayer Redux v1.0.2 | DEKKO! v{common.VERSION}", icon_url="attachment://dekko_record.gif"), file=discord.File("./img/dekko_record.gif", "dekko_record.gif"))
 
     @lavalink.listener(QueueEndEvent)
     async def on_queue_end(self, event: QueueEndEvent):
