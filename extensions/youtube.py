@@ -9,6 +9,7 @@ from lavalink.filters import LowPass
 from lavalink.server import LoadType
 
 import config
+import common
 
 url_rx = re.compile(r'https?://(?:www\.)?.+')
 
@@ -205,7 +206,14 @@ class Music(commands.Cog):
         channel = guild.get_channel(channel_id)
 
         if channel:
-            await channel.send('Now playing: {} by {}'.format(event.track.title, event.track.author))
+            await channel.send(embed=discord.Embed(
+                title='Now Playing',
+                description=f'[{event.track.title}]({event.track.uri})',
+                color=0xda00ff)
+            .add_field(name='Requested by', value=f"<@{event.track.requester}>")
+            .add_field(name='Uploader', value=event.track.author)
+            .set_thumbnail(url=event.track.artwork_url)
+            .set_footer(text=f"DEKKOPlayer Redux v1.0.0 | DEKKO! v{common.VERSION}", icon_url="attachment://dekko_record.gif"), file=discord.File("./img/dekko_record.gif", "dekko_record.gif"))
 
     @lavalink.listener(QueueEndEvent)
     async def on_queue_end(self, event: QueueEndEvent):
