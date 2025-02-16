@@ -201,21 +201,22 @@ class Music(commands.Cog):
     
     @staticmethod
     def parse_duration(duration: int):
+        duration = duration // 1000  # Convert milliseconds to seconds
         minutes, seconds = divmod(duration, 60)
         hours, minutes = divmod(minutes, 60)
         days, hours = divmod(hours, 24)
 
-        duration = []
+        duration_parts = []
         if days > 0:
-            duration.append('{}'.format(days))
+            duration_parts.append('{}'.format(days))
         if hours > 0:
-            duration.append('{}'.format(hours))
+            duration_parts.append('{}'.format(hours))
         if minutes > 0:
-            duration.append('{}'.format(minutes))
+            duration_parts.append('{}'.format(minutes))
         if seconds > 0:
-            duration.append('{}'.format(seconds))
+            duration_parts.append('{}'.format(seconds))
 
-        return ':'.join(duration)
+        return ':'.join(duration_parts)
 
     @lavalink.listener(TrackStartEvent)
     async def on_track_start(self, event: TrackStartEvent):
