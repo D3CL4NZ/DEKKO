@@ -140,16 +140,6 @@ class Music(commands.Cog):
     async def cog_command_error(self, ctx, error):
         if isinstance(error, commands.CommandInvokeError):
             await ctx.send(f":no_entry:  **{error.original}**")
-        else:
-            error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
-            error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if not(error_webhook_url is None or (isinstance(error_webhook_url, tuple) and all(url is None for url in error_webhook_url))) else None
-
-            error = getattr(error, 'original', error)
-
-            common.logger.error(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
-            await ctx.send(':no_entry:  **CYKA BLYAT!**\n`DEKKOPlayer` has encountered an error :( ```ansi\n{}```'.format(str(error)))
-            if error_webhook:
-                await error_webhook.send(':no_entry:  **CYKA BLYAT!**\n`DEKKOPlayer` has encountered an error :( ```ansi\n{}```'.format("".join(traceback.format_exception(type(error), error, error.__traceback__))))
 
     async def create_player(ctx: commands.Context):
         """
@@ -315,6 +305,34 @@ class Music(commands.Cog):
         # the current track.
         if not player.is_playing:
             await player.play()
+
+    @dp.command(name='pause', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.check(create_player)
+    async def _pause(self, ctx):
+        """Pauses the currently playing track"""
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+
+        if not player.is_playing:
+            return await ctx.send("No track is currently playing.")
+
+        await player.set_pause(True)
+        await ctx.send(":pause_button:  **Paused the track**")
+
+    @dp.command(name='resume', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.check(create_player)
+    async def _resume(self, ctx):
+        """Resumes the currently paused track"""
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+
+        if not player.is_playing:
+            return await ctx.send("No track is currently playing.")
+
+        await player.set_pause(False)
+        await ctx.send(":play_pause:  **Resumed the track**")
 
     @dp.command(name='lowpass', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
