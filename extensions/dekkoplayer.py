@@ -204,13 +204,11 @@ class Music(commands.Cog):
 
         duration_parts = []
         if days > 0:
-            duration_parts.append('{}'.format(days))
-        if hours > 0:
-            duration_parts.append('{}'.format(hours))
-        if minutes > 0:
-            duration_parts.append('{}'.format(minutes))
-        if seconds > 0:
-            duration_parts.append('{}'.format(seconds))
+            duration_parts.append(f'{days}')
+        if hours > 0 or days > 0:
+            duration_parts.append(f'{hours:02}')
+        duration_parts.append(f'{minutes:02}')
+        duration_parts.append(f'{seconds:02}')
 
         return ':'.join(duration_parts)
 
