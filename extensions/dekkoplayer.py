@@ -306,11 +306,11 @@ class Music(commands.Cog):
                 # You can store additional metadata by passing it as a kwarg (i.e. key=value)
                 player.add(track=track, requester=ctx.author.id)
 
-            embed.title = 'Playlist Enqueued!'
+            embed.title = ':arrow_heading_down:  Playlist Enqueued!'
             embed.description = f'{results.playlist_info.name} - {len(tracks)} tracks'
         else:
             track = results.tracks[0]
-            embed.title = 'Track Enqueued'
+            embed.title = ':arrow_heading_down:  Track Enqueued'
             embed.description = f'[{track.title}]({track.uri})'
 
             # requester isn't necessary but it helps keep track of who queued what.
@@ -423,7 +423,7 @@ class Music(commands.Cog):
         if not player.queue:
             return await ctx.send("The queue is currently empty.")
 
-        embed = discord.Embed(title="Current Queue", color=0xda00ff)
+        embed = discord.Embed(title=":books:  Current Queue", color=0xda00ff)
         for index, track in enumerate(player.queue, start=1):
             embed.add_field(name=f"{index}. {track.title}", value=f"Requested by <@{track.requester}>", inline=False)
 
@@ -444,7 +444,7 @@ class Music(commands.Cog):
             return await ctx.send("Invalid index. Please provide a valid index.")
 
         removed_track = player.queue.pop(index - 1)
-        await ctx.send(f"Removed **{removed_track.title}** from the queue.")
+        await ctx.send(f":eject:  Removed **{removed_track.title}** from the queue.")
 
     @dp.command(name='lowpass', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
@@ -468,7 +468,7 @@ class Music(commands.Cog):
         # A strength of 0 effectively means this filter won't function, so we can disable it.
         if strength == 0.0:
             await player.remove_filter('lowpass')
-            embed.description = 'Disabled **Low Pass Filter**'
+            embed.description = ':chart_with_downwards_trend:  Disabled **Low Pass Filter**'
             return await ctx.send(embed=embed)
 
         # Lets create our filter.
@@ -479,7 +479,7 @@ class Music(commands.Cog):
         # just overwrite the filter with the new values.
         await player.set_filter(low_pass)
 
-        embed.description = f'Set **Low Pass Filter** strength to {strength}.'
+        embed.description = f':chart_with_downwards_trend:  Set **Low Pass Filter** strength to {strength}.'
         await ctx.send(embed=embed)
 
     @dp.command(name='leave', aliases=['disconnect'], with_app_command=True)
