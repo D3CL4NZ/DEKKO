@@ -379,6 +379,21 @@ class Music(commands.Cog):
         await player.skip()
         await ctx.send(":track_next:  **Skipped the track**")
 
+    @dp.command(name='loop', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.check(create_player)
+    async def _loop(self, ctx):
+        """Toggles looping of the currently playing track"""
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+
+        if not player.is_playing:
+            return await ctx.send("No track is currently playing.")
+
+        player.set_loop(not player.loop)
+        loop_status = "enabled" if player.loop else "disabled"
+        await ctx.send(f":repeat:  **Looping {loop_status}**")
+
     @dp.command(name='lowpass', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
