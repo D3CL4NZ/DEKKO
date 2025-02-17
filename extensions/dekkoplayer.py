@@ -270,12 +270,12 @@ class Music(commands.Cog):
 
         if ctx.voice_client is not None:
             if ctx.voice_client.channel.id == voice_channel.id:
-                return await ctx.send(":no_entry:  **I'm already in your voice channel!**")
+                raise commands.CommandInvokeError("I'm already in your voice channel!")
             else:
                 await ctx.voice_client.disconnect()
 
         await voice_channel.connect(cls=LavalinkVoiceClient)
-        await ctx.send(f":microphone:  **Joined** `{voice_channel.name}`")
+        await ctx.send(f":cd:  **DJ DEKKO in da houuuusee**")
 
     @dp.command(name='play', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
