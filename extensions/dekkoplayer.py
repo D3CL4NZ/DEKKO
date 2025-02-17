@@ -334,6 +334,20 @@ class Music(commands.Cog):
         await player.set_pause(False)
         await ctx.send(":play_pause:  **Resumed the track**")
 
+    @dp.command(name='volume', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.check(create_player)
+    async def _volume(self, ctx, volume: int):
+        """Sets the volume of the player"""
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+
+        # Ensure volume is within the acceptable range
+        volume = max(0, min(100, volume))
+
+        await player.set_volume(volume)
+        await ctx.send(f":speaker:  **Volume set to {volume}%**")
+
     @dp.command(name='lowpass', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
