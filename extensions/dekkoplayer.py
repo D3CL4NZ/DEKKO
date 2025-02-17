@@ -170,7 +170,7 @@ class Music(commands.Cog):
 
         # These are commands that require the bot to join a voicechannel (i.e. initiating playback).
         # Commands such as volume/skip etc don't require the bot to be in a voicechannel so don't need listing here.
-        should_connect = ctx.command.name in ('play',)
+        should_connect = ctx.command.name in ('play', 'join',)
 
         voice_client = ctx.voice_client
 
@@ -263,28 +263,19 @@ class Music(commands.Cog):
     @dp.command(name='join', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.check(create_player)
     async def _join(self, ctx):
         """Joins a voice channel"""
-        if not ctx.author.voice or not ctx.author.voice.channel:
-            raise commands.CommandInvokeError('You need to join a voice channel first')
-
         voice_channel = ctx.author.voice.channel
-        voice_client = ctx.voice_client
 
-        if voice_client is None:
-            permissions = voice_channel.permissions_for(ctx.me)
+        if ctx.voice_client is not None:
+            if ctx.voice_client.channel.id == voice_channel.id:
+                return await ctx.send(":no_entry:  **I'm already in your voice channel!**")
+            else:
+                await ctx.voice_client.disconnect()
 
-            if not permissions.connect or not permissions.speak:
-                raise commands.CommandInvokeError('I need the `CONNECT` and `SPEAK` permissions')
-
-            if voice_channel.user_limit > 0:
-                if len(voice_channel.members) >= voice_channel.user_limit and not ctx.me.guild_permissions.move_members:
-                    raise commands.CommandInvokeError('Your voice channel is full!')
-
-            await voice_channel.connect(cls=LavalinkVoiceClient)
-            await ctx.send(f":cd:  **DJ DEKKO in da houuuusee**")
-        else:
-            await ctx.send(f":warning:  **Already connected to** `{voice_client.channel.name}`")
+        await voice_channel.connect(cls=LavalinkVoiceClient)
+        await ctx.send(f":microphone:  **Joined** `{voice_channel.name}`")
 
     @dp.command(name='play', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
@@ -314,7 +305,7 @@ class Music(commands.Cog):
         #   EMPTY    - no results for the query (result.tracks will be empty)
         #   ERROR    - the track encountered an exception during loading
         if results.load_type == LoadType.EMPTY:
-            return await ctx.send("I couldn'\t find any tracks for that query.")
+            return await ctx.send("I couldn't find any tracks for that query.")
         elif results.load_type == LoadType.PLAYLIST:
             tracks = results.tracks
 
