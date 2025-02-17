@@ -170,7 +170,7 @@ class Music(commands.Cog):
 
         # These are commands that require the bot to join a voicechannel (i.e. initiating playback).
         # Commands such as volume/skip etc don't require the bot to be in a voicechannel so don't need listing here.
-        should_connect = ctx.command.name in ('play', 'join',)
+        should_connect = ctx.command.name in ('play',)
 
         voice_client = ctx.voice_client
 
@@ -259,23 +259,6 @@ class Music(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     async def dp(self, ctx):
         await ctx.send(':warning:  **You must specify a subcommand**')
-
-    @dp.command(name='join', with_app_command=True)
-    @app_commands.allowed_installs(guilds=True, users=False)
-    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
-    @commands.check(create_player)
-    async def _join(self, ctx):
-        """Joins a voice channel"""
-        voice_channel = ctx.author.voice.channel
-
-        if ctx.voice_client is not None:
-            if ctx.voice_client.channel.id == voice_channel.id:
-                raise commands.CommandInvokeError("I'm already in your voice channel!")
-            else:
-                await ctx.voice_client.disconnect()
-
-        await voice_channel.connect(cls=LavalinkVoiceClient)
-        await ctx.send(f":cd:  **DJ DEKKO in da houuuusee**")
 
     @dp.command(name='play', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
