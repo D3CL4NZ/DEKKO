@@ -1,5 +1,7 @@
 import re
 
+import asyncio
+
 import discord
 import lavalink
 from discord import app_commands
@@ -242,7 +244,10 @@ class Music(commands.Cog):
         guild = self.bot.get_guild(guild_id)
 
         if guild is not None:
-            await guild.voice_client.disconnect(force=True)
+            await asyncio.sleep(120)  # Wait for 2 minutes
+            player = self.bot.lavalink.player_manager.get(guild_id)
+            if not player.is_playing:
+                await guild.voice_client.disconnect(force=True)
 
     @commands.hybrid_group(invoke_without_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
@@ -393,6 +398,40 @@ class Music(commands.Cog):
         player.set_loop(not player.loop)
         loop_status = "enabled" if player.loop else "disabled"
         await ctx.send(f":repeat:  **Looping {loop_status}**")
+
+    @dp.command(name='queue', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.check(create_player)
+    async def _queue(self, ctx):
+        """Displays the current queue"""
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+
+        if not player.queue:
+            return await ctx.send("The queue is currently empty.")
+
+        embed = discord.Embed(title="Current Queue", color=0xda00ff)
+        for index, track in enumerate(player.queue, start=1):
+            embed.add_field(name=f"{index}. {track.title}", value=f"Requested by <@{track.requester}>", inline=False)
+
+        await ctx.send(embed=embed)
+
+    @dp.command(name='remove', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.check(create_player)
+    async def _remove(self, ctx, index: int):
+        """Removes a song from the queue at the given index"""
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+
+        if not player.queue:
+            return await ctx.send("The queue is currently empty.")
+
+        if index < 1 or index > len(player.queue):
+            return await ctx.send("Invalid index. Please provide a valid index.")
+
+        removed_track = player.queue.pop(index - 1)
+        await ctx.send(f"Removed **{removed_track.title}** from the queue.")
 
     @dp.command(name='lowpass', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
