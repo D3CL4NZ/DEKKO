@@ -12,6 +12,11 @@ from lavalink.server import LoadType
 import config
 import common
 
+import traceback
+
+from database import db
+from webhook import DiscordWebhookSender
+
 url_rx = re.compile(r'https?://(?:www\.)?.+')
 
 class LavalinkVoiceClient(discord.VoiceProtocol):
@@ -133,12 +138,15 @@ class Music(commands.Cog):
         self.lavalink._event_hooks.clear()
 
     async def cog_command_error(self, ctx, error):
-        if isinstance(error, commands.CommandInvokeError):
-            await ctx.send(error.original)
-            # The above handles errors thrown in this cog and shows them to the user.
-            # This shouldn't be a problem as the only errors thrown in this cog are from `ensure_voice`
-            # which contain a reason string, such as "Join a voicechannel" etc. You can modify the above
-            # if you want to do things differently.
+        error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
+        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if not(error_webhook_url is None or (isinstance(error_webhook_url, tuple) and all(url is None for url in error_webhook_url))) else None
+
+        error = getattr(error, 'original', error)
+
+        common.logger.error(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
+        await ctx.send(':no_entry:  **CYKA BLYAT!**\n`DEKKOPlayer` has encountered an error :( ```ansi\n{}```'.format(str(error)))
+        if error_webhook:
+            await error_webhook.send(':no_entry:  **CYKA BLYAT!**\n`DEKKOPlayer` has encountered an error :( ```ansi\n{}```'.format("".join(traceback.format_exception(type(error), error, error.__traceback__))))
 
     async def create_player(ctx: commands.Context):
         """
