@@ -444,7 +444,7 @@ class Music(commands.Cog):
             return await ctx.send("Invalid index. Please provide a valid index.")
 
         removed_track = player.queue.pop(index - 1)
-        await ctx.send(f":eject:  Popped **{removed_track.title}** from the queue.")
+        await ctx.send(f":eject:  **Popped** `{removed_track.title}` **from the queue**")
 
     @dp.command(name='lowpass', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
@@ -463,12 +463,12 @@ class Music(commands.Cog):
         # extreme values from being entered. This will enforce a maximum of 100.
         strength = min(100, strength)
 
-        embed = discord.Embed(color=0xda00ff, title='Low Pass Filter')
+        embed = discord.Embed(color=0xda00ff, title=':chart_with_downwards_trend:  Low Pass Filter')
 
         # A strength of 0 effectively means this filter won't function, so we can disable it.
         if strength == 0.0:
             await player.remove_filter('lowpass')
-            embed.description = ':chart_with_downwards_trend:  Disabled **Low Pass Filter**'
+            embed.description = 'Disabled **Low Pass Filter**'
             return await ctx.send(embed=embed)
 
         # Lets create our filter.
@@ -479,7 +479,7 @@ class Music(commands.Cog):
         # just overwrite the filter with the new values.
         await player.set_filter(low_pass)
 
-        embed.description = f':chart_with_downwards_trend:  Set **Low Pass Filter** strength to {strength}.'
+        embed.description = f'Set **Low Pass Filter** strength to {strength}.'
         await ctx.send(embed=embed)
 
     @dp.command(name='leave', aliases=['disconnect'], with_app_command=True)
