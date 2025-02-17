@@ -377,7 +377,7 @@ class Music(commands.Cog):
             return await ctx.send("No track is currently playing.")
 
         await player.skip()
-        await ctx.send(":track_next:  **Skipped the track**")
+        await ctx.send(":track_next:  **Skipped the current track**")
 
     @dp.command(name='loop', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
