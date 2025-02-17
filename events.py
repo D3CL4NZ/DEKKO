@@ -342,13 +342,13 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_channel_update(self, before: discord.abc.GuildChannel, after: discord.abc.GuildChannel):
-        # Don't log channels that are excluded
-        excluded_channels = await db.fetch_one("SELECT exclude_logging_channels FROM config WHERE guild = ?", after.guild.id)
-        if excluded_channels:
-            excluded_channels = excluded_channels[0].split(',')
-
-        if before.id in excluded_channels:
-            return
+        # Commenting this out until I implement it
+        #excluded_channels = await db.fetch_one("SELECT exclude_logging_channels FROM config WHERE guild = ?", after.guild.id)
+        #if excluded_channels:
+        #    excluded_channels = excluded_channels[0].split(',')
+        #
+        #if before.id in excluded_channels:
+        #    return
 
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
         log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
