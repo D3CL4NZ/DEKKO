@@ -348,6 +348,37 @@ class Music(commands.Cog):
         await player.set_volume(volume)
         await ctx.send(f":speaker:  **Volume set to {volume}%**")
 
+    @dp.command(name='stop', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.check(create_player)
+    async def _stop(self, ctx):
+        """Stops the currently playing track and clears the queue"""
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+
+        if not player.is_playing:
+            return await ctx.send("No track is currently playing.")
+
+        # Stop the current track
+        await player.stop()
+        # Clear the queue
+        player.queue.clear()
+        await ctx.send(":stop_button:  **Stopped playback and cleared the queue**")
+
+    @dp.command(name='skip', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.check(create_player)
+    async def _skip(self, ctx):
+        """Skips the currently playing track"""
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+
+        if not player.is_playing:
+            return await ctx.send("No track is currently playing.")
+
+        await player.skip()
+        await ctx.send(":track_next:  **Skipped the track**")
+
     @dp.command(name='lowpass', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
