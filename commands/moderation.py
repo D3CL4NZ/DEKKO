@@ -203,7 +203,6 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
 
             try:
                 await user.send(f"""You have been unbanned from `{ctx.guild.name}`.
-Here is the link to join again: https://discord.gg/8JnExCu76H
 
 -# **Notice:** I am a bot. This message was sent automatically. Please do not respond to this message.""")
             except:
