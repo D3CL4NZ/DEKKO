@@ -244,10 +244,23 @@ class Music(commands.Cog):
         guild = self.bot.get_guild(guild_id)
 
         if guild is not None:
-            await asyncio.sleep(120)  # Wait for 2 minutes
-            player = self.bot.lavalink.player_manager.get(guild_id)
-            if not player.is_playing:
-                await guild.voice_client.disconnect(force=True)
+            await guild.voice_client.disconnect(force=True)
+
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        # Check if the bot is in a voice channel
+        if not member.guild.voice_client:
+            return
+
+        # Check if the bot is alone in the voice channel
+        voice_channel = member.guild.voice_client.channel
+        if len(voice_channel.members) == 1 and voice_channel.members[0] == member.guild.me:
+            player = self.bot.lavalink.player_manager.get(member.guild.id)
+            channel_id = player.fetch('channel')
+            text_channel = self.bot.get_channel(channel_id)
+            await member.guild.voice_client.disconnect()
+            if text_channel:
+                await text_channel.send(":microphone:  **DEKKO out** *\*mic drop\**")
 
     @commands.hybrid_group(invoke_without_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
