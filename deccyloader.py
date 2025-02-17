@@ -8,7 +8,7 @@ import common
 from webhook import DiscordWebhookSender
 from database import db
 
-class DECCYLoaderError(Exception):
+class DECCYLoaderException(Exception):
     pass
 
 class DeccyLoader(commands.Cog):
@@ -42,7 +42,7 @@ class DeccyLoader(commands.Cog):
             await self.bot.load_extension(extension)
             common.logger.info(f"[DECCYLoader]    -> {extension} has loaded.")
         except Exception:
-            raise DECCYLoaderError(f"Failed to load extension {extension}")
+            raise DECCYLoaderException(f"Failed to load extension {extension}")
         else:
             await ctx.send(f':white_check_mark:  **Successfully loaded extension `{extension}`**')
 
@@ -56,7 +56,7 @@ class DeccyLoader(commands.Cog):
             await self.bot.unload_extension(extension)
             common.logger.info(f"[DECCYLoader]    -> {extension} has unloaded.")
         except Exception:
-            raise DECCYLoaderError(f"Failed to unload extension {extension}")
+            raise DECCYLoaderException(f"Failed to unload extension {extension}")
         else:
             await ctx.send(f':white_check_mark:  **Successfully unloaded extension `{extension}`**')
 
@@ -70,7 +70,7 @@ class DeccyLoader(commands.Cog):
             await self.bot.reload_extension(extension)
             common.logger.info(f"[DECCYLoader]    -> {extension} has reloaded.")
         except Exception:
-            raise DECCYLoaderError(f"Failed to reload extension {extension}")
+            raise DECCYLoaderException(f"Failed to reload extension {extension}")
         else:
             await ctx.send(f':white_check_mark:  **Successfully reloaded extension `{extension}`**')
 
