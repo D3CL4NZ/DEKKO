@@ -444,7 +444,7 @@ class Music(commands.Cog):
             return await ctx.send("Invalid index. Please provide a valid index.")
 
         removed_track = player.queue.pop(index - 1)
-        await ctx.send(f":eject:  Removed **{removed_track.title}** from the queue.")
+        await ctx.send(f":eject:  Popped **{removed_track.title}** from the queue.")
 
     @dp.command(name='lowpass', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
