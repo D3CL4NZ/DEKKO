@@ -138,15 +138,18 @@ class Music(commands.Cog):
         self.lavalink._event_hooks.clear()
 
     async def cog_command_error(self, ctx, error):
-        error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
-        error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if not(error_webhook_url is None or (isinstance(error_webhook_url, tuple) and all(url is None for url in error_webhook_url))) else None
+        if isinstance(error, commands.CommandInvokeError):
+            await ctx.send(f":no_entry:  **{error.original}**")
+        else:
+            error_webhook_url = await db.fetch_one("SELECT error_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
+            error_webhook = DiscordWebhookSender(url=error_webhook_url[0]) if not(error_webhook_url is None or (isinstance(error_webhook_url, tuple) and all(url is None for url in error_webhook_url))) else None
 
-        error = getattr(error, 'original', error)
+            error = getattr(error, 'original', error)
 
-        common.logger.error(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
-        await ctx.send(':no_entry:  **CYKA BLYAT!**\n`DEKKOPlayer` has encountered an error :( ```ansi\n{}```'.format(str(error)))
-        if error_webhook:
-            await error_webhook.send(':no_entry:  **CYKA BLYAT!**\n`DEKKOPlayer` has encountered an error :( ```ansi\n{}```'.format("".join(traceback.format_exception(type(error), error, error.__traceback__))))
+            common.logger.error(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
+            await ctx.send(':no_entry:  **CYKA BLYAT!**\n`DEKKOPlayer` has encountered an error :( ```ansi\n{}```'.format(str(error)))
+            if error_webhook:
+                await error_webhook.send(':no_entry:  **CYKA BLYAT!**\n`DEKKOPlayer` has encountered an error :( ```ansi\n{}```'.format("".join(traceback.format_exception(type(error), error, error.__traceback__))))
 
     async def create_player(ctx: commands.Context):
         """
@@ -174,21 +177,21 @@ class Music(commands.Cog):
         if not ctx.author.voice or not ctx.author.voice.channel:
             # Check if we're in a voice channel. If we are, tell the user to join our voice channel.
             if voice_client is not None:
-                raise commands.CommandInvokeError('You need to join my voice channel first.')
+                raise commands.CommandInvokeError('You need to join my voice channel first')
 
             # Otherwise, tell them to join any voice channel to begin playing music.
-            raise commands.CommandInvokeError('You need to join a voice channel first.')
+            raise commands.CommandInvokeError('You need to join a voice channel first')
 
         voice_channel = ctx.author.voice.channel
 
         if voice_client is None:
             if not should_connect:
-                raise commands.CommandInvokeError("I'm not playing anything.")
+                raise commands.CommandInvokeError("I'm not playing anything")
 
             permissions = voice_channel.permissions_for(ctx.me)
 
             if not permissions.connect or not permissions.speak:
-                raise commands.CommandInvokeError('I need the `CONNECT` and `SPEAK` permissions.')
+                raise commands.CommandInvokeError('I need the `CONNECT` and `SPEAK` permissions')
 
             if voice_channel.user_limit > 0:
                 # A limit of 0 means no limit. Anything higher means that there is a member limit which we need to check.
@@ -199,7 +202,7 @@ class Music(commands.Cog):
             player.store('channel', ctx.channel.id)
             await ctx.author.voice.channel.connect(cls=LavalinkVoiceClient)
         elif voice_client.channel.id != voice_channel.id:
-            raise commands.CommandInvokeError('You need to join my voice channel first.')
+            raise commands.CommandInvokeError('You need to join my voice channel first')
 
         return True
     
@@ -256,6 +259,33 @@ class Music(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     async def dp(self, ctx):
         await ctx.send(':warning:  **You must specify a subcommand**')
+
+    @dp.command(name='join', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.check(create_player)
+    async def _join(self, ctx):
+        """Joins a voice channel"""
+        if not ctx.author.voice or not ctx.author.voice.channel:
+            raise commands.CommandInvokeError('You need to join a voice channel first')
+
+        voice_channel = ctx.author.voice.channel
+        voice_client = ctx.voice_client
+
+        if voice_client is None:
+            permissions = voice_channel.permissions_for(ctx.me)
+
+            if not permissions.connect or not permissions.speak:
+                raise commands.CommandInvokeError('I need the `CONNECT` and `SPEAK` permissions')
+
+            if voice_channel.user_limit > 0:
+                if len(voice_channel.members) >= voice_channel.user_limit and not ctx.me.guild_permissions.move_members:
+                    raise commands.CommandInvokeError('Your voice channel is full!')
+
+            await voice_channel.connect(cls=LavalinkVoiceClient)
+            await ctx.send(f":cd:  **DJ DEKKO in da houuuusee**")
+        else:
+            await ctx.send(f":warning:  **Already connected to** `{voice_client.channel.name}`")
 
     @dp.command(name='play', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
