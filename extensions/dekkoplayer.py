@@ -263,7 +263,6 @@ class Music(commands.Cog):
     @dp.command(name='join', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
-    @commands.check(create_player)
     async def _join(self, ctx):
         """Joins a voice channel"""
         if not ctx.author.voice or not ctx.author.voice.channel:
