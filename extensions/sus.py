@@ -20,37 +20,38 @@ class SuspiciousUsers(commands.Cog):
         await db.execute("CREATE TABLE IF NOT EXISTS `naughty_list` (user_id INTEGER PRIMARY KEY, username TEXT, reason TEXT)")
         common.logger.info("[Suspicious Users] Successfully loaded suspicious users database.")
 
+    # Handles naughty list check on non-community servers
     @commands.Cog.listener()
-    async def on_member_update(self, before: discord.Member, after: discord.Member):
-        if not after.bot:
-            if before.pending and not after.pending:
-                sus_role_id = await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", after.guild.id)
-                sus_role = after.guild.get_role(sus_role_id[0]) if not(sus_role_id is None or (isinstance(sus_role_id, tuple) and all(roleid is None for roleid in sus_role_id))) else None
+    async def on_member_join(self, member: discord.Member):
+        if not member.bot:
+            if not "COMMUNITY" in member.guild.features:
+                sus_role_id = await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", member.guild.id)
+                sus_role = member.guild.get_role(sus_role_id[0]) if not(sus_role_id is None or (isinstance(sus_role_id, tuple) and all(roleid is None for roleid in sus_role_id))) else None
 
-                purgatory_role_id = await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", after.guild.id)
-                purgatory_role = after.guild.get_role(purgatory_role_id[0]) if not(purgatory_role_id is None or (isinstance(purgatory_role_id, tuple) and all(roleid is None for roleid in purgatory_role_id))) else None
+                purgatory_role_id = await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", member.guild.id)
+                purgatory_role = member.guild.get_role(purgatory_role_id[0]) if not(purgatory_role_id is None or (isinstance(purgatory_role_id, tuple) and all(roleid is None for roleid in purgatory_role_id))) else None
 
-                moderator_role_id = await db.fetch_one("SELECT mod_role_id FROM config WHERE guild = ?", after.guild.id)
-                moderator_role = after.guild.get_role(moderator_role_id[0]) if not(moderator_role_id is None or (isinstance(moderator_role_id, tuple) and all(roleid is None for roleid in moderator_role_id))) else None
+                moderator_role_id = await db.fetch_one("SELECT mod_role_id FROM config WHERE guild = ?", member.guild.id)
+                moderator_role = member.guild.get_role(moderator_role_id[0]) if not(moderator_role_id is None or (isinstance(moderator_role_id, tuple) and all(roleid is None for roleid in moderator_role_id))) else None
 
-                log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
+                log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", member.guild.id)
                 log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
-                admin_channel_id = await db.fetch_one("SELECT admin_channel FROM config WHERE guild = ?", after.guild.id)
+                admin_channel_id = await db.fetch_one("SELECT admin_channel FROM config WHERE guild = ?", member.guild.id)
                 admin_channel = self.bot.get_channel(admin_channel_id[0]) if not(admin_channel_id is None or (isinstance(admin_channel_id, tuple) and all(chanid is None for chanid in admin_channel_id))) else None
 
-                manver_channel_id = await db.fetch_one("SELECT manver_channel FROM config WHERE guild = ?", after.guild.id)
+                manver_channel_id = await db.fetch_one("SELECT manver_channel FROM config WHERE guild = ?", member.guild.id)
                 manver_channel = self.bot.get_channel(manver_channel_id[0]) if not(manver_channel_id is None or (isinstance(manver_channel_id, tuple) and all(chanid is None for chanid in manver_channel_id))) else None
 
                 if sus_role is None or purgatory_role is None or moderator_role is None or admin_channel is None or manver_channel is None:
                     return
 
-                await after.edit(roles=[purgatory_role])
-                
+                await member.edit(roles=[purgatory_role])
+                    
                 verification_message = await manver_channel.send(f"""||@everyone|| {moderator_role.mention}
 **A user is waiting to be verified**
 
-User: {after.mention}
+User: {member.mention}
 Accepted rules: `True` :white_check_mark:
 Reputation check: `Pass` :white_check_mark:
 Sus check: `In progress...` :hourglass:""")
@@ -60,32 +61,32 @@ Sus check: `In progress...` :hourglass:""")
 
                 # Check if the user is in the suspicious users table
                 for user in data:
-                    if after.id == user[0]:
-                        await after.edit(roles=[sus_role, purgatory_role])
-                        
+                    if member.id == user[0]:
+                        await member.edit(roles=[sus_role, purgatory_role])
+                            
                         await verification_message.edit(content=f"""||@everyone|| {moderator_role.mention}
 **A user is waiting to be verified**
 
-User: {after.mention}
+User: {member.mention}
 Accepted rules: `True` :white_check_mark:
 Reputation check: `Pass` :white_check_mark:
 Sus check: `FAIL` :x:""")
-                        
+                            
                         await admin_channel.send(":rotating_light: :rotating_light: **ATTENTION: A SUSPICIOUS USER HAS JOINED THE SERVER.**")
-                        await manver_channel.send(f""":rotating_light: **ATTENTION: ACCOUNT {after.mention} IS ON THE NAUGHTY LIST** :rotating_light:
+                        await manver_channel.send(f""":rotating_light: **ATTENTION: ACCOUNT {member.mention} IS ON THE NAUGHTY LIST** :rotating_light:
 
 **Reason:** {user[2]}""")
 
                         if log_webhook:
                             embed = discord.Embed(
                                 title=None,
-                                description=f":rotating_light: {after.mention} **is on the naughty list**",
+                                description=f":rotating_light: {member.mention} **is on the naughty list**",
                                 color=discord.Colour.red()
                             )
-                            embed.set_author(name=after.name, icon_url=after.display_avatar.url)
-                            embed.set_thumbnail(url=after.display_avatar.url)
+                            embed.set_author(name=member.name, icon_url=member.display_avatar.url)
+                            embed.set_thumbnail(url=member.display_avatar.url)
                             embed.timestamp = discord.utils.utcnow()
-                            embed.set_footer(text="User ID: {}".format(after.id))
+                            embed.set_footer(text="User ID: {}".format(member.id))
 
                             await log_webhook.send(embed=embed)
                         return
@@ -93,12 +94,94 @@ Sus check: `FAIL` :x:""")
                 await verification_message.edit(content=f"""||@everyone|| {moderator_role.mention}
 **A user is waiting to be verified**
 
+User: {member.mention}
+Accepted rules: `True` :white_check_mark:
+Reputation check: `Pass` :white_check_mark:
+Sus check: `Pass` :white_check_mark:""")
+
+                await member.guild.system_channel.send(f"\u0434\u043e\u0431\u0440\u043e \u043f\u043e\u0436\u0430\u043b\u043e\u0432\u0430\u0442\u044c, {member.mention}!")
+
+    # Handles naughty list check on community servers
+    @commands.Cog.listener()
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
+        if not after.bot:
+            if "COMMUNITY" in after.guild.features:
+                if before.pending and not after.pending:
+                    sus_role_id = await db.fetch_one("SELECT sus_role_id FROM config WHERE guild = ?", after.guild.id)
+                    sus_role = after.guild.get_role(sus_role_id[0]) if not(sus_role_id is None or (isinstance(sus_role_id, tuple) and all(roleid is None for roleid in sus_role_id))) else None
+
+                    purgatory_role_id = await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", after.guild.id)
+                    purgatory_role = after.guild.get_role(purgatory_role_id[0]) if not(purgatory_role_id is None or (isinstance(purgatory_role_id, tuple) and all(roleid is None for roleid in purgatory_role_id))) else None
+
+                    moderator_role_id = await db.fetch_one("SELECT mod_role_id FROM config WHERE guild = ?", after.guild.id)
+                    moderator_role = after.guild.get_role(moderator_role_id[0]) if not(moderator_role_id is None or (isinstance(moderator_role_id, tuple) and all(roleid is None for roleid in moderator_role_id))) else None
+
+                    log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
+                    log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
+
+                    admin_channel_id = await db.fetch_one("SELECT admin_channel FROM config WHERE guild = ?", after.guild.id)
+                    admin_channel = self.bot.get_channel(admin_channel_id[0]) if not(admin_channel_id is None or (isinstance(admin_channel_id, tuple) and all(chanid is None for chanid in admin_channel_id))) else None
+
+                    manver_channel_id = await db.fetch_one("SELECT manver_channel FROM config WHERE guild = ?", after.guild.id)
+                    manver_channel = self.bot.get_channel(manver_channel_id[0]) if not(manver_channel_id is None or (isinstance(manver_channel_id, tuple) and all(chanid is None for chanid in manver_channel_id))) else None
+
+                    if sus_role is None or purgatory_role is None or moderator_role is None or admin_channel is None or manver_channel is None:
+                        return
+
+                    await after.edit(roles=[purgatory_role])
+                    
+                    verification_message = await manver_channel.send(f"""||@everyone|| {moderator_role.mention}
+**A user is waiting to be verified**
+
+User: {after.mention}
+Accepted rules: `True` :white_check_mark:
+Reputation check: `Pass` :white_check_mark:
+Sus check: `In progress...` :hourglass:""")
+
+                    # Fetch suspicious users table from the database
+                    data = await db.fetch("SELECT * FROM naughty_list")
+
+                    # Check if the user is in the suspicious users table
+                    for user in data:
+                        if after.id == user[0]:
+                            await after.edit(roles=[sus_role, purgatory_role])
+                            
+                            await verification_message.edit(content=f"""||@everyone|| {moderator_role.mention}
+**A user is waiting to be verified**
+
+User: {after.mention}
+Accepted rules: `True` :white_check_mark:
+Reputation check: `Pass` :white_check_mark:
+Sus check: `FAIL` :x:""")
+                            
+                            await admin_channel.send(":rotating_light: :rotating_light: **ATTENTION: A SUSPICIOUS USER HAS JOINED THE SERVER.**")
+                            await manver_channel.send(f""":rotating_light: **ATTENTION: ACCOUNT {after.mention} IS ON THE NAUGHTY LIST** :rotating_light:
+
+**Reason:** {user[2]}""")
+
+                            if log_webhook:
+                                embed = discord.Embed(
+                                    title=None,
+                                    description=f":rotating_light: {after.mention} **is on the naughty list**",
+                                    color=discord.Colour.red()
+                                )
+                                embed.set_author(name=after.name, icon_url=after.display_avatar.url)
+                                embed.set_thumbnail(url=after.display_avatar.url)
+                                embed.timestamp = discord.utils.utcnow()
+                                embed.set_footer(text="User ID: {}".format(after.id))
+
+                                await log_webhook.send(embed=embed)
+                            return
+
+                    await verification_message.edit(content=f"""||@everyone|| {moderator_role.mention}
+**A user is waiting to be verified**
+
 User: {after.mention}
 Accepted rules: `True` :white_check_mark:
 Reputation check: `Pass` :white_check_mark:
 Sus check: `Pass` :white_check_mark:""")
 
-                await after.guild.system_channel.send(f"\u0434\u043e\u0431\u0440\u043e \u043f\u043e\u0436\u0430\u043b\u043e\u0432\u0430\u0442\u044c, {after.mention}!")
+                    await after.guild.system_channel.send(f"\u0434\u043e\u0431\u0440\u043e \u043f\u043e\u0436\u0430\u043b\u043e\u0432\u0430\u0442\u044c, {after.mention}!")
 
     @commands.hybrid_command(name='naughtylist', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
