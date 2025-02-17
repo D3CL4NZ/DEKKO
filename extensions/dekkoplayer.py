@@ -204,13 +204,13 @@ class Music(commands.Cog):
 
         duration_parts = []
         if days > 0:
-            duration_parts.append(f'{days}')
-        if hours > 0 or days > 0:
-            duration_parts.append(f'{hours:02}')
-        duration_parts.append(f'{minutes:02}')
-        duration_parts.append(f'{seconds:02}')
+            duration_parts.append(f'{days}:{hours:02}:{minutes:02}:{seconds:02}')
+        elif hours > 0:
+            duration_parts.append(f'{hours}:{minutes:02}:{seconds:02}')
+        else:
+            duration_parts.append(f'{minutes}:{seconds:02}')
 
-        return ':'.join(duration_parts)
+        return ''.join(duration_parts)
 
     @lavalink.listener(TrackStartEvent)
     async def on_track_start(self, event: TrackStartEvent):
