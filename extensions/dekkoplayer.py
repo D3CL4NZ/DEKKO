@@ -73,7 +73,7 @@ class LavalinkVoiceClient(discord.VoiceProtocol):
 
         await self.lavalink.voice_update_handler(lavalink_data)
 
-    async def connect(self, *, timeout: float, reconnect: bool, self_deaf: bool = False, self_mute: bool = False) -> None:
+    async def connect(self, *, timeout: float, reconnect: bool, self_deaf: bool = True, self_mute: bool = False) -> None:
         """
         Connect the bot to the voice channel and create a player_manager
         if it doesn't exist yet.
