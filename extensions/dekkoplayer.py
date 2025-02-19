@@ -192,7 +192,7 @@ class Music(commands.Cog):
                     raise commands.CommandInvokeError('Your voice channel is full!')
 
             player.store('channel', ctx.channel.id)
-            await ctx.author.voice.channel.connect(cls=LavalinkVoiceClient)
+            await ctx.author.voice.channel.connect(cls=LavalinkVoiceClient, self_deaf=True)
         elif voice_client.channel.id != voice_channel.id:
             raise commands.CommandInvokeError('You need to join my voice channel first')
 
