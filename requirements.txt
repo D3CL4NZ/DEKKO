@@ -1,6 +1,6 @@
 aiohttp==3.11.12
 aiosqlite==0.21.0
-discord.py==2.4.0
+discord.py==2.5.0
 expiringdict==1.2.2
 lavalink==5.9.0
 lunardate==0.2.2
