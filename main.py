@@ -19,12 +19,12 @@ loop = asyncio.get_event_loop()
 cog_files = [
     "deccyloader",
     "commands.core",
+    "commands.dekkosetup",
     "commands.emoji_grabber",
     "commands.entropy",
     "commands.gulag",
     "commands.moderation",
     "commands.rmp",
-    "commands.setup_db",
     "commands.urban",
     "commands.verification",
     "commands.whois",
