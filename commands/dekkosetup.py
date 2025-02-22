@@ -18,11 +18,11 @@ class DEKKOSetup(commands.Cog):
     async def dekkosetup(self, ctx):
         await ctx.send(':warning:  **You must specify a subcommand**')
 
-    @dekkosetup.command(name='initialize-db', with_app_command=True)
+    @dekkosetup.command(name='initialize', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
-    async def _setup_initialize_db(self, ctx):
+    async def _setup_initialize(self, ctx):
         """Initializes the configuration for this guild"""
 
         async with ctx.typing():
