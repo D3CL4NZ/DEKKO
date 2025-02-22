@@ -89,7 +89,7 @@ Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE logging_webhooks SET log_webhook = ? WHERE guild = ?", webhook.url, ctx.guild.id)
 
-                await response.edit(content=f":white_check_mark:  **LOG CHANNEL SET TO <#{channel.id}>**")
+                await response.edit(content=f":white_check_mark:  **LOG CHANNEL SET TO** {channel.mention}")
             elif option.lower() == "error_channel":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET error_channel = {channel.id} WHERE guild = {ctx.guild.id}`
@@ -115,21 +115,21 @@ Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE logging_webhooks SET error_webhook = ? WHERE guild = ?", webhook.url, ctx.guild.id)
 
-                await response.edit(content=f":white_check_mark:  **ERROR CHANNEL SET TO <#{channel.id}>**")
+                await response.edit(content=f":white_check_mark:  **ERROR CHANNEL SET TO** {channel.mention}")
             elif option.lower() == "admin_channel":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET admin_channel = {channel.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE config SET admin_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **ADMIN CHANNEL SET TO <#{channel.id}>**")
+                await response.edit(content=f":white_check_mark:  **ADMIN CHANNEL SET TO** {channel.mention}")
             elif option.lower() == "verification_channel":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET manver_channel = {channel.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE config SET manver_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **VERIFICATION CHANNEL SET TO <#{channel.id}>**")
+                await response.edit(content=f":white_check_mark:  **VERIFICATION CHANNEL SET TO** {channel.mention}")
             else:
                 await response.edit(content=":warning:  **INVALID OPTION**")
 
@@ -147,63 +147,63 @@ Query: `UPDATE config SET owner_role_id = {role.id} WHERE guild = {ctx.guild.id}
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE config SET owner_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **OWNER ROLE SET TO <@&{role.id}>**")
+                await response.edit(content=f":white_check_mark:  **OWNER ROLE SET TO** {role.mention}")
             elif option.lower() == "admin_role":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET admin_role_id = {role.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE config SET admin_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **ADMIN ROLE SET TO <@&{role.id}>**")
+                await response.edit(content=f":white_check_mark:  **ADMIN ROLE SET TO** {role.mention}")
             elif option.lower() == "moderator_role":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET mod_role_id = {role.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE config SET mod_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **MODERATOR ROLE SET TO <@&{role.id}>**")
+                await response.edit(content=f":white_check_mark:  **MODERATOR ROLE SET TO** {role.mention}")
             elif option.lower() == "bot_role":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET bot_role_id = {role.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE config SET bot_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **BOT ROLE SET TO <@&{role.id}>**")
+                await response.edit(content=f":white_check_mark:  **BOT ROLE SET TO** {role.mention}")
             elif option.lower() == "human_role":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET human_role_id = {role.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE config SET human_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **HUMAN ROLE SET TO <@&{role.id}>**")
+                await response.edit(content=f":white_check_mark:  **HUMAN ROLE SET TO** {role.mention}")
             elif option.lower() == "verified_role":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET verified_role_id = {role.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE config SET verified_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **VERIFIED ROLE SET TO <@&{role.id}>**")
+                await response.edit(content=f":white_check_mark:  **VERIFIED ROLE SET TO** {role.mention}")
             elif option.lower() == "muted_role":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET mute_role_id = {role.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE config SET mute_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **MUTED ROLE SET TO <@&{role.id}>**")
+                await response.edit(content=f":white_check_mark:  **MUTED ROLE SET TO** {role.mention}")
             elif option.lower() == "purgatory_role":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET purgatory_role_id = {role.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE config SET purgatory_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **PURGATORY ROLE SET TO <@&{role.id}>**")
+                await response.edit(content=f":white_check_mark:  **PURGATORY ROLE SET TO** {role.mention}")
             elif option.lower() == "sus_role":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET sus_role_id = {role.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE config SET sus_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **SUS ROLE SET TO <@&{role.id}>**")
+                await response.edit(content=f":white_check_mark:  **SUS ROLE SET TO** {role.mention}")
             else:
                 await response.edit(content=":warning:  **INVALID OPTION**")
 
@@ -221,77 +221,77 @@ Query: `UPDATE holidata SET new_years_channel = {channel.id} WHERE guild = {ctx.
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE holidata SET new_years_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **NEW YEARS CHANNEL SET TO <#{channel.id}>**")
+                await response.edit(content=f":white_check_mark:  **NEW YEARS CHANNEL SET TO** {channel.mention}")
             elif option.lower() == "chinese_new_years_channel":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE holidata SET cn_new_years_channel = {channel.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE holidata SET cn_new_years_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **CHINESE NEW YEARS CHANNEL SET TO <#{channel.id}>**")
+                await response.edit(content=f":white_check_mark:  **CHINESE NEW YEARS CHANNEL SET TO** {channel.mention}")
             elif option.lower() == "valentines_channel":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE holidata SET vday_channel = {channel.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE holidata SET vday_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **VALENTINES DAY CHANNEL SET TO <#{channel.id}>**")
+                await response.edit(content=f":white_check_mark:  **VALENTINES DAY CHANNEL SET TO** {channel.mention}")
             elif option.lower() == "st_patricks_channel":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE holidata SET st_patricks_channel = {channel.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE holidata SET st_patricks_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **ST. PATRICKS DAY CHANNEL SET TO <#{channel.id}>**")
+                await response.edit(content=f":white_check_mark:  **ST. PATRICKS DAY CHANNEL SET TO** {channel.mention}")
             elif option.lower() == "easter_channel":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE holidata SET easter_channel = {channel.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE holidata SET easter_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **EASTER CHANNEL SET TO <#{channel.id}>**")
+                await response.edit(content=f":white_check_mark:  **EASTER CHANNEL SET TO** {channel.mention}")
             elif option.lower() == "cinco_de_mayo_channel":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE holidata SET cinco_de_mayo_channel = {channel.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE holidata SET cinco_de_mayo_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **CINCO DE MAYO CHANNEL SET TO <#{channel.id}>**")
+                await response.edit(content=f":white_check_mark:  **CINCO DE MAYO CHANNEL SET TO** {channel.mention}")
             elif option.lower() == "independence_day_channel":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE holidata SET j4_channel = {channel.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE holidata SET j4_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **INDEPENDENCE DAY CHANNEL SET TO <#{channel.id}>**")
+                await response.edit(content=f":white_check_mark:  **INDEPENDENCE DAY CHANNEL SET TO** {channel.mention}")
             elif option.lower() == "halloween_channel":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE holidata SET halloween_channel = {channel.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE holidata SET halloween_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **HALLOWEEN CHANNEL SET TO <#{channel.id}>**")
+                await response.edit(content=f":white_check_mark:  **HALLOWEEN CHANNEL SET TO** {channel.mention}")
             elif option.lower() == "thanksgiving_channel":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE holidata SET thanksgiving_channel = {channel.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE holidata SET thanksgiving_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **THANKSGIVING CHANNEL SET TO <#{channel.id}>**")
+                await response.edit(content=f":white_check_mark:  **THANKSGIVING CHANNEL SET TO** {channel.mention}")
             elif option.lower() == "christmas_channel":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE holidata SET christmas_channel = {channel.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE holidata SET christmas_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **CHRISTMAS CHANNEL SET TO <#{channel.id}>**")
+                await response.edit(content=f":white_check_mark:  **CHRISTMAS CHANNEL SET TO** {channel.mention}")
             elif option.lower() == "wishlist_channel":
                 await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE holidata SET wishlist_channel = {channel.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
                 await db.execute("UPDATE holidata SET wishlist_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **WISHLIST CHANNEL SET TO <#{channel.id}>**")
+                await response.edit(content=f":white_check_mark:  **WISHLIST CHANNEL SET TO** {channel.mention}")
             else:
                 await response.edit(content=":warning:  **INVALID OPTION**")
 
