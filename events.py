@@ -800,8 +800,8 @@ class Events(commands.Cog):
                 color=discord.Colour.blurple()
             )
             embed.set_author(name=user.name, icon_url=user.display_avatar.url)
-            embed.add_field(name="Command", value=f"`/{command.name}`", inline=False)
-            embed.add_field(name="Channel", value=f"<#{channel.id}>", inline=False)
+            embed.add_field(name="Command", value=f"`{command.qualified_name}`", inline=False)
+            embed.add_field(name="Channel", value=f"{channel.mention}", inline=False)
             embed.timestamp = discord.utils.utcnow()
             embed.set_footer(text=f"User ID: {user.id} | Channel ID: {channel.id}")
 
