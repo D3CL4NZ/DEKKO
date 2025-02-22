@@ -19,7 +19,7 @@ class Core(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     @commands.is_owner()
-    async def sync(self, ctx):
+    async def _sync(self, ctx):
         """Synchronizes the command tree"""
 
         log_channel_id = await db.fetch_one("SELECT global_log_channel FROM global_config")
@@ -27,31 +27,32 @@ class Core(commands.Cog):
 
         common.logger.info("Command tree sync requested...")
 
-        message = await ctx.send(""":hourglass:  **DEKKO is processing requests...**
+        async with ctx.typing():
+            message = await ctx.send(""":hourglass:  **DEKKO is processing requests...**
 Command: `{}`
 Requested by: {}
 Started: <t:{}:R>""".format(ctx.command, ctx.author.mention, int(time.time())))
 
-        await self.bot.tree.sync()
+            await self.bot.tree.sync()
 
-        if log_channel:
-            embed = discord.Embed(
-                title=None,
-                description=":deciduous_tree: **Global command tree synced**",
-                color=discord.Colour.greyple()
-            )
-            embed.timestamp = discord.utils.utcnow()
+            if log_channel:
+                embed = discord.Embed(
+                    title=None,
+                    description=":deciduous_tree: **Global command tree synced**",
+                    color=discord.Colour.greyple()
+                )
+                embed.timestamp = discord.utils.utcnow()
 
-            await log_channel.send(embed=embed)
-        
-        await message.edit(content=":white_check_mark:  **COMMAND TREE SYNCED**")
+                await log_channel.send(embed=embed)
+            
+            await message.edit(content=":white_check_mark:  **COMMAND TREE SYNCED**")
 
     @commands.hybrid_command(name='ping', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def ping(self, ctx):
+    async def _ping(self, ctx):
         """Checks DEKKO's connection to the server"""
-        
+
         start = time.perf_counter()
         message = await ctx.send("Resolving...")
         end = time.perf_counter()
@@ -71,7 +72,7 @@ Started: <t:{}:R>""".format(ctx.command, ctx.author.mention, int(time.time())))
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     @commands.is_owner()
-    async def shutdown(self, ctx):
+    async def _shutdown(self, ctx):
         """Shuts down the bot"""
 
         message = await ctx.send(":hourglass:  **DEKKO is shutting down...**")
@@ -83,7 +84,7 @@ Started: <t:{}:R>""".format(ctx.command, ctx.author.mention, int(time.time())))
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     @commands.is_owner()
-    async def reboot(self, ctx):
+    async def _reboot(self, ctx):
         """Reboots DEKKO"""
         await self.bot.change_presence(status=discord.Status.dnd, activity=discord.CustomActivity(name=f"DEKKO is rebooting..."))
 
