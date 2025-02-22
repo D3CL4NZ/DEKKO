@@ -32,7 +32,12 @@ Command: `{}`
 Requested by: {}
 Started: <t:{}:R>""".format(ctx.command, ctx.author.mention, int(time.time())))
 
-        await self.bot.tree.sync()
+        try:
+            await self.bot.tree.sync()
+        except Exception as e:
+            common.logger.error(f"An error occurred while syncing the command tree: {e}")
+            return await message.edit(content=""":no_entry:  **An error occurred while syncing the command tree**
+See console for more information""")
 
         if log_channel:
             embed = discord.Embed(
