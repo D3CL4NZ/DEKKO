@@ -23,6 +23,8 @@ class SetupDB(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
     async def _setup_initialize_db(self, ctx):
+        """Initializes the configuration for this guild"""
+
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
@@ -61,6 +63,8 @@ Started: <t:{int(time.time())}:R>""")
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
     async def _setup_channels(self, ctx, option: str, channel: discord.TextChannel):
+        """Configures channel settings for this guild"""
+
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
@@ -138,6 +142,8 @@ Started: <t:{int(time.time())}:R>""")
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
     async def _setup_roles(self, ctx, option: str, role: discord.Role):
+        """Configures role settings for this guild"""
+
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
@@ -212,6 +218,8 @@ Started: <t:{int(time.time())}:R>""")
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
     async def _setup_holidata(self, ctx, option: str, channel: discord.TextChannel):
+        """Configures holiday channels for this guild"""
+
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
@@ -300,6 +308,8 @@ Started: <t:{int(time.time())}:R>""")
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
     async def _setup_showconfig(self, ctx):
+        """Displays the current configuration for this guild"""
+
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
@@ -360,11 +370,11 @@ Error Webhook: `{"Configured" if logging_webhooks[2] else "Not configured"}`""",
             else:
                 await response.edit(content=":warning:  **DATABASE NOT INITIALIZED**")
 
-    @commands.hybrid_command(name='dekkosetup-global', with_app_command=True)
+    @dekkosetup.command(name='global', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.is_owner()
-    async def _dekkosetup_global(self, ctx, *, subcommand: str, option: str=None, value: str=None):
+    async def _setup_global(self, ctx, *, subcommand: str, option: str=None, value: str=None):
         """Changes global settings"""
 
         if subcommand is None:
