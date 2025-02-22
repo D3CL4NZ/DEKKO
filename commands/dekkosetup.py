@@ -8,22 +8,23 @@ import common
 
 from database import db
 
-class SetupDB(commands.Cog):
+class DekkoSetup(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.hybrid_group(invoke_without_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.has_permissions(administrator=True)
     async def dekkosetup(self, ctx):
         await ctx.send(':warning:  **You must specify a subcommand**')
 
-    @dekkosetup.command(name='initialize-db', with_app_command=True)
+    @dekkosetup.command(name='initialize', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
-    async def _setup_initialize_db(self, ctx):
-        """Initializes the configuration for this guild"""
+    async def _setup_initialize(self, ctx):
+        """Initializes the configuration database for this guild"""
 
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
@@ -58,160 +59,279 @@ Started: <t:{int(time.time())}:R>""")
 
             await response.edit(content=":white_check_mark:  **INITIALIZED DATABASE**")
 
-    @dekkosetup.command(name='channels', with_app_command=True)
+    @dekkosetup.hybrid_group(invoke_without_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
-    async def _setup_channels(self, ctx, option: str, channel: discord.TextChannel):
-        """Configures channel settings for this guild"""
+    async def channels(self, ctx):
+        await ctx.send(':warning:  **You must specify a subcommand**')
+
+    @channels.command(name='log-channel', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.has_permissions(administrator=True)
+    async def _setup_channels_log(self, ctx, channel: discord.TextChannel):
+        """Configures the log channel for this guild"""
 
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
-            if option.lower() == "log_channel":
-                await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
+            await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET log_channel = {channel.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
-                log_channel = self.bot.get_channel(int(channel.id))
-                    
-                if not log_channel:
-                    return await response.edit(content=":warning:  **INVALID CHANNEL**")
+            log_channel = self.bot.get_channel(channel.id)
 
-                await db.execute("UPDATE config SET log_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
+            if not log_channel:
+                return await response.edit(content=":warning:  **INVALID CHANNEL**")
 
-                existing_webhooks = await log_channel.webhooks()
-                for webhook in existing_webhooks:
-                    if webhook.user == self.bot.user:
-                        await webhook.delete()
-                    
-                webhook = await log_channel.create_webhook(name="DEKKO Logging", avatar=await self.bot.user.avatar.read())
+            await db.execute("UPDATE config SET log_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
 
-                await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
+            existing_webhooks = await log_channel.webhooks()
+            for webhook in existing_webhooks:
+                if webhook.user == self.bot.user:
+                    await webhook.delete()
+
+            webhook = await log_channel.create_webhook(name="DEKKO Logging", avatar=await self.bot.user.avatar.read())
+
+            await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE logging_webhooks SET log_webhook = [REDACTED] WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
-                await db.execute("UPDATE logging_webhooks SET log_webhook = ? WHERE guild = ?", webhook.url, ctx.guild.id)
+            await db.execute("UPDATE logging_webhooks SET log_webhook = ? WHERE guild = ?", webhook.url, ctx.guild.id)
 
-                await response.edit(content=f":white_check_mark:  **LOG CHANNEL SET TO** {channel.mention}")
-            elif option.lower() == "error_channel":
-                await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
-Query: `UPDATE config SET error_channel = {channel.id} WHERE guild = {ctx.guild.id}`
-Requested by: `DEKKO Command Processor`
-Started: <t:{int(time.time())}:R>""")
-                error_channel = self.bot.get_channel(int(channel.id))
+            await response.edit(content=f":white_check_mark:  **LOG CHANNEL SET TO** {channel.mention}")
 
-                if not error_channel:
-                    return await response.edit(content=":warning:  **INVALID CHANNEL**")
-
-                await db.execute("UPDATE config SET error_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
-
-                existing_webhooks = await error_channel.webhooks()
-                for webhook in existing_webhooks:
-                    if webhook.user == self.bot.user:
-                        await webhook.delete()
-
-                webhook = await error_channel.create_webhook(name="DEKKO Error Logging", avatar=await self.bot.user.avatar.read())
-
-                await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
-Query: `UPDATE logging_webhooks SET error_webhook = [REDACTED] WHERE guild = {ctx.guild.id}`
-Requested by: `DEKKO Command Processor`
-Started: <t:{int(time.time())}:R>""")
-                await db.execute("UPDATE logging_webhooks SET error_webhook = ? WHERE guild = ?", webhook.url, ctx.guild.id)
-
-                await response.edit(content=f":white_check_mark:  **ERROR CHANNEL SET TO** {channel.mention}")
-            elif option.lower() == "admin_channel":
-                await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
-Query: `UPDATE config SET admin_channel = {channel.id} WHERE guild = {ctx.guild.id}`
-Requested by: `DEKKO Command Processor`
-Started: <t:{int(time.time())}:R>""")
-                await db.execute("UPDATE config SET admin_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **ADMIN CHANNEL SET TO** {channel.mention}")
-            elif option.lower() == "verification_channel":
-                await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
-Query: `UPDATE config SET manver_channel = {channel.id} WHERE guild = {ctx.guild.id}`
-Requested by: `DEKKO Command Processor`
-Started: <t:{int(time.time())}:R>""")
-                await db.execute("UPDATE config SET manver_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **VERIFICATION CHANNEL SET TO** {channel.mention}")
-            else:
-                await response.edit(content=":warning:  **INVALID OPTION**")
-
-    @dekkosetup.command(name='roles', with_app_command=True)
+    @channels.command(name='error-channel', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
-    async def _setup_roles(self, ctx, option: str, role: discord.Role):
-        """Configures role settings for this guild"""
+    async def _setup_channels_error(self, ctx, channel: discord.TextChannel):
+        """Configures the error channel for this guild"""
 
         async with ctx.typing():
             response = await ctx.send(":hourglass:  **Please wait...**")
 
-            if option.lower() == "owner_role":
-                await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
+            await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
+Query: `UPDATE config SET error_channel = {channel.id} WHERE guild = {ctx.guild.id}`
+Requested by: `DEKKO Command Processor`
+Started: <t:{int(time.time())}:R>""")
+            error_channel = self.bot.get_channel(channel.id)
+
+            if not error_channel:
+                return await response.edit(content=":warning:  **INVALID CHANNEL**")
+
+            await db.execute("UPDATE config SET error_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
+
+            existing_webhooks = await error_channel.webhooks()
+            for webhook in existing_webhooks:
+                if webhook.user == self.bot.user:
+                    await webhook.delete()
+
+            webhook = await error_channel.create_webhook(name="DEKKO Error Logging", avatar=await self.bot.user.avatar.read())
+
+            await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
+Query: `UPDATE logging_webhooks SET error_webhook = [REDACTED] WHERE guild = {ctx.guild.id}`
+Requested by: `DEKKO Command Processor`
+Started: <t:{int(time.time())}:R>""")
+            await db.execute("UPDATE logging_webhooks SET error_webhook = ? WHERE guild = ?", webhook.url, ctx.guild.id)
+
+            await response.edit(content=f":white_check_mark:  **ERROR CHANNEL SET TO** {channel.mention}")
+
+    @channels.command(name='admin-channel', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.has_permissions(administrator=True)
+    async def _setup_channels_admin(self, ctx, channel: discord.TextChannel):
+        """Configures the admin channel for this guild"""
+
+        async with ctx.typing():
+            response = await ctx.send(":hourglass:  **Please wait...**")
+
+            await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
+Query: `UPDATE config SET admin_channel = {channel.id} WHERE guild = {ctx.guild.id}`
+Requested by: `DEKKO Command Processor`
+Started: <t:{int(time.time())}:R>""")
+            await db.execute("UPDATE config SET admin_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
+            await response.edit(content=f":white_check_mark:  **ADMIN CHANNEL SET TO** {channel.mention}")
+
+    @channels.command(name='verification-channel', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.has_permissions(administrator=True)
+    async def _setup_channels_verification(self, ctx, channel: discord.TextChannel):
+        """Configures the verification channel for this guild"""
+
+        async with ctx.typing():
+            response = await ctx.send(":hourglass:  **Please wait...**")
+
+            await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
+Query: `UPDATE config SET manver_channel = {channel.id} WHERE guild = {ctx.guild.id}`
+Requested by: `DEKKO Command Processor`
+Started: <t:{int(time.time())}:R>""")
+            await db.execute("UPDATE config SET manver_channel = ? WHERE guild = ?", channel.id, ctx.guild.id)
+            await response.edit(content=f":white_check_mark:  **VERIFICATION CHANNEL SET TO** {channel.mention}")
+
+    @dekkosetup.hybrid_group(invoke_without_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.has_permissions(administrator=True)
+    async def roles(self, ctx):
+        await ctx.send(':warning:  **You must specify a subcommand**')
+
+    @roles.command(name='owner-role', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.has_permissions(administrator=True)
+    async def _setup_roles_owner(self, ctx, role: discord.Role):
+        """Configures the owner role for this guild"""
+
+        async with ctx.typing():
+            response = await ctx.send(":hourglass:  **Please wait...**")
+
+            await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET owner_role_id = {role.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
-                await db.execute("UPDATE config SET owner_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **OWNER ROLE SET TO** {role.mention}")
-            elif option.lower() == "admin_role":
-                await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
+            await db.execute("UPDATE config SET owner_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
+            await response.edit(content=f":white_check_mark:  **OWNER ROLE SET TO** {role.mention}")
+
+    @roles.command(name='admin-role', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.has_permissions(administrator=True)
+    async def _setup_roles_admin(self, ctx, role: discord.Role):
+        """Configures the admin role for this guild"""
+
+        async with ctx.typing():
+            response = await ctx.send(":hourglass:  **Please wait...**")
+
+            await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET admin_role_id = {role.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
-                await db.execute("UPDATE config SET admin_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **ADMIN ROLE SET TO** {role.mention}")
-            elif option.lower() == "moderator_role":
-                await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
+            await db.execute("UPDATE config SET admin_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
+            await response.edit(content=f":white_check_mark:  **ADMIN ROLE SET TO** {role.mention}")
+
+    @roles.command(name='moderator-role', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.has_permissions(administrator=True)
+    async def _setup_roles_mod(self, ctx, role: discord.Role):
+        """Configures the moderator role for this guild"""
+
+        async with ctx.typing():
+            response = await ctx.send(":hourglass:  **Please wait...**")
+
+            await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET mod_role_id = {role.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
-                await db.execute("UPDATE config SET mod_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **MODERATOR ROLE SET TO** {role.mention}")
-            elif option.lower() == "bot_role":
-                await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
+            await db.execute("UPDATE config SET mod_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
+            await response.edit(content=f":white_check_mark:  **MODERATOR ROLE SET TO** {role.mention}")
+            
+
+    @roles.command(name='bot-role', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.has_permissions(administrator=True)
+    async def _setup_roles_bot(self, ctx, role: discord.Role):
+        """Configures the bot role for this guild"""
+
+        async with ctx.typing():
+            response = await ctx.send(":hourglass:  **Please wait...**")
+
+            await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET bot_role_id = {role.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
-                await db.execute("UPDATE config SET bot_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **BOT ROLE SET TO** {role.mention}")
-            elif option.lower() == "human_role":
-                await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
+            await db.execute("UPDATE config SET bot_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
+            await response.edit(content=f":white_check_mark:  **BOT ROLE SET TO** {role.mention}")
+            
+    @roles.command(name='human-role', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.has_permissions(administrator=True)
+    async def _setup_roles_human(self, ctx, role: discord.Role):
+        """Configures the human role for this guild"""
+
+        async with ctx.typing():
+            response = await ctx.send(":hourglass:  **Please wait...**")
+
+            await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET human_role_id = {role.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
-                await db.execute("UPDATE config SET human_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **HUMAN ROLE SET TO** {role.mention}")
-            elif option.lower() == "verified_role":
-                await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
+            await db.execute("UPDATE config SET human_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
+            await response.edit(content=f":white_check_mark:  **HUMAN ROLE SET TO** {role.mention}")
+
+    @roles.command(name='verified-role', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.has_permissions(administrator=True)
+    async def _setup_roles_verified(self, ctx, role: discord.Role):
+        """Configures the verified role for this guild"""
+
+        async with ctx.typing():
+            response = await ctx.send(":hourglass:  **Please wait...**")
+
+            await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET verified_role_id = {role.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
-                await db.execute("UPDATE config SET verified_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **VERIFIED ROLE SET TO** {role.mention}")
-            elif option.lower() == "muted_role":
-                await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
+            await db.execute("UPDATE config SET verified_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
+            await response.edit(content=f":white_check_mark:  **VERIFIED ROLE SET TO** {role.mention}")
+
+    @roles.command(name='muted-role', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.has_permissions(administrator=True)
+    async def _setup_roles_muted(self, ctx, role: discord.Role):
+        """Configures the muted role for this guild"""
+
+        async with ctx.typing():
+            response = await ctx.send(":hourglass:  **Please wait...**")
+
+            await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET mute_role_id = {role.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
-                await db.execute("UPDATE config SET mute_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **MUTED ROLE SET TO** {role.mention}")
-            elif option.lower() == "purgatory_role":
-                await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
+            await db.execute("UPDATE config SET mute_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
+            await response.edit(content=f":white_check_mark:  **MUTED ROLE SET TO** {role.mention}")
+
+    @roles.command(name='purgatory-role', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.has_permissions(administrator=True)
+    async def _setup_roles_purgatory(self, ctx, role: discord.Role):
+        """Configures the purgatory role for this guild"""
+
+        async with ctx.typing():
+            response = await ctx.send(":hourglass:  **Please wait...**")
+
+            await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET purgatory_role_id = {role.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
-                await db.execute("UPDATE config SET purgatory_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **PURGATORY ROLE SET TO** {role.mention}")
-            elif option.lower() == "sus_role":
-                await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
+            await db.execute("UPDATE config SET purgatory_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
+            await response.edit(content=f":white_check_mark:  **PURGATORY ROLE SET TO** {role.mention}")
+
+    @roles.command(name='sus-role', with_app_command=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+    @commands.has_permissions(administrator=True)
+    async def _setup_roles_sus(self, ctx, role: discord.Role):
+        """Configures the suspicious user role for this guild"""
+
+        async with ctx.typing():
+            response = await ctx.send(":hourglass:  **Please wait...**")
+
+            await response.edit(content=f""":gear:  **DEKKO is executing an SQL query...**
 Query: `UPDATE config SET sus_role_id = {role.id} WHERE guild = {ctx.guild.id}`
 Requested by: `DEKKO Command Processor`
 Started: <t:{int(time.time())}:R>""")
-                await db.execute("UPDATE config SET sus_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
-                await response.edit(content=f":white_check_mark:  **SUS ROLE SET TO** {role.mention}")
-            else:
-                await response.edit(content=":warning:  **INVALID OPTION**")
+            await db.execute("UPDATE config SET sus_role_id = ? WHERE guild = ?", role.id, ctx.guild.id)
+            await response.edit(content=f":white_check_mark:  **SUSPICIOUS USER ROLE SET TO** {role.mention}")
 
     @dekkosetup.command(name='holidays', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
@@ -414,4 +534,4 @@ Started: <t:{int(time.time())}:R>""")
                 await response.edit(content=":warning:  **INVALID SUBCOMMAND**")
 
 async def setup(bot):
-    await bot.add_cog(SetupDB(bot))
+    await bot.add_cog(DekkoSetup(bot))
