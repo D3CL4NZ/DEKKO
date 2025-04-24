@@ -29,13 +29,11 @@ jobs:
 
       - name: Compute short SHA
         if: github.ref == 'refs/heads/dev'
-        run: |
-          echo "SHORT_SHA=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
-          ls
+        run: echo "SHORT_SHA=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
 
       - name: Replace VERSION line with SHA
         if: github.ref == 'refs/heads/dev'
-        run: sed -i -E 's/^VERSION = "[^"]*"/VERSION = "'"${SHORT_SHA}"'"/' common.py
+        run: sed -i -E 's/^VERSION = "[^"]*"/VERSION = "'"${SHORT_SHA}"'"/' ${{ github.ref_name }}/common.py
 
       - name: Install SSH key
         env:
@@ -84,7 +82,7 @@ jobs:
           --exclude 'README.md'
           --exclude '.venv*'
           -e 'ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no'
-          ./master/
+          ./${{ github.ref_name }}/
           ${SSH_USER}@${SSH_HOST}:/home/${SSH_USER}/DEKKO
 
       - name: Start DEKKO service on remote server
