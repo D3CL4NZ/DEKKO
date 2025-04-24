@@ -27,13 +27,9 @@ jobs:
           path: ${{ github.ref_name }}
           submodules: recursive
 
-      - name: Compute short SHA
+      - name: Append dev to VERSION line
         if: github.ref == 'refs/heads/dev'
-        run: echo "SHORT_SHA=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
-
-      - name: Replace VERSION line with SHA
-        if: github.ref == 'refs/heads/dev'
-        run: sed -i -E 's/^VERSION = "[^"]*"/VERSION = "'"${SHORT_SHA}"'"/' ${{ github.ref_name }}/common.py
+        run: sed -i -E 's/^(VERSION = "[^"]*)"/\1-dev"/' ${{ github.ref_name }}/common.py
 
       - name: Install SSH key
         env:
