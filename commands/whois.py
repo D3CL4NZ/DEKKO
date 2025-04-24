@@ -15,7 +15,7 @@ class Whois(commands.Cog):
         """Fetches information about a user"""
 
         async with ctx.typing():
-            user = await self.bot.fetch_user(user.id)
+            #user = await self.bot.fetch_user(user.id)
 
             creation_time = user.created_at.strftime("%I:%M %p %B %d, %Y")
 
