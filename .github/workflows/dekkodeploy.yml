@@ -29,7 +29,9 @@ jobs:
 
       - name: Compute short SHA
         if: github.ref == 'refs/heads/dev'
-        run: echo "SHORT_SHA=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+        run: |
+          echo "SHORT_SHA=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+          ls
 
       - name: Replace VERSION line with SHA
         if: github.ref == 'refs/heads/dev'
