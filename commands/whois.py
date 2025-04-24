@@ -4,6 +4,8 @@ from discord.ext import commands
 
 import common
 
+from database import db
+
 class Whois(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -21,6 +23,7 @@ class Whois(commands.Cog):
 
             banner_url = f"[Link to Banner]({user.banner.url})" if hasattr(user.banner, 'url') else "`Not Available`"
             user_discriminator = '{:04}'.format(user.discriminator)
+            is_naughty = True if await db.fetch_one("SELECT user_id FROM naughty_list WHERE user_id = ?", (user.id)) else False
 
             embed = discord.Embed(
                 title=f"**User Information for:** `{user.display_name}`",
@@ -45,7 +48,8 @@ Account Created: `{creation_time}`""", inline=False)
 Discriminator: `#{user_discriminator}`
 Accent Color: `{user.accent_color}`
 Default Avatar URL: [Link to Default Avatar]({user.default_avatar.url})
-Is Bot: `{user.bot}`""", inline=False)
+Is Bot: `{user.bot}`
+Is on Naughty List: `{is_naughty}`""", inline=False)
 
             return await ctx.send(embed=embed)
 
