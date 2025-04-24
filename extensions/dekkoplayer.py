@@ -1,7 +1,5 @@
 import re
 
-import asyncio
-
 import discord
 import lavalink
 from discord import app_commands
@@ -13,11 +11,6 @@ from lavalink.server import LoadType
 
 import config
 import common
-
-import traceback
-
-from database import db
-from webhook import DiscordWebhookSender
 
 url_rx = re.compile(r'https?://(?:www\.)?.+')
 
