@@ -24,8 +24,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          path: master
+          path: ${{ github.ref_name }}
           submodules: recursive
+
+      - name: Compute short SHA
+        if: github.ref == 'refs/heads/dev'
+        run: echo "SHORT_SHA=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+
+      - name: Replace VERSION line with SHA
+        if: github.ref == 'refs/heads/dev'
+        run: sed -i -E 's/^VERSION = "[^"]*"/VERSION = "'"${SHORT_SHA}"'"/' common.py
 
       - name: Install SSH key
         env:
