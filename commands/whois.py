@@ -4,6 +4,8 @@ from discord.ext import commands
 
 import common
 
+from database import db
+
 class Whois(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -15,46 +17,39 @@ class Whois(commands.Cog):
         """Fetches information about a user"""
 
         async with ctx.typing():
-            # Fetch the global user object, which includes the extended attributes
-            # such as accent color, banner, etc.
-            # This is necessary because the user object passed to the command
-            # may not have all the attributes we want to display.
-            user_object = await self.bot.fetch_user(user.id)
+            user = await self.bot.fetch_user(user.id)
 
-            creation_time = user_object.created_at.strftime("%I:%M %p %B %d, %Y")
+            creation_time = user.created_at.strftime("%I:%M %p %B %d, %Y")
 
-            banner_url = f"[Link to Banner]({user_object.banner.url})" if hasattr(user_object.banner, 'url') else "`Not Available`"
-            user_discriminator = '{:04}'.format(user_object.discriminator)
-            mfa_enabled = user.mfa_enabled if hasattr(user, 'mfa_enabled') else "Unknown"
-            is_verified = user.verified if hasattr(user, 'verified') else "Unknown"
+            banner_url = f"[Link to Banner]({user.banner.url})" if hasattr(user.banner, 'url') else "`Not Available`"
+            user_discriminator = '{:04}'.format(user.discriminator)
+            is_naughty = True if await db.fetch_one("SELECT user_id FROM naughty_list WHERE user_id = ?", (user.id)) else False
 
             embed = discord.Embed(
                 title=f"**User Information for:** `{user.display_name}`",
                 description=None,
-                color=user_object.accent_color
+                color=user.accent_color
             )
 
-            embed.set_author(name=user_object.name, icon_url=user_object.display_avatar.url)
+            embed.set_author(name=user.name, icon_url=user.display_avatar.url)
             embed.set_thumbnail(url=user.display_avatar.url)
 
             embed.set_footer(text=f"DEKKO! v{common.VERSION}")
             embed.timestamp = discord.utils.utcnow()
 
-            embed.add_field(name="__**General Attributes**__", value=f"""Username: `{user_object.name}`
-Global Name: `{user_object.global_name}`
-User ID: `{user_object.id}`
-Color: `{user.color}`
-Avatar URL: [Link to Avatar]({user_object.display_avatar.url})
+            embed.add_field(name="__**General Attributes**__", value=f"""Username: `{user.name}`
+Global Name: `{user.global_name}`
+User ID: `{user.id}`
+Avatar URL: [Link to Avatar]({user.display_avatar.url})
 Banner URL: {banner_url}
 Account Created: `{creation_time}`""", inline=False)
 
             embed.add_field(name="__**Extended Attributes**__", value=f"""Mention: {user.mention}
 Discriminator: `#{user_discriminator}`
-Accent Color: `{user_object.accent_color}`
+Accent Color: `{user.accent_color}`
 Default Avatar URL: [Link to Default Avatar]({user.default_avatar.url})
-Is Bot: `{user_object.bot}`
-Has 2FA Enabled: `{mfa_enabled}`
-Has a Verified Email: `{is_verified}`""", inline=False)
+Is Bot: `{user.bot}`
+Is on Naughty List: `{is_naughty}`""", inline=False)
 
             return await ctx.send(embed=embed)
 
