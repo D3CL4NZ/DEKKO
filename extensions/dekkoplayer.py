@@ -229,15 +229,7 @@ class Music(commands.Cog):
             .add_field(name='Uploader', value=event.track.author)
             .add_field(name='URL', value=f'[Click]({event.track.uri})')
             .set_thumbnail(url=event.track.artwork_url)
-            .set_footer(text=f"DEKKOPlayer Redux v1.0.2 | DEKKO! v{common.VERSION}", icon_url="attachment://dekko_record.gif"), file=discord.File("./img/dekko_record.gif", "dekko_record.gif"))
-
-    @lavalink.listener(QueueEndEvent)
-    async def on_queue_end(self, event: QueueEndEvent):
-        guild_id = event.player.guild_id
-        guild = self.bot.get_guild(guild_id)
-
-        if guild is not None:
-            await guild.voice_client.disconnect(force=True)
+            .set_footer(text=f"DEKKOPlayer Redux v1.0.3 | DEKKO! v{common.VERSION}", icon_url="attachment://dekko_record.gif"), file=discord.File("./img/dekko_record.gif", "dekko_record.gif"))
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
