@@ -80,7 +80,7 @@ class DeccyLoader(commands.Cog):
     @commands.is_owner()
     async def _list(self, ctx):
         """Lists all loaded extensions"""
-        await ctx.send(f':white_check_mark:  **Loaded extensions:**\n```{", ".join(self.bot.extensions)}```')
+        await ctx.send(f':jigsaw:  **Loaded extensions:**\n```{", ".join(self.bot.extensions)}```')
 
 async def setup(bot):
     await bot.add_cog(DeccyLoader(bot))
