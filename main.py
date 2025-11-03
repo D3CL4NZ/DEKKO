@@ -12,7 +12,7 @@ from database import db
 intents = discord.Intents.all()
 intents.members = True
 intents.message_content = True
-bot = commands.Bot(command_prefix=commands.when_mentioned_or("$dekko "), intents=intents, activity=discord.CustomActivity(name=f"DEKKO! v{common.VERSION}"), status=discord.Status.online)
+bot = commands.Bot(command_prefix=commands.when_mentioned_or("d!"), intents=intents, activity=discord.CustomActivity(name=f"DEKKO! v{common.VERSION}"), status=discord.Status.online)
 
 loop = asyncio.get_event_loop()
 
