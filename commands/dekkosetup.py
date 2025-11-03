@@ -15,10 +15,10 @@ class DEKKOSetup(commands.Cog):
     @commands.hybrid_group(invoke_without_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
-    async def dekkosetup(self, ctx):
+    async def config(self, ctx):
         await ctx.send(':warning:  **You must specify a subcommand**')
 
-    @dekkosetup.command(name='initialize', with_app_command=True)
+    @config.command(name='initialize', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
@@ -58,7 +58,7 @@ Started: <t:{int(time.time())}:R>""")
 
             await response.edit(content=":white_check_mark:  **INITIALIZED DATABASE**")
 
-    @dekkosetup.command(name='channels', with_app_command=True)
+    @config.command(name='channels', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
@@ -137,7 +137,7 @@ Started: <t:{int(time.time())}:R>""")
             else:
                 await response.edit(content=":warning:  **INVALID OPTION**")
 
-    @dekkosetup.command(name='roles', with_app_command=True)
+    @config.command(name='roles', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
@@ -213,7 +213,7 @@ Started: <t:{int(time.time())}:R>""")
             else:
                 await response.edit(content=":warning:  **INVALID OPTION**")
 
-    @dekkosetup.command(name='holidays', with_app_command=True)
+    @config.command(name='holidays', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
@@ -303,7 +303,7 @@ Started: <t:{int(time.time())}:R>""")
             else:
                 await response.edit(content=":warning:  **INVALID OPTION**")
 
-    @dekkosetup.command(name='showconfig', with_app_command=True)
+    @config.command(name='show', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.has_permissions(administrator=True)
@@ -370,7 +370,7 @@ Error Webhook: `{"Configured" if logging_webhooks[2] else "Not configured"}`""",
             else:
                 await response.edit(content=":warning:  **DATABASE NOT INITIALIZED**")
 
-    @dekkosetup.command(name='global', with_app_command=True)
+    @config.command(name='global', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.is_owner()
