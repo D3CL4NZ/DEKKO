@@ -363,7 +363,7 @@ Wishlist Channel: {f"<#{holidata[11]}>" if holidata[11] else "`Not set`"}""", in
                 embed.add_field(name="__**Logging**__", value=f"""Log Webhook: `{"Configured" if logging_webhooks[1] else "Not configured"}`
 Error Webhook: `{"Configured" if logging_webhooks[2] else "Not configured"}`""", inline=False)
                 embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon.url)
-                embed.set_footer(text=f"DEKKO! v{common.VERSION}")
+                embed.set_footer(text=f"DEKKO! {common.VERSION}")
                 embed.timestamp = discord.utils.utcnow()
 
                 await response.edit(content=":pencil: Database transaction successful.", embed=embed)

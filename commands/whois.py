@@ -34,7 +34,7 @@ class Whois(commands.Cog):
             embed.set_author(name=user.name, icon_url=user.display_avatar.url)
             embed.set_thumbnail(url=user.display_avatar.url)
 
-            embed.set_footer(text=f"DEKKO! v{common.VERSION}")
+            embed.set_footer(text=f"DEKKO! {common.VERSION}")
             embed.timestamp = discord.utils.utcnow()
 
             embed.add_field(name="__**General Attributes**__", value=f"""Username: `{user.name}`
