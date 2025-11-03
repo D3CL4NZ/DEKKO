@@ -247,13 +247,7 @@ class Music(commands.Cog):
             if text_channel:
                 await text_channel.send(":microphone:  **DEKKO out** *\*mic drop\**")
 
-    @commands.hybrid_group(invoke_without_command=True)
-    @app_commands.allowed_installs(guilds=True, users=False)
-    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
-    async def dp(self, ctx):
-        await ctx.send(':warning:  **You must specify a subcommand**')
-
-    @dp.command(name='play', with_app_command=True)
+    @commands.hybrid_command(name='play', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.check(create_player)
@@ -309,7 +303,7 @@ class Music(commands.Cog):
         if not player.is_playing:
             await player.play()
 
-    @dp.command(name='pause', with_app_command=True)
+    @commands.hybrid_command(name='pause', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.check(create_player)
@@ -323,7 +317,7 @@ class Music(commands.Cog):
         await player.set_pause(True)
         await ctx.send(":pause_button:  **Paused the track**")
 
-    @dp.command(name='resume', with_app_command=True)
+    @commands.hybrid_command(name='resume', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.check(create_player)
@@ -337,7 +331,7 @@ class Music(commands.Cog):
         await player.set_pause(False)
         await ctx.send(":play_pause:  **Resumed the track**")
 
-    @dp.command(name='volume', with_app_command=True)
+    @commands.hybrid_command(name='volume', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.check(create_player)
@@ -351,7 +345,7 @@ class Music(commands.Cog):
         await player.set_volume(volume)
         await ctx.send(f":speaker:  **Volume set to {volume}%**")
 
-    @dp.command(name='stop', with_app_command=True)
+    @commands.hybrid_command(name='stop', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.check(create_player)
@@ -368,7 +362,7 @@ class Music(commands.Cog):
         player.queue.clear()
         await ctx.send(":stop_button:  **Stopped playback and cleared the queue**")
 
-    @dp.command(name='skip', with_app_command=True)
+    @commands.hybrid_command(name='skip', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.check(create_player)
@@ -382,7 +376,7 @@ class Music(commands.Cog):
         await player.skip()
         await ctx.send(":track_next:  **Skipped the current track**")
 
-    @dp.command(name='loop', with_app_command=True)
+    @commands.hybrid_command(name='loop', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.check(create_player)
@@ -397,7 +391,7 @@ class Music(commands.Cog):
         loop_status = "enabled" if player.loop else "disabled"
         await ctx.send(f":repeat:  **Looping {loop_status}**")
 
-    @dp.command(name='queue', with_app_command=True)
+    @commands.hybrid_command(name='queue', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.check(create_player)
@@ -414,7 +408,7 @@ class Music(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @dp.command(name='remove', with_app_command=True)
+    @commands.hybrid_command(name='remove', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.check(create_player)
@@ -431,7 +425,7 @@ class Music(commands.Cog):
         removed_track = player.queue.pop(index - 1)
         await ctx.send(f":eject:  **Popped** `{removed_track.title}` **from the queue**")
 
-    @dp.command(name='lowpass', with_app_command=True)
+    @commands.hybrid_command(name='lowpass', with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.check(create_player)
@@ -467,7 +461,7 @@ class Music(commands.Cog):
         embed.description = f'Set **Low Pass Filter** strength to {strength}.'
         await ctx.send(embed=embed)
 
-    @dp.command(name='leave', aliases=['disconnect'], with_app_command=True)
+    @commands.hybrid_command(name='leave', aliases=['disconnect'], with_app_command=True)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
     @commands.check_any(commands.is_owner(), commands.has_permissions(manage_guild=True))
