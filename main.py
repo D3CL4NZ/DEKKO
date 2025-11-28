@@ -41,6 +41,7 @@ async def load_extensions():
     for i in cog_files:
         await bot.load_extension(i)
         common.logger.info("[DECCYLoader]    -> %s has loaded." % i)
+    common.logger.info("[DECCYLoader] Lavalink startup deferred.")
     common.logger.info("[DECCYLoader] All extensions have finished loading.")
     common.logger.info("[DECCYLoader] Finished initialization. Logging in...")
 

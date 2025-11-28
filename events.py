@@ -856,7 +856,7 @@ class Events(commands.Cog):
 
         common.logger.info("[DECCYLoader] Loading Lavalink...")
         await self.bot.load_extension("extensions.dekkoplayer")
-        common.logger.info("[DECCYLoader] Lavalink has loaded.")
+        common.logger.info("[DECCYLoader]    -> Lavalink has loaded.")
 
         log_channel_id = await db.fetch_one("SELECT global_log_channel FROM global_config")
         log_channel = self.bot.get_channel(log_channel_id[0]) if log_channel_id else None
