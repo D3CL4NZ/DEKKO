@@ -32,7 +32,7 @@ def generate_embed(rating: dict):
     embed.add_field(name="Quality", value=rating["avg_rating"], inline=True)
     embed.add_field(name="Difficulty", value=rating["difficulty"], inline=True)
     embed.add_field(name="Would take again", value=f"{rating['would_take_again']}%", inline=True)
-    embed.set_footer(text=f"DEKKO! v{common.VERSION}")
+    embed.set_footer(text=f"DEKKO! {common.VERSION}")
 
     return embed
 

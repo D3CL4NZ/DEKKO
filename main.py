@@ -12,7 +12,7 @@ from database import db
 intents = discord.Intents.all()
 intents.members = True
 intents.message_content = True
-bot = commands.Bot(command_prefix=commands.when_mentioned_or("$dekko "), intents=intents, activity=discord.CustomActivity(name=f"DEKKO! v{common.VERSION}"), status=discord.Status.online)
+bot = commands.Bot(command_prefix=commands.when_mentioned_or("d!"), intents=intents, activity=discord.CustomActivity(name=f"DEKKO! {common.VERSION}"), status=discord.Status.online)
 
 loop = asyncio.get_event_loop()
 
@@ -41,6 +41,7 @@ async def load_extensions():
     for i in cog_files:
         await bot.load_extension(i)
         common.logger.info("[DECCYLoader]    -> %s has loaded." % i)
+    common.logger.info("[DECCYLoader] Lavalink startup deferred.")
     common.logger.info("[DECCYLoader] All extensions have finished loading.")
     common.logger.info("[DECCYLoader] Finished initialization. Logging in...")
 

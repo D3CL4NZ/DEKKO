@@ -30,7 +30,7 @@ jobs:
       - name: Append dev to VERSION line
         if: github.ref == 'refs/heads/dev'
         run: |
-          COMMIT_HASH=$(git rev-parse --short HEAD)
+          COMMIT_HASH=${GITHUB_SHA::7}
           sed -i -E "s/^VERSION = \".*\"/VERSION = \"${COMMIT_HASH}-dev\"/" ${{ github.ref_name }}/common.py
 
       - name: Install SSH key
