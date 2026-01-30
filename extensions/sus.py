@@ -53,8 +53,7 @@ class SuspiciousUsers(commands.Cog):
 
 User: {member.mention}
 Accepted rules: `True` :white_check_mark:
-Reputation check: `Pass` :white_check_mark:
-Sus check: `In progress...` :hourglass:""")
+Reputation check: `In progress...` :hourglass:""")
 
                 # Fetch suspicious users table from the database
                 data = await db.fetch("SELECT * FROM naughty_list")
@@ -69,8 +68,7 @@ Sus check: `In progress...` :hourglass:""")
 
 User: {member.mention}
 Accepted rules: `True` :white_check_mark:
-Reputation check: `Pass` :white_check_mark:
-Sus check: `FAIL` :x:""")
+Reputation check: `FAIL` :x:""")
                             
                         await admin_channel.send(":rotating_light: :rotating_light: **ATTENTION: A SUSPICIOUS USER HAS JOINED THE SERVER.**")
                         await manver_channel.send(f""":rotating_light: **ATTENTION: ACCOUNT {member.mention} IS ON THE NAUGHTY LIST** :rotating_light:
@@ -96,8 +94,7 @@ Sus check: `FAIL` :x:""")
 
 User: {member.mention}
 Accepted rules: `True` :white_check_mark:
-Reputation check: `Pass` :white_check_mark:
-Sus check: `Pass` :white_check_mark:""")
+Reputation check: `Pass` :white_check_mark:""")
 
                 await member.guild.system_channel.send(f"\u0434\u043e\u0431\u0440\u043e \u043f\u043e\u0436\u0430\u043b\u043e\u0432\u0430\u0442\u044c, {member.mention}!")
 
@@ -135,8 +132,7 @@ Sus check: `Pass` :white_check_mark:""")
 
 User: {after.mention}
 Accepted rules: `True` :white_check_mark:
-Reputation check: `Pass` :white_check_mark:
-Sus check: `In progress...` :hourglass:""")
+Reputation check: `In progress...` :hourglass:""")
 
                     # Fetch suspicious users table from the database
                     data = await db.fetch("SELECT * FROM naughty_list")
@@ -151,8 +147,7 @@ Sus check: `In progress...` :hourglass:""")
 
 User: {after.mention}
 Accepted rules: `True` :white_check_mark:
-Reputation check: `Pass` :white_check_mark:
-Sus check: `FAIL` :x:""")
+Reputation check: `FAIL` :x:""")
                             
                             await admin_channel.send(":rotating_light: :rotating_light: **ATTENTION: A SUSPICIOUS USER HAS JOINED THE SERVER.**")
                             await manver_channel.send(f""":rotating_light: **ATTENTION: ACCOUNT {after.mention} IS ON THE NAUGHTY LIST** :rotating_light:
@@ -178,8 +173,7 @@ Sus check: `FAIL` :x:""")
 
 User: {after.mention}
 Accepted rules: `True` :white_check_mark:
-Reputation check: `Pass` :white_check_mark:
-Sus check: `Pass` :white_check_mark:""")
+Reputation check: `Pass` :white_check_mark:""")
 
                     await after.guild.system_channel.send(f"\u0434\u043e\u0431\u0440\u043e \u043f\u043e\u0436\u0430\u043b\u043e\u0432\u0430\u0442\u044c, {after.mention}!")
 
