@@ -638,7 +638,8 @@ class Events(commands.Cog):
             embed.timestamp = discord.utils.utcnow()
             embed.set_footer(text=f"Role ID: {before.id}")
 
-            await log_webhook.send(embed=embed)
+            if embed.fields:
+                await log_webhook.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_guild_update(self, before: discord.Guild, after: discord.Guild):
