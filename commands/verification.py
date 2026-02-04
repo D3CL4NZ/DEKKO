@@ -23,10 +23,13 @@ class Verification(commands.Cog):
         human_role_id = await db.fetch_one("SELECT human_role_id FROM config WHERE guild = ?", ctx.guild.id)
         human_role = member.guild.get_role(human_role_id[0]) if human_role_id else None
 
+        purgatory_role_id = await db.fetch_one("SELECT purgatory_role_id FROM config WHERE guild = ?", ctx.guild.id)
+        purgatory_role = member.guild.get_role(purgatory_role_id[0]) if purgatory_role_id else None
+
         log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", ctx.guild.id)
         log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
 
-        if verified_role is None or human_role is None:
+        if verified_role is None or human_role is None or purgatory_role is None:
             return await ctx.send(":warning:  **VERIFICATION IS NOT SET UP**")
 
         if member.id == self.bot.user.id:
@@ -48,7 +51,8 @@ class Verification(commands.Cog):
         else:
             await ctx.send(embed=embed)
 
-        await member.edit(roles=[human_role, verified_role])
+        await member.add_roles(roles=[human_role, verified_role])
+        await member.remove_roles(roles=[purgatory_role])
 
         if log_webhook:
             log_embed = discord.Embed(
