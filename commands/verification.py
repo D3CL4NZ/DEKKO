@@ -51,8 +51,8 @@ class Verification(commands.Cog):
         else:
             await ctx.send(embed=embed)
 
-        await member.add_roles(roles=[human_role, verified_role])
-        await member.remove_roles(roles=[purgatory_role])
+        await member.add_roles(human_role, verified_role)
+        await member.remove_roles(purgatory_role)
 
         if log_webhook:
             log_embed = discord.Embed(
