@@ -122,7 +122,7 @@ Exception in thread "main" java.lang.SecurityException: Permission Denial
             except:
                 pass
 
-            await ctx.guild.ban(user, reason=reason)
+            await ctx.guild.ban(user, reason=reason, delete_message_seconds=0)
 
             await response.edit(content=None, embed=embed)
 
