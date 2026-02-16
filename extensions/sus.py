@@ -96,7 +96,7 @@ User: {member.mention}
 Accepted rules: `True` :white_check_mark:
 Reputation check: `Pass` :white_check_mark:""")
 
-                await member.guild.system_channel.send(f"\u0434\u043e\u0431\u0440\u043e \u043f\u043e\u0436\u0430\u043b\u043e\u0432\u0430\u0442\u044c, {member.mention}!")
+                # await member.guild.system_channel.send(f"\u0434\u043e\u0431\u0440\u043e \u043f\u043e\u0436\u0430\u043b\u043e\u0432\u0430\u0442\u044c, {member.mention}!")
 
     # Handles naughty list check on community servers
     @commands.Cog.listener()

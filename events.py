@@ -73,7 +73,7 @@ class Events(commands.Cog):
 
             await log_webhook.send(embed=embed)
 
-        await general_channel.send(f"{member.mention} **left the server :(**", allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
+        # await general_channel.send(f"{member.mention} **left the server :(**", allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
 
     @commands.Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
