@@ -781,6 +781,49 @@ class Events(commands.Cog):
                 await message.add_reaction('<:dekko:1283540647969820672>')
                 await message.add_reaction('\U0001f44d')
 
+    @commands.Cog.listener()
+    async def on_message_edit(self, before: discord.Message, after: discord.Message):
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", after.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
+
+        if log_webhook:
+            embed = discord.Embed(
+                title=None,
+                description=f":pencil: **Message edited in {after.channel.mention}**",
+                color=0xfaa41b
+            )
+
+            if before.content != after.content:
+                if not after.author.bot: # DEKKO likes to edit its own messages and I don't want the log getting spammed
+                    embed.add_field(name="Old message", value=f"{before.content}", inline=False)
+                    embed.add_field(name="New message", value=f"{after.content}", inline=False)
+
+            embed.set_author(name=after.author.name, icon_url=after.author.display_avatar.url)
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"[Jump to message]({after.jump_url})")
+
+            if embed.fields:
+                await log_webhook.send(embed=embed)
+
+    @commands.Cog.listener()
+    async def on_message_delete(self, message: discord.Message):
+        log_webhook_url = await db.fetch_one("SELECT log_webhook FROM logging_webhooks WHERE guild = ?", message.guild.id)
+        log_webhook = DiscordWebhookSender(url=log_webhook_url[0]) if not(log_webhook_url is None or (isinstance(log_webhook_url, tuple) and all(url is None for url in log_webhook_url))) else None
+
+        if log_webhook:
+            embed = discord.Embed(
+                title=None,
+                description=f":wastebasket: **Message deleted in {message.channel.mention}**",
+                color=0xfaa41b
+            )
+            embed.set_author(name=message.author.name, icon_url=message.author.display_avatar.url)
+            embed.add_field(name="Original message", value=f"{message.content}", inline=False)
+            embed.add_field(name="Original author", value=f"{message.author.mention}", inline=False)
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f"Message ID: {message.id}")
+
+            await log_webhook.send(embed=embed)
+
     # =============
     #  Command Log
     # =============
