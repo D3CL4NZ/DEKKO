@@ -817,7 +817,7 @@ class Events(commands.Cog):
                 color=0xfaa41b
             )
             embed.set_author(name=message.author.name, icon_url=message.author.display_avatar.url)
-            embed.add_field(name="Original message", value=f"{message.content}", inline=False)
+            embed.add_field(name="Original message", value=f"{message.system_content}", inline=False)
             embed.add_field(name="Original author", value=f"{message.author.mention}", inline=False)
             embed.timestamp = discord.utils.utcnow()
             embed.set_footer(text=f"Message ID: {message.id}")
