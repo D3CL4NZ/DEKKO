@@ -789,7 +789,7 @@ class Events(commands.Cog):
         if log_webhook:
             embed = discord.Embed(
                 title=None,
-                description=f":pencil: **Message edited in {after.channel.mention}**",
+                description=f":pencil: **[Message]({after.jump_url}) edited in {after.channel.mention}**",
                 color=0xfaa41b
             )
 
@@ -800,7 +800,7 @@ class Events(commands.Cog):
 
             embed.set_author(name=after.author.name, icon_url=after.author.display_avatar.url)
             embed.timestamp = discord.utils.utcnow()
-            embed.set_footer(text=f"[Jump to message]({after.jump_url})")
+            embed.set_footer(text=f"Message ID: {after.id}")
 
             if embed.fields:
                 await log_webhook.send(embed=embed)
